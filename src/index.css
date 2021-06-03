@@ -22,7 +22,7 @@
   --gray-700: #374151;
   --gray-800: #1F2937;
   --gray-900: #111827;
-  --border-radius: 6px;
+  --border-radius: 4px;
 }
 
 body {
@@ -52,7 +52,7 @@ a {
 .container {
   margin: 24px auto;
   padding: 0 24px;
-  max-width: 768px;
+  max-width: 1024px;
 }
 
 .button {
@@ -90,14 +90,12 @@ a {
 .nav-link {
   display: inline-block;
   margin: 0 0.25rem;
-  padding: 0.5rem;
-  color: var(--white);
-  border-bottom: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  color: var(--gray-400);
 }
 .nav-link.nav-link-active,
 .nav-link:hover {
   color: var(--primary-500);
-  border-bottom: 1px solid var(--primary-500);
 }
 
 .loader,
@@ -154,6 +152,9 @@ a {
 .text-red-100 { color: var(--red-100); }
 .text-red-200 { color: var(--red-200); }
 .text-yellow-200 { color: var(--yellow-200); }
+.text-primary-500 { color: var(--primary-500); }
+.border { border: 1px solid var(--gray-400); }
+.border-primary-500 { border-color: var(--primary-500); }
 .w-full { width: 100%; }
 .mx-auto { margin-left: auto; margin-right: auto; }
 .p-3 { padding: 0.75rem; }

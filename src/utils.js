@@ -33,6 +33,23 @@ export function contractForProvider(provider, name) {
   );
 }
 
+export function providerReq(provider, method, params) {
+  return new Promise((resolve, reject) => {
+    provider.request({ method, params }, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+}
+
+export function thornodeReq(path) {
+  const prefix = window.xfi?.thorchain?.network === 'testnet' ? 'testnet.' : '';
+  const thornodeApi = `https://${prefix}thornode.thorchain.info`;
+  return fetch(thornodeApi + path)
+    .then(res => { if (res.status !== 200) throw new Error('Status code: '+res.status); return res; })
+    .then(res => res.json());
+}
+
 export function thorchainDeposit({ from, memo, amount }) {
   const formattedAmount = parseInt(parseFloat(amount) * Math.pow(10, 8));
   return new Promise((resolve, reject) => {

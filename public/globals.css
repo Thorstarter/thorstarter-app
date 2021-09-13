@@ -359,3 +359,22 @@ a:hover .icon svg {
   font-size: 12px;
   color: var(--gray4);
 }
+
+.modal {
+  z-index: 1;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  overflow-y: auto;
+}
+.modal-content {
+  width: 95%;
+  max-width: 800px;
+  background: var(--gray3);
+  border-radius: var(--border-radius);
+  padding: 32px;
+  margin: 5vh auto;
+}
+.modal-content h2 {
+  margin-top: 0;
+}

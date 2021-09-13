@@ -6,6 +6,7 @@ import Button from "../components/button";
 import Layout from "../components/layout";
 import Countdown from "../components/countdown";
 import LoadingOverlay from "../components/loadingOverlay";
+import DisclaimerBnpl from "../components/disclaimerBnpl";
 import {
   getContracts,
   useGlobalState,
@@ -67,8 +68,10 @@ const idos = [
 
 export default function IDOs() {
   const [liveIdoParams, setLiveIdoParams] = useState(null);
+
   return (
     <Layout title="IDOs" page="idos">
+      <DisclaimerBnpl />
       {liveIdo ? (
         <>
           <h1 className="live-ido-title title clear">

@@ -27,7 +27,7 @@ const liveIdo = {
   token: "BNPL",
   type: "batch",
   address: {
-    1: "",
+    1: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
     3: "0xF6FC5C96948a62781a07E3B48dF8087187369110",
   },
   xrunePrice: 0.2,

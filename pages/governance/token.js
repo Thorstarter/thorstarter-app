@@ -105,7 +105,8 @@ const tokenActions = [
     cta: "Lock",
     balanceField: "xrune",
     tokenContract: "xrune",
-    submit: (voters, amount) => voters.lock(amount),
+    submit: (voters, amount, contracts) =>
+      contracts.xrune.transferAndCall(voters.address, amount, "0x"),
   },
   {
     title: "Unlock XRUNE",
@@ -144,6 +145,7 @@ function TokenAction({ balances, fetchBalances }) {
   }
   function needsApproval() {
     if (!action.tokenContract) return false;
+    if (action.title === "Lock XRUNE") return false;
     try {
       const parsedAmount = ethers.utils.parseUnits(
         amount.replace(/[^0-9\.]/g, "")
@@ -172,7 +174,7 @@ function TokenAction({ balances, fetchBalances }) {
       return;
     }
 
-    const call = action.submit(contracts.voters, parsedAmount);
+    const call = action.submit(contracts.voters, parsedAmount, contracts);
     await runTransaction(call, setLoading, setError);
     fetchBalances();
     setAmount("");

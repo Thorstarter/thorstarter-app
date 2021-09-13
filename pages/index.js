@@ -359,13 +359,15 @@ function IDOCard({ ido, parentSetParams }) {
   }
   if (ido.type === "dutch" && params) {
     const progressTokens = params.comitted
+      .mul(ethers.utils.parseUnits("1"))
       .div(params.clearingPrice)
-      .mul(100)
-      .div(params.offering);
+      .mul("100")
+      .div(params.offering)
+      .toNumber();
     const progressTime =
       ((params.timestamp - params.start.getTime() / 1000) * 100) /
-      (params.end.getTime() - params.start.getTime());
-    progress = Math.max(progressTokens, progressTime).toFixed(2);
+      ((params.end.getTime() - params.start.getTime()) / 1000);
+    progress = Math.min(100, Math.max(progressTokens, progressTime)).toFixed(2);
   }
 
   return (

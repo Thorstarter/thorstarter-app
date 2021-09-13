@@ -28,7 +28,7 @@ const liveIdo = {
   type: "batch",
   address: {
     1: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
-    3: "0xF6FC5C96948a62781a07E3B48dF8087187369110",
+    3: "0xB97285a4AD68CBB4fc311bc1848EbD1C7ADd9431",
   },
   xrunePrice: 0.2,
   logo: logoBnpl,

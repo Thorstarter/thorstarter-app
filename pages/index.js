@@ -109,19 +109,39 @@ export default function IDOs() {
               <div>
                 <h1 className="title mb-0">{liveIdo.name}</h1>
                 <div>
-                  <a href={liveIdo.links.website} target="_blank">
+                  <a
+                    href={liveIdo.links.website}
+                    target="_blank"
+                    rel="noreferrer reopener"
+                  >
                     <Icon name="link" /> Website
                   </a>
-                  <a href={liveIdo.links.docs} target="_blank">
+                  <a
+                    href={liveIdo.links.docs}
+                    target="_blank"
+                    rel="noreferrer reopener"
+                  >
                     <Icon name="docs" /> Whitepaper
                   </a>
-                  <a href={liveIdo.links.twitter} target="_blank">
+                  <a
+                    href={liveIdo.links.twitter}
+                    target="_blank"
+                    rel="noreferrer reopener"
+                  >
                     <Icon name="twitter" />
                   </a>
-                  <a href={liveIdo.links.telegram} target="_blank">
+                  <a
+                    href={liveIdo.links.telegram}
+                    target="_blank"
+                    rel="noreferrer reopener"
+                  >
                     <Icon name="telegram" />
                   </a>
-                  <a href={liveIdo.links.medium} target="_blank">
+                  <a
+                    href={liveIdo.links.medium}
+                    target="_blank"
+                    rel="noreferrer reopener"
+                  >
                     <Icon name="medium" />
                   </a>
                 </div>
@@ -141,6 +161,7 @@ export default function IDOs() {
           href="https://thorstarter.substack.com/"
           className="button button-lg mr-4"
           target="_blank"
+          rel="noreferrer reopener"
         >
           Get Alerts For New IDOs
         </a>
@@ -148,6 +169,7 @@ export default function IDOs() {
           href="https://thorstarter.org/apply/"
           className="button button-lg"
           target="_blank"
+          rel="noreferrer reopener"
         >
           Apply for IDO
         </a>
@@ -364,19 +386,39 @@ function IDOCard({ ido, parentSetParams }) {
             </div>
             <h2>{ido.name}</h2>
             <div className="ido-links">
-              <a href={ido.links.twitter} target="_blank">
+              <a
+                href={ido.links.twitter}
+                target="_blank"
+                rel="noreferrer reopener"
+              >
                 <Icon name="twitter" />
               </a>
-              <a href={ido.links.telegram} target="_blank">
+              <a
+                href={ido.links.telegram}
+                target="_blank"
+                rel="noreferrer reopener"
+              >
                 <Icon name="telegram" />
               </a>
-              <a href={ido.links.medium} target="_blank">
+              <a
+                href={ido.links.medium}
+                target="_blank"
+                rel="noreferrer reopener"
+              >
                 <Icon name="medium" />
               </a>
-              <a href={ido.links.website} target="_blank">
+              <a
+                href={ido.links.website}
+                target="_blank"
+                rel="noreferrer reopener"
+              >
                 <Icon name="link" />
               </a>
-              <a href={ido.links.docs} target="_blank">
+              <a
+                href={ido.links.docs}
+                target="_blank"
+                rel="noreferrer reopener"
+              >
                 <Icon name="docs" />
               </a>
             </div>

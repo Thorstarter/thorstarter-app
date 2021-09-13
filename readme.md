@@ -1,12 +1,12 @@
-## thorstarter app
+## Thorstarter App
 
-For now this app simply hosts the interface for the XRUNE staking / farming
-contract, later it will host all the THORStarter functionality like IDOs,
-long tail swap and governance.
+The thorstart app lives here. It has pages for the current & past IDOs and
+governance related pages like proposals, voting token & vesting dashboard.
 
-### developing
 
-Run the app using `npm run start` and visit `localhost:3000`. To build the app
+### Developing
+
+Run the app using `npm run dev` and visit `localhost:3000`. To build the app
 for deployment use `npm run build`.
 
-This project uses create-react-app.
+This project uses next.js.

@@ -122,12 +122,16 @@ export default function GovernanceProposals() {
 
   async function fetchVotes() {
     const contracts = getContracts();
-    setVotes(await contracts.voters.votes(state.address));
+    setVotes(
+      parseFloat(formatNumber(await contracts.voters.votes(state.address)))
+    );
   }
 
   useEffect(() => {
     setTimeout(fetchVotes, 100);
   }, [state.networkId, state.address]);
+
+  const hasEnoughVotes = votes >= 10000;
 
   return (
     <Layout title="Governance: New Proposal">

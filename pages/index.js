@@ -194,7 +194,9 @@ function IDOCard({ ido, parentSetParams }) {
     const estimateEndsLater = amount
       .mul(params.offering)
       .div(params.comitted.eq("0") ? amount : params.comitted);
-    const estimateEndsNow = amount.div(params.price);
+    const estimateEndsNow = amount
+      .mul(ethers.utils.parseUnits("1"))
+      .div(params.price);
     return estimateEndsLater.lt(estimateEndsNow)
       ? estimateEndsLater
       : estimateEndsNow;

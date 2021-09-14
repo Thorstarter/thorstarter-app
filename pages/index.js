@@ -8,6 +8,7 @@ import Countdown from "../components/countdown";
 import LoadingOverlay from "../components/loadingOverlay";
 import DisclaimerBnpl from "../components/disclaimerBnpl";
 import {
+  bnMin,
   getContracts,
   useGlobalState,
   dateForBlock,
@@ -315,7 +316,7 @@ function IDOCard({ ido, parentSetParams }) {
     if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
       if (userInfo) cap = cap.sub(userInfo.amount);
-      setAmount(formatNumber(cap).replace(/,/g, ""));
+      setAmount(formatNumber(bnMin(cap, balance)).replace(/,/g, ""));
     } else {
       setAmount(formatNumber(balance).replace(/,/g, ""));
     }

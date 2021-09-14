@@ -42,7 +42,11 @@ export default function Layout({ title, children, page }) {
       <div className="layout-header">
         <div className="layout-header-container">
           <div className="logo">
-            <Image src={imgLogo} width={282} height={60} alt="Logo" />
+            <Link href="/">
+              <a>
+                <Image src={imgLogo} width={282} height={60} alt="Logo" />
+              </a>
+            </Link>
           </div>
           <div className="nav">
             <Link href="/">

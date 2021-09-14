@@ -183,35 +183,37 @@ export default function GovernanceDashboard() {
             className="vesting-ido-cover"
             style={{ backgroundImage: `url(${ido.cover.src})` }}
           >
-            <Image
-              src={ido.logo}
-              alt={ido.name}
-              height={60}
-              width={(60 * ido.logo.width) / ido.logo.height}
-            />
+            <div className="vesting-ido-logo">
+              <Image
+                src={ido.logo}
+                alt={ido.name}
+                height={60}
+                width={(60 * ido.logo.width) / ido.logo.height}
+              />
+            </div>
             <div className="vesting-ido-cover-title">{ido.name}</div>
             <div className="vesting-ido-cover-date">{ido.date}</div>
           </div>
           <div className="flex">
-            <div className="flex-1 mr-4">
+            <div className="flex-1 mr-8">
               <h3>Statistics</h3>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Initial LP Grant Value</div>
                 <div>{ido.initialGrant}</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Current LP Grant Value</div>
                 <div>$ {formatNumber(ido.currentValue, 0)}</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Vesting Time</div>
                 <div>{ido.vesting}</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Vesting Progress</div>
                 <div>{formatNumber(ido.progress, 2)}%</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE Sent To DAO</div>
                 <div>
                   ($
@@ -221,7 +223,7 @@ export default function GovernanceDashboard() {
                   ) {formatNumber(ido.sentToDao, 0)}
                 </div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE Sent To Voters</div>
                 <div>
                   ($
@@ -233,7 +235,7 @@ export default function GovernanceDashboard() {
                   ) {formatNumber(ido.sentToVoters, 0)}
                 </div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE Left To Vest</div>
                 <div>
                   ($
@@ -248,15 +250,15 @@ export default function GovernanceDashboard() {
             </div>
             <div className="flex-1">
               <h3>Your Rewards</h3>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Your % of the snapshot</div>
                 <div>{formatNumber(ido.percentOfSnapshot)}%</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Your % of the voters</div>
                 <div>{formatNumber(ido.percentOfVoters)}%</div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE earned</div>
                 <div>
                   ($
@@ -268,7 +270,7 @@ export default function GovernanceDashboard() {
                   ) ~ {formatNumber(ido.xruneEarned, 1)}
                 </div>
               </div>
-              <div className="flex">
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE vesting</div>
                 <div>
                   ($
@@ -280,8 +282,8 @@ export default function GovernanceDashboard() {
                   ) ~ {formatNumber(ido.xruneVesting, 1)}
                 </div>
               </div>
-              <div className="flex mt-4">
-                <div className="flex-1 text-gray6">Claimable</div>
+              <div className="flex mt-6">
+                <div className="flex-1 text-gray6 mb-3">Claimable</div>
                 <div>{formatNumber(ido.claimable)} XRUNE</div>
               </div>
               <Button

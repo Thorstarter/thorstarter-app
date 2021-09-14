@@ -108,20 +108,20 @@ export default function IDOs() {
               </div>
               <div>
                 <h1 className="title mb-0">{liveIdo.name}</h1>
-                <div>
+                <div className="live-ido-info-links">
                   <a
                     href={liveIdo.links.website}
                     target="_blank"
                     rel="noreferrer reopener"
                   >
-                    <Icon name="link" /> Website
+                    <Icon name="link" /> <span>Website</span>
                   </a>
                   <a
                     href={liveIdo.links.docs}
                     target="_blank"
                     rel="noreferrer reopener"
                   >
-                    <Icon name="docs" /> Whitepaper
+                    <Icon name="docs" /> <span>Whitepaper</span>
                   </a>
                   <a
                     href={liveIdo.links.twitter}
@@ -150,13 +150,14 @@ export default function IDOs() {
           </div>
         </>
       ) : null}
+      <br />
       <h1 className="title">Pevious IDOs</h1>
       <div className="ido-list">
         {idos.map((ido) => (
           <IDOCard ido={ido} key={ido.name} />
         ))}
       </div>
-      <div className="text-center py-16">
+      <div className="footer-buttons text-center py-16">
         <a
           href="https://thorstarter.substack.com/"
           className="button button-lg mr-4"
@@ -430,7 +431,7 @@ function IDOCard({ ido, parentSetParams }) {
         ) : null}
         {params ? (
           <>
-            <div className="flex mb-2">
+            <div className="flex mb-3">
               <div className="flex-1 text-gray6">Offering</div>
               <div>
                 {formatNumber(params.offering)}{" "}
@@ -438,7 +439,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             </div>
             {ido.type === "dutch" ? (
-              <div className="flex mb-2">
+              <div className="flex mb-3">
                 <div className="flex-1 text-gray6">Start Price</div>
                 <div>
                   <span className="text-gray6">
@@ -455,7 +456,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             ) : null}
             {ido.type === "dutch" ? (
-              <div className="flex mb-2">
+              <div className="flex mb-3">
                 <div className="flex-1 text-gray6">Reserve Price</div>
                 <div>
                   <span className="text-gray6">
@@ -472,7 +473,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             ) : null}
             {ido.type === "batch" ? (
-              <div className="flex mb-2">
+              <div className="flex mb-3">
                 <div className="flex-1 text-gray6">Raising</div>
                 <div>
                   {formatNumber(params.raising, 0)}{" "}
@@ -481,7 +482,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             ) : null}
             {ido.type === "batch" ? (
-              <div className="flex mb-2">
+              <div className="flex mb-3">
                 <div className="flex-1 text-gray6">Comitted %</div>
                 <div>
                   {formatNumber(
@@ -493,7 +494,7 @@ function IDOCard({ ido, parentSetParams }) {
                 </div>
               </div>
             ) : null}
-            <div className="flex mb-2">
+            <div className="flex mb-3">
               <div className="flex-1 text-gray6">Comitted $</div>
               <div>
                 ${" "}
@@ -503,11 +504,11 @@ function IDOCard({ ido, parentSetParams }) {
                 )}
               </div>
             </div>
-            <div className="flex mb-2">
+            <div className="flex mb-3">
               <div className="flex-1 text-gray6">Comitted XRUNE</div>
               <div>{formatNumber(params.comitted, 0)}</div>
             </div>
-            <div className="flex mb-2">
+            <div className="flex mb-3">
               <div className="flex-1 text-gray6">
                 {ido.type === "dutch" ? "Current Price" : "Price"}
               </div>
@@ -543,7 +544,7 @@ function IDOCard({ ido, parentSetParams }) {
                 {error ? <div className="error">{error}</div> : null}
                 {idoActive ? (
                   <>
-                    <div className="text-sm mb-2">
+                    <div className="text-sm mb-3">
                       <span className="text-gray6">Balance: </span>
                       <span className="text-primary5">
                         {formatNumber(balance)} XRUNE
@@ -569,14 +570,14 @@ function IDOCard({ ido, parentSetParams }) {
                     </Button>
                   </>
                 ) : null}
-                <div className="flex mb-2">
+                <div className="flex mb-3">
                   <div className="flex-1 text-gray6">Deposited</div>
                   <div>
                     {formatNumber(userInfo.amount)}{" "}
                     <span className="text-gray6">XRUNE</span>
                   </div>
                 </div>
-                <div className="flex mb-2">
+                <div className="flex mb-3">
                   <div className="flex-1 text-gray6">Owed</div>
                   <div>
                     {formatNumber(userInfo.allocation)}{" "}

@@ -57,11 +57,11 @@ export default function GovernanceToken() {
     content = <div className="text-center py-16">Connect your wallet...</div>;
   } else if (balances) {
     content = (
-      <>
-        <TokenBalances balances={balances} />
+      <div className="voting-row">
         <TokenAction balances={balances} fetchBalances={fetchBalances} />
+        <TokenBalances balances={balances} />
         {/* <TokenDelegate /> */}
-      </>
+      </div>
     );
   }
 
@@ -76,17 +76,17 @@ export default function GovernanceToken() {
 
 function TokenBalances({ balances }) {
   return (
-    <div className="box mb-8">
+    <div className="box">
       <h2 className="title mb-4">Balances</h2>
-      <div className="flex mb-2">
+      <div className="flex mb-3">
         <div className="flex-1 text-gray6">vXRUNE for locked XRUNE</div>
         <div>{formatNumber(balances.lockedToken.add(balances.rewards))}</div>
       </div>
-      <div className="flex mb-2">
+      <div className="flex mb-3">
         <div className="flex-1 text-gray6">vXRUNE for locked SLP</div>
         <div>{formatNumber(balances.lockedSsLpValue)}</div>
       </div>
-      <div className="flex mb-2">
+      <div className="flex mb-3">
         <div className="flex-1 text-gray6">vXRUNE for locked TC LP</div>
         <div>{formatNumber(balances.lockedTcLpValue)}</div>
       </div>
@@ -181,15 +181,8 @@ function TokenAction({ balances, fetchBalances }) {
   }
 
   return (
-    <div className="box mb-8" style={{ paddingTop: 8 }}>
-      <div
-        className="nav"
-        style={{
-          borderBottom: "1px solid var(--primary3)",
-          padding: "0 16px 8px 16px",
-          margin: "0 -16px 16px -16px",
-        }}
-      >
+    <div className="box">
+      <div className="nav-buttons">
         {tokenActions.map((a, i) => (
           <a
             key={a.title}
@@ -268,7 +261,7 @@ function TokenDelegate() {
   useEffect(() => fetchDelegate(), [state.networkId, state.address]);
 
   return (
-    <div className="box" style={{ paddingTop: 8 }}>
+    <div className="box">
       <h2 className="title">Delegate</h2>
 
       {error ? <div className="error mb-4">{error}</div> : null}

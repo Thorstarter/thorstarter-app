@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/governance/voting-token/",
+      "destination": "/governance/token/",
+      "statusCode": 301
+    },
+    {
+      "source": "/governance/vesting-dashboard/",
+      "destination": "/governance/dashboard/",
+      "statusCode": 301
+    }
+  ]
+}

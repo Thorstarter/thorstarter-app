@@ -3,7 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, Component } from "react";
 import Button from "./button";
-import { useGlobalState, setGlobalState, formatAddress, connectWallet } from "../utils";
+import Icon from "./icon";
+import {
+  useGlobalState,
+  setGlobalState,
+  formatAddress,
+  connectWallet,
+} from "../utils";
 
 import imgLogo from "../public/logo.svg";
 
@@ -34,25 +40,29 @@ export default function Layout({ title, children, page }) {
         <title>{title ? title + " | " : ""}Thorstarter</title>
       </Head>
       <div className="layout-header">
-        <div className="layout-header-top">
-          <div className="layout-header-container flex">
-            <div className="flex-1">
-              <Image src={imgLogo} width={200} height={43} alt="Logo" />
-            </div>
-            <div>
-              <Button onClick={onConnect}>
-                {state.address ? formatAddress(state.address) : "Connect Wallet"}
-              </Button>
-            </div>
+        <div className="layout-header-container">
+          <div className="logo">
+            <Image src={imgLogo} width={282} height={60} alt="Logo" />
           </div>
-        </div>
-        <div className="layout-header-nav">
-          <div className="layout-header-container nav">
-            <Link href="/"><a className={page === 'idos' ? 'text-primary5' : ''}>IDOs</a></Link>
-            <Link href="/swap/"><a className={page === 'swap' ? 'text-primary5' : ''}>Swap</a></Link>
-            <Link href="/governance/token/"><a className={page === 'governance' ? 'text-primary5' : ''}>Governance</a></Link>
-            <Link href="https://docs.thorstarter.org/"><a target="_blank">Learn</a></Link>
+          <div className="nav">
+            <Link href="/">
+              <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
+            </Link>
+            <Link href="/swap/">
+              <a className={page === "swap" ? "text-primary5" : ""}>Swap</a>
+            </Link>
+            <Link href="/governance/token/">
+              <a className={page === "governance" ? "text-primary5" : ""}>
+                Governance
+              </a>
+            </Link>
+            <Link href="https://docs.thorstarter.org/">
+              <a target="_blank">Learn</a>
+            </Link>
           </div>
+          <Button onClick={onConnect}>
+            {state.address ? formatAddress(state.address) : "Connect Wallet"}
+          </Button>
         </div>
       </div>
       <div className="layout-content">
@@ -61,13 +71,39 @@ export default function Layout({ title, children, page }) {
         </ErrorBoundary>
       </div>
       <div className="layout-footer">
-        <Link href="https://thorstarter.org/about/">About</Link>
-        <Link href="https://twitter.com/thorstarter">Twitter</Link>
-        <Link href="https://t.me/thorstarter">Telegram</Link>
-        <Link href="https://discord.gg/fPjbPxm37F">Discord</Link>
-        <Link href="https://medium.com/@thorstarter">Medium</Link>
-        <Link href="https://thorstarter.org/">Website</Link>
-        <Link href="https://docs.thorstarter.org/">Docs</Link>
+        <div className="footer-socials">
+          <Link href="https://twitter.com/thorstarter">
+            <a>
+              <Icon name="twitter" />
+            </a>
+          </Link>
+          <Link href="https://t.me/thorstarter">
+            <a>
+              <Icon name="telegram" />
+            </a>
+          </Link>
+          <Link href="https://discord.gg/fPjbPxm37F">
+            <a>
+              <Icon name="discord" />
+            </a>
+          </Link>
+          <Link href="https://medium.com/@thorstarter">
+            <a>
+              <Icon name="medium" />
+            </a>
+          </Link>
+        </div>
+        <div className="footer-links">
+          <Link href="https://thorstarter.org/about/">
+            <a>About</a>
+          </Link>
+          <Link href="https://thorstarter.org/">
+            <a>Website</a>
+          </Link>
+          <Link href="https://docs.thorstarter.org/">
+            <a>Docs</a>
+          </Link>
+        </div>
       </div>
     </div>
   );

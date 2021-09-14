@@ -38,7 +38,7 @@ const liveIdo = {
     telegram: "https://t.me/bnplpay",
     medium: "https://medium.com/bnplpay",
     website: "https://bnplpay.io/",
-    docs: "https://bnplpay.io/docs/bnpl-white-paper.pdf",
+    docs: "https://bnplpay.io/file/BNPL%20Pay-Whitepaper%201.2.pdf",
     about: "https://thorstarter.org/ido/bnpl",
   },
 };
@@ -151,7 +151,7 @@ export default function IDOs() {
         </>
       ) : null}
       <br />
-      <h1 className="title">Pevious IDOs</h1>
+      <h1 className="title">Previous IDOs</h1>
       <div className="ido-list">
         {idos.map((ido) => (
           <IDOCard ido={ido} key={ido.name} />
@@ -483,7 +483,7 @@ function IDOCard({ ido, parentSetParams }) {
             ) : null}
             {ido.type === "batch" ? (
               <div className="flex mb-3">
-                <div className="flex-1 text-gray6">Comitted %</div>
+                <div className="flex-1 text-gray6">Committed %</div>
                 <div>
                   {formatNumber(
                     params.comitted.mul(100).div(params.raising),
@@ -495,7 +495,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             ) : null}
             <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Comitted $</div>
+              <div className="flex-1 text-gray6">Committed $</div>
               <div>
                 ${" "}
                 {formatNumber(
@@ -505,7 +505,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
             </div>
             <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Comitted XRUNE</div>
+              <div className="flex-1 text-gray6">Committed XRUNE</div>
               <div>{formatNumber(params.comitted, 0)}</div>
             </div>
             <div className="flex mb-3">

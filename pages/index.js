@@ -23,28 +23,29 @@ import coverSkyrim from "../public/ido/skyrim-cover.png";
 import logoBnpl from "../public/ido/bnpl-logo.png";
 import coverBnpl from "../public/ido/bnpl-cover.png";
 
-const liveIdo = {
-  name: "BNPL Pay",
-  token: "BNPL",
-  type: "batch",
-  address: {
-    1: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
-    3: "0x6B7F9c1dAe5611bA81D097083C719E3563c0019A",
-  },
-  xrunePrice: 0.2,
-  logo: logoBnpl,
-  cover: coverBnpl,
-  links: {
-    twitter: "https://twitter.com/bnplpay",
-    telegram: "https://t.me/bnplpay",
-    medium: "https://medium.com/bnplpay",
-    website: "https://bnplpay.io/",
-    docs: "https://bnplpay.io/file/BNPL%20Pay-Whitepaper%201.2.pdf",
-    about: "https://thorstarter.org/ido/bnpl",
-  },
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "BNPL Pay",
+    token: "BNPL",
+    type: "batch",
+    address: {
+      1: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
+      3: "0x6B7F9c1dAe5611bA81D097083C719E3563c0019A",
+    },
+    xrunePrice: 0.2,
+    logo: logoBnpl,
+    cover: coverBnpl,
+    links: {
+      twitter: "https://twitter.com/bnplpay",
+      telegram: "https://t.me/bnplpay",
+      medium: "https://medium.com/bnplpay",
+      website: "https://bnplpay.io/",
+      docs: "https://bnplpay.io/file/BNPL%20Pay-Whitepaper%201.2.pdf",
+      about: "https://thorstarter.org/ido/bnpl",
+    },
+  },
   {
     name: "Skyrim Finance",
     token: "SKYRIM",

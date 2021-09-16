@@ -21,19 +21,6 @@ export default function Layout({ title, children, page }) {
     connectWallet();
   }
 
-  useEffect(() => {
-    if (global.window && window.localStorage.getItem("connectedAddress")) {
-      connectWallet();
-    } else {
-      (async () => {
-        const networkId = (await state.provider.getNetwork()).chainId;
-        if (state.networkId !== networkId) {
-          setGlobalState({ networkId });
-        }
-      })();
-    }
-  }, []);
-
   return (
     <div>
       <Head>

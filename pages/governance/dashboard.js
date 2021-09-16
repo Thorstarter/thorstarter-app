@@ -129,6 +129,9 @@ export default function GovernanceDashboard() {
           );
         }
 
+        const sentToVoters35 = sentToVoters.div("2");
+        const leftToVest35 = xruneLeftToVest.mul("35").div("100");
+
         idos.push({
           ...vestingIdo,
           xrunePrice: xrunePrice,
@@ -139,13 +142,13 @@ export default function GovernanceDashboard() {
           xruneLeftToVest: xruneLeftToVest,
           percentOfSnapshot: percentOfSnapshot,
           percentOfVoters: percentOfVoters,
-          xruneEarned: sentToVoters
+          xruneEarned: sentToVoters35
             .mul(percentOfSnapshot)
-            .add(sentToVoters.mul(percentOfVoters))
+            .add(sentToVoters35.mul(percentOfVoters))
             .div(ethers.utils.parseUnits("100")),
-          xruneVesting: xruneLeftToVest
+          xruneVesting: leftToVest35
             .mul(percentOfSnapshot)
-            .add(xruneLeftToVest.mul(percentOfVoters))
+            .add(leftToVest35.mul(percentOfVoters))
             .div(ethers.utils.parseUnits("100")),
           claimable: claimable,
         });

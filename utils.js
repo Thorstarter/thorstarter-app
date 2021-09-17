@@ -29,7 +29,7 @@ let contractAddresses = {
     slp: "0x95cfa1f48fad82232772d3b1415ad4393517f3b5",
     voters: "0xEBCD3922A199cd1358277C6458439C13A93531eD",
     dao: "0x5b1b8BdbcC534B17E9f8E03a3308172c7657F4a3",
-    votersInvestmentDispenser: "0x45cd79fA4faD4a2DfC2294B0315d45e41D8e9601",
+    votersInvestmentDispenser: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     epd: "0x2B9775942ecC36bF4DC449DdB828CF070b3CC71c",
     vid: "0x45cd79fA4faD4a2DfC2294B0315d45e41D8e9601",
   },

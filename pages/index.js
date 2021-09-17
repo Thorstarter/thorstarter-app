@@ -580,7 +580,9 @@ function IDOCard({ ido, parentSetParams }) {
                   </div>
                 </div>
                 <div className="flex mb-3">
-                  <div className="flex-1 text-gray6">Owed</div>
+                  <div className="flex-1 text-gray6">
+                    {userInfo.claimedTokens ? "Collected" : "Owed"}
+                  </div>
                   <div>
                     {formatNumber(userInfo.allocation)}{" "}
                     <span className="text-gray6">{ido.token}</span>
@@ -615,10 +617,6 @@ function IDOCard({ ido, parentSetParams }) {
           ) : canCollectRefund ? (
             <Button className="w-full mt-2" onClick={onCollectRefund}>
               {loading ? "Loading..." : "Collect refund"}
-            </Button>
-          ) : params.timestamp > params.end.getTime() / 1000 ? (
-            <Button className="w-full mt-2" disabled={true}>
-              Collect owed tokens
             </Button>
           ) : null}
         </>

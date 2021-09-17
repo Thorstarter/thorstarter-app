@@ -175,6 +175,7 @@ export function formatNumber(n, decimals = 2, units = 18) {
   if (n instanceof ethers.BigNumber) {
     n = parseFloat(ethers.utils.formatUnits(n, units));
   }
+  n = n || 0;
   n = n.toFixed(decimals);
   if (n.endsWith((0).toFixed(decimals).slice(1))) {
     n = n.split(".")[0];

@@ -23,6 +23,22 @@ import coverBnpl from "../../public/ido/bnpl-cover.png";
 
 const vestingIdos = [
   {
+    name: "BNPL Pay",
+    date: "2021-09-14",
+    initialGrant: "$ 250,000",
+    vesting: "2 years",
+    logo: logoBnpl,
+    cover: coverBnpl,
+    snapshotId: {
+      1: "4",
+      3: "",
+    },
+    contract: {
+      1: "0xcb12Cb135e0D53775bc4F09Be07809b9Ea62ea90",
+      3: "",
+    },
+  },
+  {
     name: "Skyrim",
     date: "2021-08-31",
     initialGrant: "$ 250,000",

@@ -73,7 +73,7 @@ export default function IDOs() {
 
   return (
     <Layout title="IDOs" page="idos">
-      <DisclaimerBnpl />
+      {/*<DisclaimerBnpl />*/}
       {liveIdo ? (
         <>
           <h1 className="live-ido-title title clear">

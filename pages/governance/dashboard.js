@@ -8,6 +8,7 @@ import {
   bn,
   bnMin,
   bnMax,
+  parseUnits,
   useGlobalState,
   getContracts,
   formatNumber,
@@ -117,12 +118,16 @@ export default function GovernanceDashboard() {
           .mul(xruneBalance)
           .mul("2")
           .div(lpTotalSupply)
-          .mul(ethers.utils.parseUnits(xrunePrice.toFixed(5)))
-          .div(ethers.utils.parseUnits("1"));
+          .mul(parseUnits(xrunePrice.toFixed(5)))
+          .div(parseUnits("1"));
 
-        let percentOfSnapshot = ethers.utils.parseUnits("0");
-        let percentOfVoters = ethers.utils.parseUnits("0");
-        let claimable = ethers.utils.parseUnits("0");
+        let percentOfSnapshot = parseUnits("0");
+        let percentOfVoters = parseUnits("0");
+        let claimable = parseUnits("0");
+        const votersTotalSupply = await contracts.voters.totalSupply();
+        const votersSnapshotTotalSupply = await contracts.voters.totalSupplyAt(
+          vestingIdo.snapshotId[state.networkId]
+        );
         if (state.address) {
           percentOfSnapshot = (
             await contracts.voters.balanceOfAt(
@@ -130,15 +135,11 @@ export default function GovernanceDashboard() {
               vestingIdo.snapshotId[state.networkId]
             )
           )
-            .mul(ethers.utils.parseUnits("100"))
-            .div(
-              await contracts.voters.totalSupplyAt(
-                vestingIdo.snapshotId[state.networkId]
-              )
-            );
+            .mul(parseUnits("100"))
+            .div(votersSnapshotTotalSupply);
           percentOfVoters = (await contracts.voters.balanceOf(state.address))
-            .mul(ethers.utils.parseUnits("100"))
-            .div(await contracts.voters.totalSupply());
+            .mul(parseUnits("100"))
+            .div(votersTotalSupply);
           claimable = await contracts.vid.claimable(
             vestingIdo.snapshotId[state.networkId],
             state.address
@@ -161,12 +162,22 @@ export default function GovernanceDashboard() {
           xruneEarned: sentToVoters35
             .mul(percentOfSnapshot)
             .add(sentToVoters35.mul(percentOfVoters))
-            .div(ethers.utils.parseUnits("100")),
+            .div(parseUnits("100")),
           xruneVesting: leftToVest35
             .mul(percentOfSnapshot)
             .add(leftToVest35.mul(percentOfVoters))
-            .div(ethers.utils.parseUnits("100")),
+            .div(parseUnits("100")),
           claimable: claimable,
+          aprHistorical: sentToVoters35
+            .mul("31536000")
+            .div((Date.now() / 1000 - vestingStart).toFixed(0))
+            .mul(parseUnits("200")) // 1e18 (decimals) * 100 (%) * 2 (70%)
+            .div(votersSnapshotTotalSupply),
+          aprCurrent: leftToVest35
+            .mul("31536000")
+            .div((vestingStart + vestingLength - Date.now() / 1000).toFixed(0))
+            .mul(parseUnits("200"))
+            .div(votersSnapshotTotalSupply),
         });
       }
       setIdos(idos);
@@ -195,6 +206,28 @@ export default function GovernanceDashboard() {
 
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
+
+      <div className="flex mb-4">
+        <div className="flex-1 box py-4 text-center mr-4">
+          Total Grants Value
+          <h2 className="ma-0">
+            ${" "}
+            {formatNumber(
+              (idos || []).reduce((t, i) => i.currentValue.add(t), bn("0")),
+              0
+            )}
+          </h2>
+        </div>
+        <div className="flex-1 box py-4 text-center">
+          Combined APR
+          <h2 className="ma-0">
+            {formatNumber(
+              (idos || []).reduce((t, i) => i.aprCurrent.add(t), bn("0"))
+            )}{" "}
+            %
+          </h2>
+        </div>
+      </div>
 
       {(idos || []).map((ido) => (
         <div className="vesting-ido box mb-2" key={ido.name}>
@@ -270,12 +303,20 @@ export default function GovernanceDashboard() {
             <div className="flex-1">
               <h3>Your Rewards</h3>
               <div className="flex mb-2">
+                <div className="flex-1 text-gray6">Historical APR</div>
+                <div>{formatNumber(ido.aprHistorical, 2)}%</div>
+              </div>
+              <div className="flex mb-2">
+                <div className="flex-1 text-gray6">Current APR</div>
+                <div>{formatNumber(ido.aprCurrent, 2)}%</div>
+              </div>
+              <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Your % of the snapshot</div>
-                <div>{formatNumber(ido.percentOfSnapshot)}%</div>
+                <div>{formatNumber(ido.percentOfSnapshot, 4)}%</div>
               </div>
               <div className="flex mb-2">
                 <div className="flex-1 text-gray6">Your % of the voters</div>
-                <div>{formatNumber(ido.percentOfVoters)}%</div>
+                <div>{formatNumber(ido.percentOfVoters, 4)}%</div>
               </div>
               <div className="flex mb-2">
                 <div className="flex-1 text-gray6">XRUNE earned</div>

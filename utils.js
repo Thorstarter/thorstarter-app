@@ -8,6 +8,8 @@ if (global.window) window.ethers = ethers;
 export const ADDRESS_ZERO = "0x" + "0".repeat(40);
 export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 
+export const parseUnits = ethers.utils.parseUnits;
+
 const infuraProjectId = "f0039abafaab4ecf9b573383a5eba292";
 const rpcUrl = `https://mainnet.infura.io/v3/${infuraProjectId}`;
 
@@ -32,7 +34,7 @@ let contractAddresses = {
     votersInvestmentDispenser: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     epd: "0x8f283547cA7B872F15d50861b1a676a301fC6d42",
     epdOld: "0x2B9775942ecC36bF4DC449DdB828CF070b3CC71c",
-    vid: "0x45cd79fA4faD4a2DfC2294B0315d45e41D8e9601",
+    vid: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     vestingDispenser: "0x6A483903AaA40f2543EDb4DbbC071A6B30b1b70a",
   },
   3: {

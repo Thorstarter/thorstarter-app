@@ -16,6 +16,7 @@ export default function GovernanceProposals() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [claimable, setClaimable] = useState(null);
+  const [claimableOld, setClaimableOld] = useState(null);
   const [nonPrivate, setNonPrivate] = useState(false);
 
   async function fetchData() {
@@ -28,6 +29,7 @@ export default function GovernanceProposals() {
         setNonPrivate(true);
       }
       setClaimable(claimable);
+      setClaimableOld(await contracts.epdOld.claimable(state.address));
     } catch (err) {
       console.error(err);
       setError(formatErrorMessage(err));
@@ -46,6 +48,13 @@ export default function GovernanceProposals() {
     } else {
       call = contracts.vestingDispenser.claim();
     }
+    await runTransaction(call, setLoading, setError);
+    fetchData();
+  }
+
+  async function onClaimOld() {
+    const contracts = getContracts();
+    const call = contracts.epdOld.claim();
     await runTransaction(call, setLoading, setError);
     fetchData();
   }
@@ -69,6 +78,15 @@ export default function GovernanceProposals() {
           <Button className="button-lg" onClick={onClaim}>
             Claim
           </Button>
+          {claimableOld && claimableOld.gt("0") ? (
+            <div className="mt-4" style={{ fontSize: 16 }}>
+              Claimable (Old Contract):{" "}
+              <span className="text-primary5">
+                {formatNumber(claimableOld)}
+              </span>{" "}
+              XRUNE <Button onClick={onClaimOld}>Claim</Button>
+            </div>
+          ) : null}
         </div>
       )}
     </Layout>

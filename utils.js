@@ -33,6 +33,7 @@ let contractAddresses = {
     epdOld: "0x8f283547cA7B872F15d50861b1a676a301fC6d42",
     epd: "0x2B9775942ecC36bF4DC449DdB828CF070b3CC71c",
     vid: "0x45cd79fA4faD4a2DfC2294B0315d45e41D8e9601",
+    vestingDispenser: "0x6A483903AaA40f2543EDb4DbbC071A6B30b1b70a",
   },
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
@@ -43,6 +44,7 @@ let contractAddresses = {
     epdOld: "0xDB0a151FFD93a5F8d29A241f480DABd696DE76BE",
     epd: "0xDB0a151FFD93a5F8d29A241f480DABd696DE76BE",
     vid: "0xB46A5c58bB9C2Ed00c212dF8DBb465006641DB75",
+    vestingDispenser: "0x73f3BAf35E8076E1ACa143C7fD96721435C813B2",
   },
 };
 
@@ -114,6 +116,11 @@ function buildContracts() {
     vid: new ethers.Contract(
       addresses.vid,
       abis.vid,
+      state.signer || state.provider
+    ),
+    vestingDispenser: new ethers.Contract(
+      addresses.vestingDispenser,
+      abis.vestingDispenser,
       state.signer || state.provider
     ),
   };

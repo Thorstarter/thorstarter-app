@@ -1317,6 +1317,35 @@ const epd = [
   },
 ];
 
+const vestingDispenser = [
+  {
+    inputs: [],
+    name: "claim",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "claimable",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
 export default {
   token,
   saleBatch,
@@ -1326,4 +1355,5 @@ export default {
   dao,
   lpTokenVesting,
   epd,
+  vestingDispenser,
 };

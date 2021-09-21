@@ -16,12 +16,18 @@ export default function GovernanceProposals() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [claimable, setClaimable] = useState(null);
+  const [nonPrivate, setNonPrivate] = useState(false);
 
   async function fetchData() {
     try {
       if (!state.address) return;
       const contracts = getContracts();
-      setClaimable(await contracts.epd.claimable(state.address));
+      let claimable = await contracts.epd.claimable(state.address);
+      if (claimable.eq("0")) {
+        claimable = await contracts.vestingDispenser.claimable(state.address);
+        setNonPrivate(true);
+      }
+      setClaimable(claimable);
     } catch (err) {
       console.error(err);
       setError(formatErrorMessage(err));
@@ -34,7 +40,12 @@ export default function GovernanceProposals() {
 
   async function onClaim() {
     const contracts = getContracts();
-    const call = contracts.epd.claim();
+    let call;
+    if (!nonPrivate) {
+      call = contracts.epd.claim();
+    } else {
+      call = contracts.vestingDispenser.claim();
+    }
     await runTransaction(call, setLoading, setError);
     fetchData();
   }

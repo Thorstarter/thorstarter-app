@@ -1346,6 +1346,35 @@ const vestingDispenser = [
   },
 ];
 
+export const votersTcLpRequester = [
+  {
+    inputs: [],
+    name: "currentCost",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "addr",
+        type: "bytes",
+      },
+    ],
+    name: "request",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+];
+
 export default {
   token,
   saleBatch,
@@ -1356,4 +1385,5 @@ export default {
   lpTokenVesting,
   epd,
   vestingDispenser,
+  votersTcLpRequester,
 };

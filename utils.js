@@ -10,7 +10,7 @@ export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 
 export const parseUnits = ethers.utils.parseUnits;
 
-const infuraProjectId = "f0039abafaab4ecf9b573383a5eba292";
+const infuraProjectId = "f9dfccab907d4cc891817733689eaff4";
 const rpcUrl = `https://mainnet.infura.io/v3/${infuraProjectId}`;
 
 let listeners = [];
@@ -36,6 +36,7 @@ let contractAddresses = {
     epdOld: "0x2B9775942ecC36bF4DC449DdB828CF070b3CC71c",
     vid: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     vestingDispenser: "0x6A483903AaA40f2543EDb4DbbC071A6B30b1b70a",
+    votersTcLpRequester: "",
   },
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
@@ -47,6 +48,7 @@ let contractAddresses = {
     epdOld: "0xDB0a151FFD93a5F8d29A241f480DABd696DE76BE",
     vid: "0xB46A5c58bB9C2Ed00c212dF8DBb465006641DB75",
     vestingDispenser: "0x73f3BAf35E8076E1ACa143C7fD96721435C813B2",
+    votersTcLpRequester: "0xcDb6137F27d579dbe8873116ACd16520D344f381",
   },
 };
 
@@ -128,6 +130,11 @@ function buildContracts() {
     vestingDispenser: new ethers.Contract(
       addresses.vestingDispenser,
       abis.vestingDispenser,
+      state.signer || state.provider
+    ),
+    votersTcLpRequester: new ethers.Contract(
+      addresses.votersTcLpRequester,
+      abis.votersTcLpRequester,
       state.signer || state.provider
     ),
   };

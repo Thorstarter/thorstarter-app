@@ -10,6 +10,11 @@ export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 
 export const parseUnits = ethers.utils.parseUnits;
 
+export const tcPoolNames = {
+  1: "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
+  3: "ETH.XRUNE-0X8626DB1A4F9F3E1002EEB9A4F3C6D391436FFC23",
+};
+
 const infuraProjectId = "f9dfccab907d4cc891817733689eaff4";
 const rpcUrl = `https://mainnet.infura.io/v3/${infuraProjectId}`;
 
@@ -36,7 +41,7 @@ let contractAddresses = {
     epdOld: "0x2B9775942ecC36bF4DC449DdB828CF070b3CC71c",
     vid: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     vestingDispenser: "0x6A483903AaA40f2543EDb4DbbC071A6B30b1b70a",
-    votersTcLpRequester: "",
+    votersTcLpRequester: "0x3fe9995dAEAe2510C1984E8D211d5f4480b26727",
   },
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",

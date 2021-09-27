@@ -126,6 +126,13 @@ a:hover .icon svg {
   margin-bottom: 16px;
   border-radius: var(--border-radius);
 }
+.success {
+  color: #dff0d8;
+  background: #3c763d;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--border-radius);
+}
 
 .button {
   border: none;

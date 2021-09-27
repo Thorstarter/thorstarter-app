@@ -4,7 +4,10 @@ import Button from "../../components/button";
 import GovernanceNav from "../../components/governanceNav";
 import LoadingOverlay from "../../components/loadingOverlay";
 import {
+  bn,
+  parseUnits,
   ADDRESS_ZERO,
+  tcPoolNames,
   formatAddress,
   formatNumber,
   useGlobalState,
@@ -60,6 +63,7 @@ export default function GovernanceToken() {
       <div className="voting-row">
         <TokenAction balances={balances} fetchBalances={fetchBalances} />
         <TokenBalances balances={balances} />
+        <TokenTcLpRequest />
         {/* <TokenDelegate /> */}
       </div>
     );
@@ -282,6 +286,122 @@ function TokenDelegate() {
         disabled={loading}
       >
         {loading ? "Loading..." : "Update Delegate"}
+      </Button>
+    </div>
+  );
+}
+
+function TokenTcLpRequest() {
+  const state = useGlobalState();
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({
+    current: bn("0"),
+    actual: bn("0"),
+    cost: bn("0"),
+  });
+
+  async function fetchData() {
+    const contracts = getContracts();
+    const address = "0xf3dadcc03e35dd0087c4f10cf052de9e7de7de8c"; // state.address
+    const baseUrl = `https://${
+      state.networkId === 3 ? "testnet." : ""
+    }midgard.thorchain.info/v2`;
+    const pool = await fetch(
+      baseUrl + "/pool/" + tcPoolNames[state.networkId]
+    ).then((r) => r.json());
+    const userPools = await fetch(baseUrl + "/member/" + address).then((r) =>
+      r.ok ? r.json() : { pools: [] }
+    );
+    const userPool = userPools.pools.find(
+      (p) => p.pool == tcPoolNames[state.networkId]
+    );
+    let actual = bn("0");
+    if (userPool) {
+      actual = parseUnits(userPool.liquidityUnits, 8)
+        .mul(parseUnits(pool.assetDepth, 8))
+        .div(parseUnits(pool.units, 8))
+        .mul(parseUnits("2", 2)); // 2x for asset+rune side, 2 for 18-8-8
+    }
+
+    const cost = (await contracts.votersTcLpRequester.currentCost())
+      .mul("120")
+      .div("100");
+
+    setData({
+      current: (await contracts.voters.userInfo(address))[4],
+      actual: actual,
+      cost: cost,
+    });
+  }
+
+  async function onSubmit() {
+    try {
+      setError("");
+      setLoading(true);
+      const contracts = getContracts();
+      const address = "0xf3dadcc03e35dd0087c4f10cf052de9e7de7de8c"; // state.address
+      const call = contracts.votersTcLpRequester.request(address, {
+        value: data.cost,
+      });
+      await runTransaction(call, setLoading, setError);
+      setSuccess(true);
+    } catch (err) {
+      console.error(error);
+      setError(
+        "Error: " + err?.error?.data?.originalError?.message || err.message
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => fetchData(), [state.networkId, state.address]);
+
+  return (
+    <div className="box">
+      <h2 className="title">vXRUNE for Thorchain LP request</h2>
+
+      {loading ? <LoadingOverlay message={loading} /> : null}
+      {error ? <div className="error mb-4">{error}</div> : null}
+      {success ? (
+        <div className="success mb-4">
+          Success! You balance should update shortly.
+        </div>
+      ) : null}
+
+      <div className="mb-2">
+        To have your Thorchain XRUNE-RUNE LP value reflected as vXRUNE on the
+        Ethereum chain, you can pay the gas fee using the button below and
+        Thorstarter will update the DAO's Voters contract to reflect your
+        current position <i>(Takes up to 60 minutes to process)</i>.
+      </div>
+      <div className="mb-4">
+        <b>
+          WARNING: If you change your LP position on Thorchain, the bot will set
+          your vXRUNE balance (for TC LP) back to 0 and you'll have to request
+          an update again (and pay the gas for it).
+        </b>
+      </div>
+      <div className="text-sm mb-2">
+        <span className="text-gray6">Current vXRUNE for TC LP: </span>
+        <span className="text-primary5">{formatNumber(data.current)}</span>
+      </div>
+      <div className="text-sm mb-2">
+        <span className="text-gray6">Actual vXRUNE for TC LP: </span>
+        <span className="text-primary5">{formatNumber(data.actual)}</span>
+      </div>
+      <div className="text-sm mb-4">
+        <span className="text-gray6">Cost to request update: </span>
+        <span className="text-primary5">{formatNumber(data.cost, 4)} ETH</span>
+      </div>
+      <Button
+        className="button-lg w-full"
+        onClick={onSubmit}
+        disabled={loading}
+      >
+        {loading ? "Loading..." : "Request vXRUNE Update"}
       </Button>
     </div>
   );

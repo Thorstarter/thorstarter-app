@@ -17,19 +17,17 @@ export default function GovernanceProposals() {
   const [loading, setLoading] = useState("");
   const [claimable, setClaimable] = useState(null);
   const [claimableOld, setClaimableOld] = useState(null);
-  const [nonPrivate, setNonPrivate] = useState(false);
+  const [claimableOtc, setClaimableOtc] = useState(null);
 
   async function fetchData() {
     try {
       if (!state.address) return;
       const contracts = getContracts();
-      let claimable = await contracts.epd.claimable(state.address);
-      if (claimable.eq("0")) {
-        claimable = await contracts.vestingDispenser.claimable(state.address);
-        setNonPrivate(true);
-      }
-      setClaimable(claimable);
+      setClaimable(await contracts.epd.claimable(state.address));
       setClaimableOld(await contracts.epdOld.claimable(state.address));
+      setClaimableOtc(
+        await contracts.vestingDispenser.claimable(state.address)
+      );
     } catch (err) {
       console.error(err);
       setError(formatErrorMessage(err));
@@ -42,12 +40,7 @@ export default function GovernanceProposals() {
 
   async function onClaim() {
     const contracts = getContracts();
-    let call;
-    if (!nonPrivate) {
-      call = contracts.epd.claim();
-    } else {
-      call = contracts.vestingDispenser.claim();
-    }
+    const call = contracts.epd.claim();
     await runTransaction(call, setLoading, setError);
     fetchData();
   }
@@ -55,6 +48,13 @@ export default function GovernanceProposals() {
   async function onClaimOld() {
     const contracts = getContracts();
     const call = contracts.epdOld.claim();
+    await runTransaction(call, setLoading, setError);
+    fetchData();
+  }
+
+  async function onClaimOtc() {
+    const contracts = getContracts();
+    const call = contracts.vestingDispenser.claim();
     await runTransaction(call, setLoading, setError);
     fetchData();
   }
@@ -85,6 +85,15 @@ export default function GovernanceProposals() {
                 {formatNumber(claimableOld)}
               </span>{" "}
               XRUNE <Button onClick={onClaimOld}>Claim</Button>
+            </div>
+          ) : null}
+          {claimableOtc && claimableOtc.gt("0") ? (
+            <div className="mt-4" style={{ fontSize: 16 }}>
+              Claimable (OTC):{" "}
+              <span className="text-primary5">
+                {formatNumber(claimableOtc)}
+              </span>{" "}
+              XRUNE <Button onClick={onClaimOtc}>Claim</Button>
             </div>
           ) : null}
         </div>

@@ -88,6 +88,16 @@ export async function connectWallet() {
   }
 }
 
+export function disconnectWallet() {
+  window.localStorage.setItem("connectedAddress", "");
+  setGlobalState({
+    networkId: 1,
+    address: null,
+    signer: null,
+    provider: new ethers.providers.JsonRpcProvider(rpcUrl),
+  });
+}
+
 if (global.window && window.ethereum) {
   connectWallet();
 }
@@ -217,6 +227,9 @@ export function formatNumber(n, decimals = 2, units = 18) {
 }
 
 export function formatErrorMessage(err) {
+  if (err.toString().includes("insufficient funds for intrinsic tr")) {
+    return "Error: Not enough ETH in this wallet to pay for this transaction";
+  }
   return (
     "Error: " +
     (err?.error?.data?.originalError?.message || err.message || err.toString())

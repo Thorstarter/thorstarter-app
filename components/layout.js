@@ -9,6 +9,7 @@ import {
   setGlobalState,
   formatAddress,
   connectWallet,
+  disconnectWallet,
 } from "../utils";
 
 import imgLogo from "../public/logo.svg";
@@ -17,8 +18,11 @@ export default function Layout({ title, children, page }) {
   const state = useGlobalState();
 
   async function onConnect() {
-    if (state.address) return;
-    connectWallet();
+    if (state.address) {
+      disconnectWallet();
+    } else {
+      connectWallet();
+    }
   }
 
   return (

@@ -304,26 +304,25 @@ function TokenTcLpRequest() {
 
   async function fetchData() {
     const contracts = getContracts();
-    const address = "0xf3dadcc03e35dd0087c4f10cf052de9e7de7de8c"; // state.address
+    const address = state.address;
     const baseUrl = `https://${
       state.networkId === 3 ? "testnet." : ""
     }midgard.thorchain.info/v2`;
     const pool = await fetch(
       baseUrl + "/pool/" + tcPoolNames[state.networkId]
     ).then((r) => r.json());
-    const userPools = await fetch(baseUrl + "/member/" + address).then((r) =>
-      r.ok ? r.json() : { pools: [] }
-    );
-    const userPool = userPools.pools.find(
-      (p) => p.pool == tcPoolNames[state.networkId]
-    );
-    let actual = bn("0");
-    if (userPool) {
-      actual = parseUnits(userPool.liquidityUnits, 8)
-        .mul(parseUnits(pool.assetDepth, 8))
-        .div(parseUnits(pool.units, 8))
-        .mul(parseUnits("2", 2)); // 2x for asset+rune side, 2 for 18-8-8
-    }
+
+    const userUnits = (
+      await fetch(
+        "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
+          address
+      ).then((r) => (r.ok ? r.json() : { units: "0" }))
+    ).units;
+
+    const actual = parseUnits(userUnits, 10)
+      .mul("2")
+      .mul(parseUnits(pool.assetDepth, 10))
+      .div(parseUnits(pool.units, 10));
 
     const cost = (await contracts.votersTcLpRequester.currentCost())
       .mul("120")
@@ -337,16 +336,23 @@ function TokenTcLpRequest() {
   }
 
   async function onSubmit() {
+    if (data.actual.eq("0")) {
+      setError("No point is updating if your TC LP balance is zero");
+      return;
+    }
     try {
       setError("");
       setLoading(true);
       const contracts = getContracts();
-      const address = "0xf3dadcc03e35dd0087c4f10cf052de9e7de7de8c"; // state.address
-      const call = contracts.votersTcLpRequester.request(address, {
-        value: data.cost,
-      });
+      const address = state.address;
+      const call = contracts.votersTcLpRequester
+        .request(address, {
+          value: data.cost,
+        })
+        .then(() => {
+          setSuccess(true);
+        });
       await runTransaction(call, setLoading, setError);
-      setSuccess(true);
     } catch (err) {
       console.error(error);
       setError(
@@ -371,13 +377,14 @@ function TokenTcLpRequest() {
         </div>
       ) : null}
 
-      <div className="mb-2">
+      <div className="mb-2" style={{ fontSize: "14px" }}>
         To have your Thorchain XRUNE-RUNE LP value reflected as vXRUNE on the
         Ethereum chain, you can pay the gas fee using the button below and
-        Thorstarter will update the DAO's Voters contract to reflect your
-        current position <i>(Takes up to 60 minutes to process)</i>.
+        Thorstarter will update your vXRUNE balance in the DAO's Voters contract
+        to reflect your current position{" "}
+        <i>(Takes up to 60 minutes to process)</i>.
       </div>
-      <div className="mb-4">
+      <div className="mb-4" style={{ fontSize: "14px" }}>
         <b>
           WARNING: If you change your LP position on Thorchain, the bot will set
           your vXRUNE balance (for TC LP) back to 0 and you'll have to request
@@ -389,7 +396,7 @@ function TokenTcLpRequest() {
         <span className="text-primary5">{formatNumber(data.current)}</span>
       </div>
       <div className="text-sm mb-2">
-        <span className="text-gray6">Actual vXRUNE for TC LP: </span>
+        <span className="text-gray6">vXRUNE your TC LP is worth: </span>
         <span className="text-primary5">{formatNumber(data.actual)}</span>
       </div>
       <div className="text-sm mb-4">

@@ -380,15 +380,15 @@ function TokenTcLpRequest() {
       <div className="mb-2" style={{ fontSize: "14px" }}>
         To have your Thorchain XRUNE-RUNE LP value reflected as vXRUNE on the
         Ethereum chain, you can pay the gas fee using the button below and
-        Thorstarter will update your vXRUNE balance in the DAO's Voters contract
-        to reflect your current position{" "}
+        Thorstarter will update your vXRUNE balance in the DAO&apos;s Voters
+        contract to reflect your current position{" "}
         <i>(Takes up to 60 minutes to process)</i>.
       </div>
       <div className="mb-4" style={{ fontSize: "14px" }}>
         <b>
           WARNING: If you change your LP position on Thorchain, the bot will set
-          your vXRUNE balance (for TC LP) back to 0 and you'll have to request
-          an update again (and pay the gas for it).
+          your vXRUNE balance (for TC LP) back to 0 and you&apos;ll have to
+          request an update again (and pay the gas for it).
         </b>
       </div>
       <div className="text-sm mb-2">

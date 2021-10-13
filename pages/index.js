@@ -30,10 +30,8 @@ const idos = [
     name: "BNPL Pay",
     token: "BNPL",
     type: "batch",
-    address: {
-      1: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
-      3: "0x6B7F9c1dAe5611bA81D097083C719E3563c0019A",
-    },
+    networkId: 1,
+    address: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
     xrunePrice: 0.2,
     logo: logoBnpl,
     cover: coverBnpl,
@@ -50,10 +48,8 @@ const idos = [
     name: "Skyrim Finance",
     token: "SKYRIM",
     type: "dutch",
-    address: {
-      1: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
-      3: "0x1D1aEE92c53f481889AbE89c3A17d297f6E89841",
-    },
+    networkId: 1,
+    address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
     xrunePrice: 0.5,
     logo: logoSkyrim,
     cover: coverSkyrim,
@@ -69,12 +65,13 @@ const idos = [
 ];
 
 export default function IDOs() {
+  const state = useGlobalState();
   const [liveIdoParams, setLiveIdoParams] = useState(null);
+  const previousIDOs = idos.filter((i) => i.networkId === state.networkId);
 
   return (
     <Layout title="IDOs" page="idos">
-      {/*<DisclaimerBnpl />*/}
-      {liveIdo ? (
+      {liveIdo && liveIdo.networkId === state.networkId ? (
         <>
           <h1 className="live-ido-title title clear">
             {liveIdo.name} IDO
@@ -153,9 +150,20 @@ export default function IDOs() {
         </>
       ) : null}
       <br />
-      <h1 className="title">Previous IDOs</h1>
+      <h1 className="title">
+        Previous IDOs
+        <a
+          href="https://thorstarter.org/#upcoming"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="button button-outline float-right"
+        >
+          Upcoming IDOs
+        </a>
+      </h1>
+      {previousIDOs.length === 0 ? "No previous IDOs... yet..." : null}
       <div className="ido-list">
-        {idos.map((ido) => (
+        {previousIDOs.map((ido) => (
           <IDOCard ido={ido} key={ido.name} />
         ))}
       </div>
@@ -213,7 +221,7 @@ function IDOCard({ ido, parentSetParams }) {
     }
     if (ido.type === "batch") {
       const sale = new ethers.Contract(
-        ido.address[state.networkId],
+        ido.address,
         abis.saleBatch,
         state.provider
       );
@@ -244,7 +252,7 @@ function IDOCard({ ido, parentSetParams }) {
     }
     if (ido.type === "dutch") {
       const sale = new ethers.Contract(
-        ido.address[state.networkId],
+        ido.address,
         abis.saleDutch,
         state.provider
       );
@@ -284,7 +292,7 @@ function IDOCard({ ido, parentSetParams }) {
 
   async function callSaleMethod(method, ...args) {
     const sale = new ethers.Contract(
-      ido.address[state.networkId],
+      ido.address,
       ido.type === "batch" ? abis.saleBatch : abis.saleDutch,
       state.signer
     );
@@ -301,7 +309,7 @@ function IDOCard({ ido, parentSetParams }) {
       setAmount(ethers.utils.formatUnits(parsedAmount));
       const contracts = getContracts();
       const call = contracts.xrune.transferAndCall(
-        ido.address[state.networkId],
+        ido.address,
         parsedAmount,
         "0x"
       );

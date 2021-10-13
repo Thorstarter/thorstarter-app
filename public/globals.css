@@ -157,6 +157,11 @@ a:hover .icon svg {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.button-outline {
+  color: var(--primary5);
+  border: 1px solid var(--primary5);
+  background: transparent;
+}
 .button-lg {
   padding: 12px 26px;
 }
@@ -321,7 +326,17 @@ a:hover .icon svg {
   padding-bottom: 54px;
 }
 
-.layout-header-container .button {
+.layout-header-network {
+  padding: 4px 4px 4px 16px;
+  background: var(--gray3);
+  border-radius: var(--border-radius);
+}
+.layout-header-network-unsupported {
+  color: #fee2e2;
+  background: #b91c1c;
+}
+.layout-header-network .button {
+  margin-left: 16px;
   min-width: 180px;
 }
 

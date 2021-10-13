@@ -10,12 +10,14 @@ import {
   formatAddress,
   connectWallet,
   disconnectWallet,
+  networkNames,
 } from "../utils";
 
 import imgLogo from "../public/logo.svg";
 
 export default function Layout({ title, children, page }) {
   const state = useGlobalState();
+  const isHomeNetwork = state.networkId === 1 || state.networkId === 3;
 
   async function onConnect() {
     if (state.address) {
@@ -43,21 +45,34 @@ export default function Layout({ title, children, page }) {
             <Link href="/">
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
-            <Link href="/swap/">
-              <a className={page === "swap" ? "text-primary5" : ""}>Swap</a>
-            </Link>
-            <Link href="/governance/token/">
-              <a className={page === "governance" ? "text-primary5" : ""}>
-                Governance
-              </a>
-            </Link>
+            {isHomeNetwork ? (
+              <Link href="/swap/">
+                <a className={page === "swap" ? "text-primary5" : ""}>Swap</a>
+              </Link>
+            ) : null}
+            {isHomeNetwork ? (
+              <Link href="/governance/token/">
+                <a className={page === "governance" ? "text-primary5" : ""}>
+                  Governance
+                </a>
+              </Link>
+            ) : null}
             <Link href="https://docs.thorstarter.org/">
               <a target="_blank">Learn</a>
             </Link>
           </div>
-          <Button onClick={onConnect}>
-            {state.address ? formatAddress(state.address) : "Connect Wallet"}
-          </Button>
+          <div
+            className={`layout-header-network ${
+              networkNames[state.networkId]
+                ? ""
+                : "layout-header-network-unsupported"
+            }`}
+          >
+            {networkNames[state.networkId] || "Unsupported network"}
+            <Button onClick={onConnect}>
+              {state.address ? formatAddress(state.address) : "Connect Wallet"}
+            </Button>
+          </div>
         </div>
       </div>
       <div className="layout-content">

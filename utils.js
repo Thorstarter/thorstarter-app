@@ -10,6 +10,12 @@ export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 
 export const parseUnits = ethers.utils.parseUnits;
 
+export const networkNames = {
+  1: "Mainnet",
+  3: "Ropsten",
+  250: "Fantom",
+};
+
 export const tcPoolNames = {
   1: "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
   3: "ETH.XRUNE-0X8626DB1A4F9F3E1002EEB9A4F3C6D391436FFC23",
@@ -20,6 +26,7 @@ const rpcUrl = `https://mainnet.infura.io/v3/${infuraProjectId}`;
 
 let listeners = [];
 let state = {
+  ready: false,
   networkId: 1,
   address: null,
   signer: null,
@@ -55,6 +62,10 @@ let contractAddresses = {
     vestingDispenser: "0x73f3BAf35E8076E1ACa143C7fD96721435C813B2",
     votersTcLpRequester: "0xcDb6137F27d579dbe8873116ACd16520D344f381",
   },
+  250: {
+    xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
+    slp: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
+  },
 };
 
 export async function connectWallet() {
@@ -73,7 +84,7 @@ export async function connectWallet() {
   const signer = state.provider.getSigner();
   const address = await signer.getAddress();
   const networkId = (await state.provider.getNetwork()).chainId;
-  setGlobalState({ signer, address, networkId });
+  setGlobalState({ ready: true, signer, address, networkId });
   window.localStorage.setItem("connectedAddress", address);
 
   async function updateNetworkAndAddress() {
@@ -104,53 +115,27 @@ if (global.window && window.ethereum) {
 
 function buildContracts() {
   const addresses = contractAddresses[state.networkId];
+  const contract = (addr, abi) =>
+    addr
+      ? new ethers.Contract(addr, abi, state.signer || state.provider)
+      : null;
   return {
     address: state.address,
     networkId: state.networkId,
-    xrune: new ethers.Contract(
-      addresses.xrune,
-      abis.token,
-      state.signer || state.provider
-    ),
-    slp: new ethers.Contract(
-      addresses.slp,
-      abis.token,
-      state.signer || state.provider
-    ),
-    voters: new ethers.Contract(
-      addresses.voters,
-      abis.voters,
-      state.signer || state.provider
-    ),
-    dao: new ethers.Contract(
-      addresses.dao,
-      abis.dao,
-      state.signer || state.provider
-    ),
-    epd: new ethers.Contract(
-      addresses.epd,
-      abis.epd,
-      state.signer || state.provider
-    ),
-    epdOld: new ethers.Contract(
-      addresses.epdOld,
-      abis.epd,
-      state.signer || state.provider
-    ),
-    vid: new ethers.Contract(
-      addresses.vid,
-      abis.vid,
-      state.signer || state.provider
-    ),
-    vestingDispenser: new ethers.Contract(
+    xrune: contract(addresses.xrune, abis.token),
+    slp: contract(addresses.slp, abis.token),
+    voters: contract(addresses.voters, abis.voters),
+    dao: contract(addresses.dao, abis.dao),
+    epd: contract(addresses.epd, abis.epd),
+    epdOld: contract(addresses.epdOld, abis.epd),
+    vid: contract(addresses.vid, abis.vid),
+    vestingDispenser: contract(
       addresses.vestingDispenser,
-      abis.vestingDispenser,
-      state.signer || state.provider
+      abis.vestingDispenser
     ),
-    votersTcLpRequester: new ethers.Contract(
+    votersTcLpRequester: contract(
       addresses.votersTcLpRequester,
-      abis.votersTcLpRequester,
-      state.signer || state.provider
+      abis.votersTcLpRequester
     ),
   };
 }

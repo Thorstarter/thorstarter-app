@@ -153,7 +153,7 @@ export default function IDOs() {
       <h1 className="title">
         Previous IDOs
         <a
-          href="https://thorstarter.org/#upcoming"
+          href="https://thorstarter.org/#upcoming-projects"
           target="_blank"
           rel="noopener noreferrer"
           className="button button-outline float-right"

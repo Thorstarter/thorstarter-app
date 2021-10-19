@@ -11,7 +11,7 @@ export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 export const parseUnits = ethers.utils.parseUnits;
 
 export const networkNames = {
-  1: "Mainnet",
+  1: "Ethereum",
   3: "Ropsten",
   250: "Fantom",
 };

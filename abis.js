@@ -1002,6 +1002,24 @@ export const vid = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "uint256[]",
+        name: "snapshotIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "claimMultipleTo",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
 
 export const dao = [

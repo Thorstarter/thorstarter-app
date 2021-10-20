@@ -198,6 +198,19 @@ export default function GovernanceDashboard() {
     fetchData();
   }
 
+  async function onClaimAll() {
+    const snapshotIds = [];
+    for (let ido of idos) {
+      if (ido.claimable.gt('0')) snapshotIds.push(ido.snapshotId[state.networkId]);
+    }
+    const contracts = getContracts();
+    const call = contracts.vid.claimMultipleTo(snapshotIds, state.address);
+    await runTransaction(call, setLoading, setError);
+    fetchData();
+  }
+
+  const totalClaimable = (idos || []).reduce((t, i) => t.add(i.claimable), bn("0"));
+
   return (
     <Layout title="Governance: Vesting Dashboard">
       <h1 className="title">Governance: Vesting Dashboard</h1>
@@ -228,6 +241,15 @@ export default function GovernanceDashboard() {
           </h2>
         </div>
       </div>
+
+      {totalClaimable.gt("0") ? (
+        <div className="text-center box mb-4">
+          Claim rewards for all IDOs ({formatNumber(totalClaimable)} XRUNE)
+          <Button className="ml-4" onClick={onClaimAll}>
+            Claim
+          </Button>
+        </div>
+      ) : null}
 
       {(idos || []).map((ido) => (
         <div className="vesting-ido box mb-2" key={ido.name}>

@@ -175,8 +175,8 @@ a:hover .icon svg {
   border: 1px solid var(--primary5);
   background: transparent;
   padding: 7px 25px;
-  &:hover {
-
+  &[disabled] {
+    color: var(--primary5);
   }
 }
 .button-lg {
@@ -852,6 +852,7 @@ a:hover .icon svg {
     bottom: calc(100% + 16px);
     right: 0;
     transform: translateX(50%);
+    width: 130px;
     span {
       display: block;
       font-size: 24px;

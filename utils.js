@@ -9,6 +9,7 @@ export const ADDRESS_ZERO = "0x" + "0".repeat(40);
 export const ZERO_BYTES32 = "0x" + "0".repeat(64);
 
 export const parseUnits = ethers.utils.parseUnits;
+export const formatUnits = ethers.utils.formatUnits;
 
 export const networkNames = {
   1: "Ethereum",
@@ -37,10 +38,11 @@ if (global.window) {
   window.getState = () => state;
 }
 
-let contractAddresses = {
+export const contractAddresses = {
   1: {
     xrune: "0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c",
     slp: "0x95cfa1f48fad82232772d3b1415ad4393517f3b5",
+    staking: "0x93F5Dc8bC383BB5381a67A67516A163d1E56012a",
     voters: "0xEBCD3922A199cd1358277C6458439C13A93531eD",
     dao: "0x5b1b8BdbcC534B17E9f8E03a3308172c7657F4a3",
     votersInvestmentDispenser: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
@@ -53,6 +55,7 @@ let contractAddresses = {
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
     slp: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
+    staking: "0xD7331af1a928D1bd032e8e162017c2A258824E07",
     voters: "0x9657A3C676479EDE66319a447ed39BAdFb082B61",
     dao: "0x09F267E7A8831b12fEDc695a47EfB8cC57038942",
     votersInvestmentDispenser: "0x6897B1a24b587a49d8F9Bb130C51555b3A0006BA",
@@ -124,6 +127,7 @@ function buildContracts() {
     networkId: state.networkId,
     xrune: contract(addresses.xrune, abis.token),
     slp: contract(addresses.slp, abis.token),
+    staking: contract(addresses.staking, abis.staking),
     voters: contract(addresses.voters, abis.voters),
     dao: contract(addresses.dao, abis.dao),
     epd: contract(addresses.epd, abis.epd),
@@ -195,7 +199,7 @@ export function formatDate(dateLike) {
 }
 
 export function formatNumber(n, decimals = 2, units = 18) {
-  if (n instanceof ethers.BigNumber) {
+  if (n instanceof ethers.BigNumber || (n && n._isBigNumber)) {
     n = parseFloat(ethers.utils.formatUnits(n, units));
   }
   n = n || 0;
@@ -258,4 +262,13 @@ export function bnMin(a, b) {
 
 export function bnMax(a, b) {
   return a.gt(b) ? a : b;
+}
+
+export function aprdToApy(rate) {
+  return Math.pow(rate+1, 365) - 1;
+}
+
+export function aprde12ToApy(rate) {
+  console.log('asd', ethers.utils.formatUnits(rate, 30));
+  return aprdToApy(parseFloat(ethers.utils.formatUnits(rate, 30)));
 }

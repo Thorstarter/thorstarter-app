@@ -6,8 +6,6 @@ import GovernanceNav from "../../components/governanceNav";
 import LoadingOverlay from "../../components/loadingOverlay";
 import {
   bn,
-  bnMin,
-  bnMax,
   parseUnits,
   useGlobalState,
   getContracts,

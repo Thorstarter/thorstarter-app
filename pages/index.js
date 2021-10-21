@@ -12,7 +12,6 @@ import {
   useGlobalState,
   formatNumber,
   runTransaction,
-  bn,
 } from "../utils";
 import abis from "../abis";
 
@@ -442,7 +441,7 @@ function IDOCard({ ido, parentSetParams }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Offering</div>
               <div>
-                {formatNumber(params.offering || bn('0'))}{" "}
+                {formatNumber(params.offering)}{" "}
                 <span className="text-gray6">{ido.token}</span>
               </div>
             </div>

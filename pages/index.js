@@ -6,15 +6,13 @@ import Button from "../components/button";
 import Layout from "../components/layout";
 import Countdown from "../components/countdown";
 import LoadingOverlay from "../components/loadingOverlay";
-import DisclaimerBnpl from "../components/disclaimerBnpl";
 import {
   bnMin,
   getContracts,
   useGlobalState,
-  dateForBlock,
-  formatDate,
   formatNumber,
   runTransaction,
+  bn,
 } from "../utils";
 import abis from "../abis";
 
@@ -444,7 +442,7 @@ function IDOCard({ ido, parentSetParams }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Offering</div>
               <div>
-                {formatNumber(params.offering)}{" "}
+                {formatNumber(params.offering || bn('0'))}{" "}
                 <span className="text-gray6">{ido.token}</span>
               </div>
             </div>

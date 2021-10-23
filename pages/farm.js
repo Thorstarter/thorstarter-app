@@ -1,4 +1,5 @@
-import { ethers } from 'ethers';
+import classnames from 'classnames';
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import Button from "../components/button";
@@ -65,8 +66,14 @@ export default function Farm() {
         allocPoint: pool[2],
         staked: info[0],
         balance: await contracts[farm.token].balanceOf(state.address),
-        allowance: await contracts[farm.token].allowance(state.address, contracts.staking.address),
-        rewards: await contracts.staking.pendingRewards(farm.poolId, state.address),
+        allowance: await contracts[farm.token].allowance(
+          state.address,
+          contracts.staking.address
+        ),
+        rewards: await contracts.staking.pendingRewards(
+          farm.poolId,
+          state.address
+        ),
         apy:
           aprdToApy(
             parseFloat(formatUnits(poolRewardsPerDay)) /
@@ -93,15 +100,26 @@ export default function Farm() {
     const amount = parseUnits(amounts[index].deposit.replace(/[^0-9\.]/g, ""));
     const contracts = getContracts();
     let call;
-    if (data.farms[index].allowance.eq('0')) {
-      call = contracts[farms[index].token].approve(contracts.staking.address, ethers.constants.MaxUint256);
+    if (data.farms[index].allowance.eq("0")) {
+      call = contracts[farms[index].token].approve(
+        contracts.staking.address,
+        ethers.constants.MaxUint256
+      );
     } else if (index === 0) {
-      call = contracts.xrune.transferAndCall(contracts.staking.address, amount, '0x');
+      call = contracts.xrune.transferAndCall(
+        contracts.staking.address,
+        amount,
+        "0x"
+      );
     } else {
-      call = contracts.staking.deposit(farms[index].poolId, amount, state.address);
+      call = contracts.staking.deposit(
+        farms[index].poolId,
+        amount,
+        state.address
+      );
     }
     await runTransaction(call, setLoading, setError).then(() => {
-      if (data.farms[index].allowance.eq('0')) return;
+      if (data.farms[index].allowance.eq("0")) return;
       onAmountChange(index, "deposit", { target: { value: "" } });
       fetchData();
     });
@@ -111,10 +129,22 @@ export default function Farm() {
     if (!data) return;
     const amount = parseUnits(amounts[index].withdraw.replace(/[^0-9\.]/g, ""));
     const contracts = getContracts();
-    const call = contracts.staking.withdrawAndHarvest(farms[index].poolId, amount, state.address);
+    const call = contracts.staking.withdrawAndHarvest(
+      farms[index].poolId,
+      amount,
+      state.address
+    );
     await runTransaction(call, setLoading, setError).then(() => {
       onAmountChange(index, "withdraw", { target: { value: "" } });
-    });;
+    });
+    fetchData();
+  }
+
+  async function onHarvest(index) {
+    if (!data) return;
+    const contracts = getContracts();
+    const call = contracts.staking.harvest(farms[index].poolId, state.address);
+    await runTransaction(call, setLoading, setError);
     fetchData();
   }
 
@@ -127,7 +157,12 @@ export default function Farm() {
 
       <div className="flex">
         {farms.map((farm, i) => (
-          <div className="box mb-4 mr-4" key={farm.name}>
+          <div
+            className={classnames("box flex-1 mb-4", {
+              "mr-4": i % 2 === 0,
+            })}
+            key={farm.name}
+          >
             <div className="flex mb-8">
               <h2 className="flex-1 ma-0">{farm.name}</h2>
               <div className="mt-2">
@@ -146,7 +181,7 @@ export default function Farm() {
               <div>
                 <label>&nbsp;</label>
                 <br />
-                <Button className="">Claim</Button>
+                <Button onClick={onHarvest.bind(null, i)}>Claim</Button>
               </div>
             </div>
 
@@ -181,7 +216,9 @@ export default function Farm() {
                   className="button-outline mt-4 w-full"
                   onClick={onDeposit.bind(null, i)}
                 >
-                  {farm.poolId !== 0 && data && data.farms[i].allowance.eq('0') ? 'Approve' : 'Deposit'}
+                  {farm.poolId !== 0 && data && data.farms[i].allowance.eq("0")
+                    ? "Approve"
+                    : "Deposit"}
                 </Button>
               </div>
               <div className="flex-1">

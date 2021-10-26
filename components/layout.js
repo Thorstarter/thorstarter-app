@@ -45,11 +45,11 @@ export default function Layout({ title, children, page }) {
             <Link href="/">
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
-            {/*isHomeNetwork ? (
+            {isHomeNetwork ? (
               <Link href="/farm/">
                 <a className={page === "farm" ? "text-primary5" : ""}>Farm</a>
               </Link>
-            ) : null*/}
+            ) : null}
             {isHomeNetwork ? (
               <Link href="/governance/token/">
                 <a className={page === "governance" ? "text-primary5" : ""}>

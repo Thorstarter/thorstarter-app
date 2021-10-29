@@ -19,8 +19,27 @@ import logoSkyrim from "../public/ido/skyrim-logo.png";
 import coverSkyrim from "../public/ido/skyrim-cover.png";
 import logoBnpl from "../public/ido/bnpl-logo.png";
 import coverBnpl from "../public/ido/bnpl-cover.png";
+import logoThorswap from "../public/ido/thorswap-logo.png";
+import coverThorswap from "../public/ido/thorswap-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "THORSwap",
+  token: "THOR",
+  type: "batch",
+  networkId: 1,
+  address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
+  xrunePrice: 0.4,
+  logo: logoThorswap,
+  cover: coverThorswap,
+  links: {
+    twitter: "https://twitter.com/thorswap",
+    telegram: "https://t.me/thorswap_ann",
+    medium: "https://thorswap.medium.com/",
+    website: "https://thorswap.finance/",
+    docs: "https://docs.thorchain.org/",
+    discord: "https://discord.gg/thorswap",
+  },
+};
 
 const idos = [
   {
@@ -133,6 +152,15 @@ export default function IDOs() {
                   >
                     <Icon name="telegram" />
                   </a>
+                  {liveIdo.links.discord ? (
+                    <a
+                      href={liveIdo.links.discord}
+                      target="_blank"
+                      rel="noreferrer reopener"
+                    >
+                      <Icon name="discord" />
+                    </a>
+                  ) : null}
                   <a
                     href={liveIdo.links.medium}
                     target="_blank"
@@ -526,11 +554,11 @@ function IDOCard({ ido, parentSetParams }) {
                 ${" "}
                 {formatNumber(
                   params.price.mul((ido.xrunePrice * 10000) | 0).div(10000),
-                  2
+                  3
                 )}
               </div>
             </div>
-            {formatNumber(params.cap) !== "0" && false ? (
+            {formatNumber(params.cap) !== "0" ? (
               <div className="flex">
                 <div className="flex-1 text-gray6">Per User Cap</div>
                 <div>

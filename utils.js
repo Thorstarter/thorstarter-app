@@ -23,7 +23,7 @@ export const tcPoolNames = {
 };
 
 const infuraProjectId = "f9dfccab907d4cc891817733689eaff4";
-const rpcUrl = `https://mainnet.infura.io/v3/${infuraProjectId}`;
+const rpcUrl = `https://eth-mainnet.alchemyapi.io/v2/zGkyuksQ1Zs2_eT9ec2kv700cakDhgR0`;
 
 let listeners = [];
 let state = {

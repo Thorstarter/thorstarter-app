@@ -549,7 +549,12 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
               <div>
                 <span className="text-gray6">
-                  {formatNumber(params.price)} XRUNE
+                  {formatNumber(
+                    params.price.mul((ido.xrunePrice * 10000) | 0).div(10000),
+                    3
+                  ) / 0.5}{" "}
+                  XRUNE
+                  {/*{formatNumber(params.price)} XRUNE*/}
                 </span>{" "}
                 ${" "}
                 {formatNumber(

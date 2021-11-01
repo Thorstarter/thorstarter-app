@@ -312,6 +312,7 @@ function IDOCard({ ido, parentSetParams }) {
   useEffect(() => {
     fetchData();
     const handle = setInterval(fetchData, 5000);
+    setTimeout(() => clearInterval(handle), 3 * 60 * 60 * 1000); // Stop after 3 hours
     return () => clearInterval(handle);
   }, [state.networkId, state.address]);
 

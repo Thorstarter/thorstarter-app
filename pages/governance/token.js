@@ -337,7 +337,7 @@ function TokenTcLpRequest() {
 
   async function onSubmit() {
     if (data.actual.eq("0")) {
-      setError("No point is updating if your TC LP balance is zero");
+      setError("You don't need to request an update, your TC LP balance is 0");
       return;
     }
     try {

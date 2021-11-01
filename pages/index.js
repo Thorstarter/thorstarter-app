@@ -28,7 +28,7 @@ const liveIdo = {
   type: "batch",
   networkId: 1,
   address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
-  xrunePrice: 0.4,
+  xrunePrice: 0.5,
   logo: logoThorswap,
   cover: coverThorswap,
   links: {
@@ -549,12 +549,7 @@ function IDOCard({ ido, parentSetParams }) {
               </div>
               <div>
                 <span className="text-gray6">
-                  {formatNumber(
-                    params.price.mul((ido.xrunePrice * 10000) | 0).div(10000),
-                    3
-                  ) / 0.5}{" "}
-                  XRUNE
-                  {/*{formatNumber(params.price)} XRUNE*/}
+                  {formatNumber(params.price)} XRUNE
                 </span>{" "}
                 ${" "}
                 {formatNumber(

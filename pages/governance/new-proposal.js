@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Button from "../../components/button";
 import Layout from "../../components/layout";
 import GovernanceNav from "../../components/governanceNav";
-import { useGlobalState, getContracts } from "../../utils";
+import { useGlobalState, getContracts, formatErrorMessage, formatNumber } from "../../utils";
 
 export default function GovernanceProposals() {
   const router = useRouter();
@@ -73,11 +73,7 @@ export default function GovernanceProposals() {
       router.push(`/governance/proposals/${proposalId}/`);
     } catch (err) {
       console.error(err);
-      setError(
-        "Error: " + err?.error?.data?.originalError?.message ||
-          err.message ||
-          err.toString()
-      );
+      setError(formatErrorMessage(err));
     } finally {
       setLoading(false);
     }

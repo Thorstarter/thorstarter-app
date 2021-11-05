@@ -19,8 +19,26 @@ import logoSkyrim from "../../public/ido/skyrim-logo.png";
 import coverSkyrim from "../../public/ido/skyrim-cover.png";
 import logoBnpl from "../../public/ido/bnpl-logo.png";
 import coverBnpl from "../../public/ido/bnpl-cover.png";
+import logoThorswap from "../../public/ido/thorswap-logo.png";
+import coverThorswap from "../../public/ido/thorswap-cover.png";
 
 const vestingIdos = [
+  {
+    name: "THORSwap",
+    date: "2021-11-05",
+    initialGrant: "$ 250,000",
+    vesting: "9 month (1 month cliff)",
+    logo: logoThorswap,
+    cover: coverThorswap,
+    snapshotId: {
+      1: "5",
+      3: "",
+    },
+    contract: {
+      1: "0xFD3322Cf85d358Fc591dbb8C5e56e7185F7E5aAc",
+      3: "",
+    },
+  },
   {
     name: "BNPL Pay",
     date: "2021-09-14",

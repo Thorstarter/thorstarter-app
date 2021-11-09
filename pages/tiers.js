@@ -105,7 +105,7 @@ export default function Tiers() {
             className="tiers-wrapper__progress"
             style={{
               width:
-                Math.max(5, Math.min(100, (total / 100000) * 100)).toFixed(4) +
+                Math.max(5, Math.min(100, (total / 170000) * 100)).toFixed(4) +
                 "%",
             }}
           >

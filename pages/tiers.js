@@ -23,16 +23,17 @@ const assets = {
 };
 
 const tiers = [
-  {name: "Tier 1", amount: 2500, multiplier: 1},
-  {name: "Tier 2", amount: 7500, multiplier: 1.5},
-  {name: "Tier 3", amount: 25000, multiplier: 5},
-  {name: "Tier 4", amount: 150000, multiplier: 10},
-]
+  { name: "Tier 1", amount: 2500, multiplier: 1 },
+  { name: "Tier 2", amount: 7500, multiplier: 1.5 },
+  { name: "Tier 3", amount: 25000, multiplier: 5 },
+  { name: "Tier 4", amount: 150000, multiplier: 10 },
+];
 
 export default function Tiers() {
   const state = useGlobalState();
   const [modal, setModal] = useState();
   const [data, setData] = useState(null);
+  const [percent, setPercent] = useState("0");
   const total = data ? parseFloat(formatUnits(data.total)) : 0;
 
   async function fetchData() {
@@ -60,6 +61,56 @@ export default function Tiers() {
   }
 
   useEffect(fetchData, [state.networkId, state.address]);
+
+  useEffect(() => {
+    if (typeof document !== "undefined" && data?.staked) {
+      const totalWidth = document
+        .querySelector(".tiers-wrapper__line")
+        .getBoundingClientRect().width;
+      const totalEarn = parseFloat(data.total);
+
+      if (totalEarn <= tiers[0].amount) {
+        setPercent(`calc(${(12.5 * totalEarn) / tiers[0].amount}% - 12px)`);
+      } else if (totalEarn <= tiers[1].amount) {
+        const value =
+          ((totalEarn - tiers[0].amount) /
+            (tiers[1].amount - tiers[0].amount)) *
+          100;
+        const difference = 25;
+        const partWidth = (totalWidth * difference) / 100;
+        const position = (partWidth * value) / 100;
+        setPercent(`calc(12.5% + ${position}px)`);
+      } else if (totalEarn <= tiers[2].amount) {
+        const value =
+          ((totalEarn - tiers[1].amount) /
+            (tiers[2].amount - tiers[1].amount)) *
+          100;
+        const total = 25;
+        const partWidth = (totalWidth * total) / 100;
+        const position = (partWidth * value) / 100;
+        setPercent(`calc(37.5% + ${position}px)`);
+      } else if (totalEarn <= tiers[3].amount) {
+        const value =
+          ((totalEarn - tiers[2].amount) /
+            (tiers[3].amount - tiers[2].amount)) *
+          100;
+        const total = 25;
+        const partWidth = (totalWidth * total) / 100;
+        const position = (partWidth * value) / 100;
+        setPercent(`calc(62.5% + ${position}px)`);
+      } else {
+        const value =
+          ((totalEarn - tiers[3].amount) / (200000 - tiers[3].amount)) * 100;
+        const total = 25;
+        const partWidth = (totalWidth * total) / 100;
+        const position = (partWidth * value) / 100;
+        setPercent(`calc(82% + ${position - 24}px)`);
+        if (position > partWidth) {
+          setPercent(`calc(82% + ${partWidth}px)`);
+        }
+      }
+    }
+  }, [data]);
 
   function onStartDeposit(id) {
     setModal({ type: "deposit", asset: id });
@@ -104,9 +155,9 @@ export default function Tiers() {
           <div
             className="tiers-wrapper__progress"
             style={{
-              width:
-                Math.max(5, Math.min(100, (total / 170000) * 100)).toFixed(4) +
-                "%",
+              width: percent,
+              // Math.max(5, Math.min(100, (total / 170000) * 100)).toFixed(4) +
+              // "%",
             }}
           >
             <div className="tiers-wrapper__data">
@@ -116,7 +167,7 @@ export default function Tiers() {
           </div>
         </div>
         <div className="tiers-wrapper__grid">
-          {tiers.map(t => (
+          {tiers.map((t) => (
             <div className="tiers-wrapper__col" key={t.name}>
               <div
                 className={classnames("tiers-wrapper__block", {
@@ -124,7 +175,9 @@ export default function Tiers() {
                 })}
               >
                 <div className="tiers-wrapper__caption">{t.name}</div>
-                <div className="tiers-wrapper__sum">{formatNumber(parseUnits(String(t.amount)))}</div>
+                <div className="tiers-wrapper__sum">
+                  {formatNumber(parseUnits(String(t.amount)))}
+                </div>
               </div>
               <div className="tiers-wrapper__foot">
                 <div className="tiers-wrapper__subtext">
@@ -278,7 +331,10 @@ function ModalDeposit({ asset, data, onClose }) {
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
       <h2>Deposit {assets[asset].name}</h2>
 
-      <p className="text-sm text-gray6">Warning: You have to wait 7 days to withdraw XRUNE after each deposit (you can withdraw before 7 days at a cost of 50% of the amount).</p>
+      <p className="text-sm text-gray6">
+        Warning: You have to wait 7 days to withdraw XRUNE after each deposit
+        (you can withdraw before 7 days at a cost of 50% of the amount).
+      </p>
 
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
@@ -314,7 +370,9 @@ function ModalWithdraw({ asset, data, onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
-  const before7Days = data ? Date.now()/1000 < data.user[1] + (7 * 24 * 60 * 60) : true;
+  const before7Days = data
+    ? Date.now() / 1000 < data.user[1] + 7 * 24 * 60 * 60
+    : true;
 
   async function onSubmit() {
     if (!data) return;
@@ -324,15 +382,17 @@ function ModalWithdraw({ asset, data, onClose }) {
       return;
     }
     const contracts = getContracts();
-    const call = before7Days ? contracts.tiers.withdrawNow(
-      contractAddresses[state.networkId][assets[asset].token],
-      parsedAmount,
-      state.address
-    ) : contracts.tiers.withdraw(
-      contractAddresses[state.networkId][assets[asset].token],
-      parsedAmount,
-      state.address
-    );
+    const call = before7Days
+      ? contracts.tiers.withdrawNow(
+          contractAddresses[state.networkId][assets[asset].token],
+          parsedAmount,
+          state.address
+        )
+      : contracts.tiers.withdraw(
+          contractAddresses[state.networkId][assets[asset].token],
+          parsedAmount,
+          state.address
+        );
     await runTransaction(call, setLoading, setError).then(onClose);
   }
 
@@ -345,7 +405,9 @@ function ModalWithdraw({ asset, data, onClose }) {
 
       {before7Days ? (
         <p className="error text-sm">
-          WARNING You are withdrawing before waiting 7 days after you last deposit. You will loose half of the amount you withdraw if you don&apos;t wait.
+          WARNING You are withdrawing before waiting 7 days after you last
+          deposit. You will loose half of the amount you withdraw if you
+          don&apos;t wait.
         </p>
       ) : null}
 
@@ -370,7 +432,7 @@ function ModalWithdraw({ asset, data, onClose }) {
         </a>
       </div>
       <Button className="mt-4 w-full" onClick={onSubmit}>
-        Withdraw{before7Days ? ' (and loose 50%)' : ''}
+        Withdraw{before7Days ? " (and loose 50%)" : ""}
       </Button>
     </Modal>
   );

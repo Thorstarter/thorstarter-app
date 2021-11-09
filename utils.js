@@ -51,7 +51,8 @@ export const contractAddresses = {
     vid: "0xc7C525076B21F5be086D77A61E971a0369A77E8D",
     vestingDispenser: "0x6A483903AaA40f2543EDb4DbbC071A6B30b1b70a",
     votersTcLpRequester: "0x3fe9995dAEAe2510C1984E8D211d5f4480b26727",
-    tiers: "0x0000000000000000000000000000000000000000",
+    tiers: "0x817ba0ecafD58460bC215316a7831220BFF11C80",
+    twnft: "0x53D917d66EcFec3eF379434b0Ad481E4DdEDcF66",
   },
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
@@ -66,6 +67,7 @@ export const contractAddresses = {
     vestingDispenser: "0x73f3BAf35E8076E1ACa143C7fD96721435C813B2",
     votersTcLpRequester: "0xcDb6137F27d579dbe8873116ACd16520D344f381",
     tiers: "0x1190C41f4c47A466F507E28C8fe4cC6aC3E34906",
+    twnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
   },
   250: {
     xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
@@ -144,6 +146,7 @@ function buildContracts() {
       abis.votersTcLpRequester
     ),
     tiers: contract(addresses.tiers, abis.tiers),
+    twnft: contract(addresses.twnft, abis.token),
   };
 }
 let contracts = buildContracts();

@@ -22,6 +22,13 @@ const assets = {
   },
 };
 
+const tiers = [
+  {name: "Tier 1", amount: 2500, multiplier: 1},
+  {name: "Tier 2", amount: 7500, multiplier: 1.5},
+  {name: "Tier 3", amount: 25000, multiplier: 5},
+  {name: "Tier 4", amount: 150000, multiplier: 10},
+]
+
 export default function Tiers() {
   const state = useGlobalState();
   const [modal, setModal] = useState();
@@ -31,8 +38,10 @@ export default function Tiers() {
   async function fetchData() {
     if (!state.address) return;
     const contracts = getContracts();
+    const user = await contracts.tiers.userInfos(state.address);
     const userInfo = await contracts.tiers.userInfoAmounts(state.address);
     setData({
+      user: user,
       total: userInfo[1],
       allowances: {
         xrune: await contracts.xrune.allowance(
@@ -42,6 +51,7 @@ export default function Tiers() {
       },
       balances: {
         xrune: await contracts.xrune.balanceOf(state.address),
+        twnft: userInfo[4][userInfo[2].indexOf(contracts.twnft.address)],
       },
       staked: {
         xrune: userInfo[4][0],
@@ -106,86 +116,31 @@ export default function Tiers() {
           </div>
         </div>
         <div className="tiers-wrapper__grid">
-          <div className="tiers-wrapper__col">
-            <div
-              className={classnames("tiers-wrapper__block", {
-                "is-active": total >= 1250,
-              })}
-            >
-              <div className="tiers-wrapper__caption">Tier 1</div>
-              <div className="tiers-wrapper__sum">1,250</div>
-            </div>
-            <div className="tiers-wrapper__foot">
-              <div className="tiers-wrapper__subtext">
-                Allocation <br />
-                Multiplier
-              </div>
+          {tiers.map(t => (
+            <div className="tiers-wrapper__col" key={t.name}>
               <div
-                className={classnames("tiers-wrapper__num", {
-                  "is-active": total >= 1250,
+                className={classnames("tiers-wrapper__block", {
+                  "is-active": total >= t.amount,
                 })}
               >
-                1x
+                <div className="tiers-wrapper__caption">{t.name}</div>
+                <div className="tiers-wrapper__sum">{formatNumber(parseUnits(String(t.amount)))}</div>
+              </div>
+              <div className="tiers-wrapper__foot">
+                <div className="tiers-wrapper__subtext">
+                  Allocation <br />
+                  Multiplier
+                </div>
+                <div
+                  className={classnames("tiers-wrapper__num", {
+                    "is-active": total >= t.amount,
+                  })}
+                >
+                  {t.multiplier}x
+                </div>
               </div>
             </div>
-          </div>
-          <div className="tiers-wrapper__col">
-            <div
-              className={classnames("tiers-wrapper__block", {
-                "is-active": total >= 5000,
-              })}
-            >
-              <div className="tiers-wrapper__caption">Tier 2</div>
-              <div className="tiers-wrapper__sum">5,000</div>
-            </div>
-            <div className="tiers-wrapper__foot">
-              <div
-                className={classnames("tiers-wrapper__num", {
-                  "is-active": total >= 5000,
-                })}
-              >
-                2x
-              </div>
-            </div>
-          </div>
-          <div className="tiers-wrapper__col">
-            <div
-              className={classnames("tiers-wrapper__block", {
-                "is-active": total >= 25000,
-              })}
-            >
-              <div className="tiers-wrapper__caption">Tier 3</div>
-              <div className="tiers-wrapper__sum">25,000</div>
-            </div>
-            <div className="tiers-wrapper__foot">
-              <div
-                className={classnames("tiers-wrapper__num", {
-                  "is-active": total >= 25000,
-                })}
-              >
-                5x
-              </div>
-            </div>
-          </div>
-          <div className="tiers-wrapper__col">
-            <div
-              className={classnames("tiers-wrapper__block", {
-                "is-active": total >= 150000,
-              })}
-            >
-              <div className="tiers-wrapper__caption">Tier 4</div>
-              <div className="tiers-wrapper__sum">150,000</div>
-            </div>
-            <div className="tiers-wrapper__foot">
-              <div
-                className={classnames("tiers-wrapper__num", {
-                  "is-active": total >= 150000,
-                })}
-              >
-                10x
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
       <section className="page-section">
@@ -200,7 +155,19 @@ export default function Tiers() {
                 <th />
               </tr>
             </thead>
-            <tbody>{renderAsset("xrune")}</tbody>
+            <tbody>
+              {renderAsset("xrune")}
+              <tr>
+                <td>ThorWallet NFT</td>
+                <td className="tac" style={{ width: 110 }}>
+                  {data ? formatNumber(data.balances.twnft, 0, 0) : "-"}
+                </td>
+                <td className="tac" style={{ width: 110 }}>
+                  N/A
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
           </table>
         </div>
         {/*
@@ -311,6 +278,8 @@ function ModalDeposit({ asset, data, onClose }) {
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
       <h2>Deposit {assets[asset].name}</h2>
 
+      <p className="text-sm text-gray6">Warning: You have to wait 7 days to withdraw XRUNE after each deposit (you can withdraw before 7 days at a cost of 50% of the amount).</p>
+
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
 
@@ -345,6 +314,7 @@ function ModalWithdraw({ asset, data, onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
+  const before7Days = data ? Date.now()/1000 < data.user[1] + (7 * 24 * 60 * 60) : true;
 
   async function onSubmit() {
     if (!data) return;
@@ -354,7 +324,11 @@ function ModalWithdraw({ asset, data, onClose }) {
       return;
     }
     const contracts = getContracts();
-    const call = contracts.tiers.withdraw(
+    const call = before7Days ? contracts.tiers.withdrawNow(
+      contractAddresses[state.networkId][assets[asset].token],
+      parsedAmount,
+      state.address
+    ) : contracts.tiers.withdraw(
       contractAddresses[state.networkId][assets[asset].token],
       parsedAmount,
       state.address
@@ -368,6 +342,12 @@ function ModalWithdraw({ asset, data, onClose }) {
   return (
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
       <h2>Withdraw {assets[asset].name}</h2>
+
+      {before7Days ? (
+        <p className="error text-sm">
+          WARNING You are withdrawing before waiting 7 days after you last deposit. You will loose half of the amount you withdraw if you don't wait.
+        </p>
+      ) : null}
 
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
@@ -390,7 +370,7 @@ function ModalWithdraw({ asset, data, onClose }) {
         </a>
       </div>
       <Button className="mt-4 w-full" onClick={onSubmit}>
-        Withdraw
+        Withdraw{before7Days ? ' (and loose 50%)' : ''}
       </Button>
     </Modal>
   );

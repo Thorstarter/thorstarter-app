@@ -46,6 +46,11 @@ export default function Layout({ title, children, page }) {
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
             {isHomeNetwork ? (
+              <Link href="/tiers/">
+                <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
+              </Link>
+            ) : null}
+            {isHomeNetwork ? (
               <Link href="/farm/">
                 <a className={page === "farm" ? "text-primary5" : ""}>Farm</a>
               </Link>
@@ -57,9 +62,6 @@ export default function Layout({ title, children, page }) {
                 </a>
               </Link>
             ) : null}
-            <Link href="https://docs.thorstarter.org/">
-              <a target="_blank">Learn</a>
-            </Link>
           </div>
           <div
             className={`layout-header-network ${

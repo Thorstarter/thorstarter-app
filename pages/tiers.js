@@ -63,11 +63,13 @@ export default function Tiers() {
   useEffect(fetchData, [state.networkId, state.address]);
 
   useEffect(() => {
-    if (typeof document !== "undefined" && data?.staked) {
+    if (typeof document !== "undefined" && data?.total) {
       const totalWidth = document
         .querySelector(".tiers-wrapper__line")
         .getBoundingClientRect().width;
-      const totalEarn = parseFloat(data.total);
+      const totalEarn = parseFloat(
+        formatNumber(data.total, 0).replaceAll(",", "")
+      );
 
       if (totalEarn <= tiers[0].amount) {
         setPercent(`calc(${(12.5 * totalEarn) / tiers[0].amount}% - 12px)`);

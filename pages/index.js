@@ -22,26 +22,27 @@ import coverBnpl from "../public/ido/bnpl-cover.png";
 import logoThorswap from "../public/ido/thorswap-logo.png";
 import coverThorswap from "../public/ido/thorswap-cover.png";
 
-const liveIdo = {
-  name: "THORSwap",
-  token: "THOR",
-  type: "batch",
-  networkId: 1,
-  address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
-  xrunePrice: 0.5,
-  logo: logoThorswap,
-  cover: coverThorswap,
-  links: {
-    twitter: "https://twitter.com/thorswap",
-    telegram: "https://t.me/thorswap_ann",
-    medium: "https://thorswap.medium.com/",
-    website: "https://thorswap.finance/",
-    docs: "https://docs.thorchain.org/",
-    discord: "https://discord.gg/thorswap",
-  },
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "THORSwap",
+    token: "THOR",
+    type: "batch",
+    networkId: 1,
+    address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
+    xrunePrice: 0.5,
+    logo: logoThorswap,
+    cover: coverThorswap,
+    links: {
+      twitter: "https://twitter.com/thorswap",
+      telegram: "https://t.me/thorswap_ann",
+      medium: "https://thorswap.medium.com/",
+      website: "https://thorswap.finance/",
+      docs: "https://docs.thorchain.org/",
+      discord: "https://discord.gg/thorswap",
+    },
+  },
   {
     name: "BNPL Pay",
     token: "BNPL",

@@ -11,7 +11,7 @@ import {
   runTransaction,
 } from "../utils";
 
-export default function GovernanceProposals() {
+export default function Private() {
   const state = useGlobalState();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");

@@ -32,6 +32,8 @@ const tiers = [
 export default function Tiers() {
   const state = useGlobalState();
   const [modal, setModal] = useState();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState("");
   const [data, setData] = useState(null);
   const [percent, setPercent] = useState("0");
   const total = data ? parseFloat(formatUnits(data.total)) : 0;
@@ -43,7 +45,7 @@ export default function Tiers() {
     const userInfo = await contracts.tiers.userInfoAmounts(state.address);
     setData({
       user: user,
-      total: userInfo[1],
+      total: user[1].toNumber() > 0 ? userInfo[1] : 0,
       allowances: {
         xrune: await contracts.xrune.allowance(
           state.address,
@@ -64,55 +66,28 @@ export default function Tiers() {
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
-      const totalWidth = document
-        .querySelector(".tiers-wrapper__line")
-        .getBoundingClientRect().width;
-      const totalEarn = parseFloat(
-        formatNumber(data.total, 0).replaceAll(",", "")
-      );
+      const totalWidth = document.querySelector(".tiers-wrapper__line").getBoundingClientRect().width;
 
-      if (totalEarn <= tiers[0].amount) {
-        setPercent(`calc(${(12.5 * totalEarn) / tiers[0].amount}% - 12px)`);
-      } else if (totalEarn <= tiers[1].amount) {
-        const value =
-          ((totalEarn - tiers[0].amount) /
-            (tiers[1].amount - tiers[0].amount)) *
-          100;
-        const difference = 25;
-        const partWidth = (totalWidth * difference) / 100;
-        const position = (partWidth * value) / 100;
-        setPercent(`calc(12.5% + ${position}px)`);
-      } else if (totalEarn <= tiers[2].amount) {
-        const value =
-          ((totalEarn - tiers[1].amount) /
-            (tiers[2].amount - tiers[1].amount)) *
-          100;
-        const total = 25;
-        const partWidth = (totalWidth * total) / 100;
-        const position = (partWidth * value) / 100;
-        setPercent(`calc(37.5% + ${position}px)`);
-      } else if (totalEarn <= tiers[3].amount) {
-        const value =
-          ((totalEarn - tiers[2].amount) /
-            (tiers[3].amount - tiers[2].amount)) *
-          100;
-        const total = 25;
-        const partWidth = (totalWidth * total) / 100;
-        const position = (partWidth * value) / 100;
-        setPercent(`calc(62.5% + ${position}px)`);
-      } else {
-        const value =
-          ((totalEarn - tiers[3].amount) / (200000 - tiers[3].amount)) * 100;
-        const total = 25;
-        const partWidth = (totalWidth * total) / 100;
-        const position = (partWidth * value) / 100;
-        setPercent(`calc(82% + ${position - 24}px)`);
-        if (position > partWidth) {
-          setPercent(`calc(82% + ${partWidth}px)`);
+      let basePercent = 0;
+      let thisTier = 0;
+      let nextTier = tiers[0].amount;
+      for (let i = 0; total >= tiers[i].amount; i++) {
+        basePercent = (i * 25) + 12.5;
+        thisTier = tiers[i].amount;
+        if (i === 3) {
+          nextTier = 200000;
+        } else {
+          nextTier = tiers[i+1].amount;
         }
       }
+      console.log(basePercent, thisTier, nextTier, tiers[0].amount);
+      
+      const value = Math.min(1, ((total - thisTier) / (nextTier - thisTier)));
+      const partWidth = totalWidth / 4;
+      const position = partWidth * value;
+      setPercent(`calc(${basePercent}% + ${position - 24}px)`);
     }
-  }, [data]);
+  }, [data, total]);
 
   function onStartDeposit(id) {
     setModal({ type: "deposit", asset: id });
@@ -125,6 +100,12 @@ export default function Tiers() {
   function onClose() {
     setModal();
     fetchData();
+  }
+
+  async function onSignup() {
+    const contracts = getContracts();
+    const call = contracts.xrune.transferAndCall(contracts.tiers.address, "0", "0x");
+    await runTransaction(call, setLoading, setError).then(fetchData);
   }
 
   function renderAsset(id) {
@@ -156,11 +137,7 @@ export default function Tiers() {
         <div className="tiers-wrapper__line">
           <div
             className="tiers-wrapper__progress"
-            style={{
-              width: percent,
-              // Math.max(5, Math.min(100, (total / 170000) * 100)).toFixed(4) +
-              // "%",
-            }}
+            style={{width: percent}}
           >
             <div className="tiers-wrapper__data">
               Your score:{" "}
@@ -199,6 +176,8 @@ export default function Tiers() {
         </div>
       </div>
       <section className="page-section">
+        {error ? <div className="error mb-4">{error}</div> : null}
+        {loading ? <LoadingOverlay message={loading} /> : null}
         <h3 className="title">Deposit</h3>
         <div className="default-table">
           <table>
@@ -220,7 +199,13 @@ export default function Tiers() {
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>
-                <td></td>
+                <td className="tar">
+                  {total === 0 && data && data.balances.twnft.toNumber() > 0 ? (
+                    <Button onClick={onSignup} disabled={!data}>
+                      Click For NFT Credit
+                    </Button>
+                  ) : null}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -317,7 +302,7 @@ function ModalDeposit({ asset, data, onClose }) {
       );
       await runTransaction(call, setLoading, setError);
     } else {
-      const call = contracts.tiers.withdraw(
+      const call = contracts.tiers.deposit(
         contractAddresses[state.networkId][assets[asset].token],
         parsedAmount,
         state.address

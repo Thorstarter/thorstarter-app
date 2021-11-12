@@ -21,8 +21,26 @@ import logoBnpl from "../public/ido/bnpl-logo.png";
 import coverBnpl from "../public/ido/bnpl-cover.png";
 import logoThorswap from "../public/ido/thorswap-logo.png";
 import coverThorswap from "../public/ido/thorswap-cover.png";
+import logoThorwallet from "../public/ido/thorwallet-logo.png";
+import coverThorwallet from "../public/ido/thorwallet-cover.png";
 
-const liveIdo = null;
+const liveIdo = null; /*{
+  name: "THORWallet",
+  token: "TGT",
+  type: "fcfs",
+  networkId: 3,
+  address: "0x313e53AC3edb330b7Ac9f2b11A1dF27e9Ab3633C",
+  xrunePrice: 0.4,
+  logo: logoThorwallet,
+  cover: coverThorwallet,
+  links: {
+    twitter: "https://twitter.com/ThorWallet",
+    telegram: "https://t.me/THORWalletOfficial",
+    medium: "https://thorwallet.medium.com/",
+    website: "https://thorwallet.org/",
+    docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
+  },
+};*/
 
 const idos = [
   {
@@ -308,6 +326,36 @@ function IDOCard({ ido, parentSetParams }) {
         allocation: allocationForAmount(newParams, userInfo[0]),
       });
     }
+    if (ido.type === "fcfs") {
+      const sale = new ethers.Contract(
+        ido.address,
+        abis.saleFcfs,
+        state.provider
+      );
+      const params = await sale.getParams();
+      const newParams = {
+        timestamp: lastBlock.timestamp,
+        start: new Date(params[0].toNumber() * 1000),
+        end: new Date(params[1].toNumber() * 1000),
+        raising: params[2],
+        offering: params[3],
+        cap: params[4],
+        comitted: params[5],
+        paused: params[6],
+        finalized: params[7],
+        price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
+      };
+      setParams(newParams);
+      if (parentSetParams) parentSetParams(newParams);
+      if (!state.address) return;
+      const userInfo = await sale.userInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedTokens: userInfo[1],
+        allocation: await sale.getOfferingAmount(state.address),
+        allocationCap: (await sale.getUserAllocation(state.address))[0],
+      });
+    }
   }
 
   useEffect(() => {
@@ -320,7 +368,7 @@ function IDOCard({ ido, parentSetParams }) {
   async function callSaleMethod(method, ...args) {
     const sale = new ethers.Contract(
       ido.address,
-      ido.type === "batch" ? abis.saleBatch : abis.saleDutch,
+      ido.type === "fcfs" ? abis.saleFcfs : ido.type === "batch" ? abis.saleBatch : abis.saleDutch,
       state.signer
     );
     const call = sale[method](...args);
@@ -349,13 +397,19 @@ function IDOCard({ ido, parentSetParams }) {
   }
 
   function onDepositMax() {
-    if (formatNumber(params.cap) !== "0") {
+    if (ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + 3600) {
+      setAmount(formatNumber(userInfo.allocationCap.sub(userInfo.amount)).replace(/,/g, ""));
+    } else if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
       if (userInfo) cap = cap.sub(userInfo.amount);
       setAmount(formatNumber(bnMin(cap, balance)).replace(/,/g, ""));
     } else {
       setAmount(formatNumber(balance).replace(/,/g, ""));
     }
+  }
+
+  function onCollect() {
+    callSaleMethod("harvest");
   }
 
   function onCollectOwed() {
@@ -370,7 +424,6 @@ function IDOCard({ ido, parentSetParams }) {
     callSaleMethod("harvestAll");
   }
 
-  // TODO check saleSuccessful for dutch auction
   const idoActive =
     params &&
     params.timestamp >= params.start.getTime() / 1000 &&
@@ -391,7 +444,7 @@ function IDOCard({ ido, parentSetParams }) {
     formatNumber(userInfo.refund) !== "0" &&
     !userInfo.claimedRefund;
   let progress = "0";
-  if (ido.type === "batch" && params) {
+  if ((ido.type === "batch" || ido.type === "fcfs") && params) {
     progress = Math.min(
       params.comitted.mul(10000).div(params.raising).toNumber() / 100,
       100
@@ -560,7 +613,15 @@ function IDOCard({ ido, parentSetParams }) {
                 )}
               </div>
             </div>
-            {formatNumber(params.cap) !== "0" ? (
+            {ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + 3600 ? (
+              <div className="flex">
+                <div className="flex-1 text-gray6">Your Allocation</div>
+                <div>
+                  {formatNumber(userInfo.allocationCap)}{" "}
+                  <span className="text-gray6">XRUNE</span>
+                </div>
+              </div>
+            ) : formatNumber(params.cap) !== "0" ? (
               <div className="flex">
                 <div className="flex-1 text-gray6">Per User Cap</div>
                 <div>

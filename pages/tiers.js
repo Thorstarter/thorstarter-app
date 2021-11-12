@@ -76,6 +76,7 @@ export default function Tiers() {
         thisTier = tiers[i].amount;
         if (i === 3) {
           nextTier = 200000;
+          break;
         } else {
           nextTier = tiers[i+1].amount;
         }

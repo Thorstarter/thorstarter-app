@@ -408,9 +408,9 @@ function IDOCard({ ido, parentSetParams }) {
     } else if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
       if (userInfo) cap = cap.sub(userInfo.amount);
-      setAmount(formatNumber(bnMin(cap, balance)).replace(/,/g, ""));
+      setAmount(formatUnits(bnMin(cap, balance)).replace(/,/g, ""));
     } else {
-      setAmount(formatNumber(balance).replace(/,/g, ""));
+      setAmount(formatUnits(balance).replace(/,/g, ""));
     }
   }
 

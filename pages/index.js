@@ -12,6 +12,7 @@ import {
   useGlobalState,
   formatNumber,
   parseUnits,
+  formatUnits,
   runTransaction,
 } from "../utils";
 import abis from "../abis";

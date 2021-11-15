@@ -11,6 +11,7 @@ import {
   getContracts,
   useGlobalState,
   formatNumber,
+  parseUnits,
   runTransaction,
 } from "../utils";
 import abis from "../abis";
@@ -24,13 +25,14 @@ import coverThorswap from "../public/ido/thorswap-cover.png";
 import logoThorwallet from "../public/ido/thorwallet-logo.png";
 import coverThorwallet from "../public/ido/thorwallet-cover.png";
 
-const liveIdo = null; /*{
+const liveIdo = {
   name: "THORWallet",
   token: "TGT",
   type: "fcfs",
-  networkId: 3,
-  address: "0x313e53AC3edb330b7Ac9f2b11A1dF27e9Ab3633C",
-  xrunePrice: 0.4,
+  networkId: 1,
+  address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
+  xrunePrice: 0.65,
+  tiersDuration: 7200,
   logo: logoThorwallet,
   cover: coverThorwallet,
   links: {
@@ -40,7 +42,7 @@ const liveIdo = null; /*{
     website: "https://thorwallet.org/",
     docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
   },
-};*/
+};
 
 const idos = [
   {
@@ -333,16 +335,20 @@ function IDOCard({ ido, parentSetParams }) {
         state.provider
       );
       const params = await sale.getParams();
+      let allocationCap = parseUnits("0");
+      if (state.address) {
+        allocationCap = (await sale.getUserAllocation(state.address))[0];
+      }
       const newParams = {
         timestamp: lastBlock.timestamp,
         start: new Date(params[0].toNumber() * 1000),
         end: new Date(params[1].toNumber() * 1000),
-        raising: params[2],
+        raising: lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration ? params[4] : params[2],
         offering: params[3],
-        cap: params[4],
-        comitted: params[5],
-        paused: params[6],
-        finalized: params[7],
+        cap: lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration ? allocationCap : allocationCap.add(params[5]),
+        comitted: params[6],
+        paused: params[7],
+        finalized: params[8],
         price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
       };
       setParams(newParams);
@@ -353,7 +359,7 @@ function IDOCard({ ido, parentSetParams }) {
         amount: userInfo[0],
         claimedTokens: userInfo[1],
         allocation: await sale.getOfferingAmount(state.address),
-        allocationCap: (await sale.getUserAllocation(state.address))[0],
+        allocationCap: allocationCap,
       });
     }
   }
@@ -397,7 +403,7 @@ function IDOCard({ ido, parentSetParams }) {
   }
 
   function onDepositMax() {
-    if (ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + 3600) {
+    if (ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + ido.tiersDuration) {
       setAmount(formatNumber(userInfo.allocationCap.sub(userInfo.amount)).replace(/,/g, ""));
     } else if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
@@ -408,12 +414,12 @@ function IDOCard({ ido, parentSetParams }) {
     }
   }
 
-  function onCollect() {
-    callSaleMethod("harvest");
-  }
-
   function onCollectOwed() {
-    callSaleMethod("harvestTokens");
+    if (ido.type == "fcfs") {
+      callSaleMethod("harvest", false)
+    } else {
+      callSaleMethod("harvestTokens");
+    }
   }
 
   function onCollectRefund() {
@@ -571,7 +577,7 @@ function IDOCard({ ido, parentSetParams }) {
                 </div>
               </div>
             ) : null}
-            {ido.type === "batch" ? (
+            {ido.type === "batch" || ido.type === "fcfs" ? (
               <div className="flex mb-3">
                 <div className="flex-1 text-gray6">Committed %</div>
                 <div>
@@ -596,7 +602,7 @@ function IDOCard({ ido, parentSetParams }) {
             </div>
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Committed XRUNE</div>
-              <div>{formatNumber(params.comitted, 0)}</div>
+              <div>{formatNumber(params.comitted, 0)} / {formatNumber(params.raising, 0)}</div>
             </div>
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">
@@ -613,7 +619,7 @@ function IDOCard({ ido, parentSetParams }) {
                 )}
               </div>
             </div>
-            {ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + 3600 ? (
+            {ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + ido.tiersDuration ? (
               <div className="flex">
                 <div className="flex-1 text-gray6">Your Allocation</div>
                 <div>

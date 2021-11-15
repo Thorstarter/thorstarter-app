@@ -594,6 +594,11 @@ export const saleFcfs = [
         type: "uint256",
       },
       {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
         internalType: "bool",
         name: "",
         type: "bool",

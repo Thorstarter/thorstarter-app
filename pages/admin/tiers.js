@@ -54,19 +54,23 @@ export default function AdminTiers() {
           <table>
               <tr>
                   <td>Tier 1</td>
-                  <td>{data.tiers[1]}</td>
+                  <td>{data.tiers[1]} (x1 = {data.tiers[1]*1})</td>
               </tr>
               <tr>
                   <td>Tier 2</td>
-                  <td>{data.tiers[2]}</td>
+                  <td>{data.tiers[2]} (x1.5 = {data.tiers[2]*1.5})</td>
               </tr>
               <tr>
                   <td>Tier 3</td>
-                  <td>{data.tiers[3]}</td>
+                  <td>{data.tiers[3]} (x5 = {data.tiers[3]*5})</td>
               </tr>
               <tr>
                   <td>Tier 4</td>
-                  <td>{data.tiers[4]}</td>
+                  <td>{data.tiers[4]} (x10 = {data.tiers[4]*10})</td>
+              </tr>
+              <tr>
+                  <td>Allocations</td>
+                  <td>{(data.tiers[1]*1) + (data.tiers[2]*1.5) + (data.tiers[3]*5) + (data.tiers[4]*10)}</td>
               </tr>
           </table>
       ) : null}

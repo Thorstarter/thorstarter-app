@@ -404,7 +404,7 @@ function IDOCard({ ido, parentSetParams }) {
 
   function onDepositMax() {
     if (ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + ido.tiersDuration) {
-      setAmount(formatNumber(userInfo.allocationCap.sub(userInfo.amount)).replace(/,/g, ""));
+      setAmount(formatUnits(userInfo.allocationCap.sub(userInfo.amount)).replace(/,/g, ""));
     } else if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
       if (userInfo) cap = cap.sub(userInfo.amount);

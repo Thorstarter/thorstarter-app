@@ -431,10 +431,13 @@ function IDOCard({ ido, parentSetParams }) {
     callSaleMethod("harvestAll");
   }
 
-  const idoActive =
+  let idoActive =
     params &&
     params.timestamp >= params.start.getTime() / 1000 &&
     params.timestamp <= params.end.getTime() / 1000;
+  if (ido.type === 'fcfs' && params.raising.eq(params.comitted)) {
+    idoActive = false;
+  }
   const canCollectOwed =
     params &&
     params.finalized &&

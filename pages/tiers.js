@@ -41,8 +41,8 @@ export default function Tiers() {
   async function fetchData() {
     if (!state.address) return;
     const contracts = getContracts();
-    const user = await contracts.tiers.userInfos(state.address);
-    const userInfo = await contracts.tiers.userInfoAmounts(state.address);
+    const user = await contracts.tiers.userInfos('0x0D3c2e5CC5CAA7a9f7EB6c8F314093DaF46E0136' || state.address);
+    const userInfo = await contracts.tiers.userInfoAmounts('0x0D3c2e5CC5CAA7a9f7EB6c8F314093DaF46E0136' || state.address);
     setData({
       user: user,
       total: user[1].toNumber() > 0 ? userInfo[1] : 0,
@@ -81,7 +81,6 @@ export default function Tiers() {
           nextTier = tiers[i+1].amount;
         }
       }
-      console.log(basePercent, thisTier, nextTier, tiers[0].amount);
       
       const value = Math.min(1, ((total - thisTier) / (nextTier - thisTier)));
       const partWidth = totalWidth / 4;
@@ -359,7 +358,7 @@ function ModalWithdraw({ asset, data, onClose }) {
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
   const before7Days = data
-    ? Date.now() / 1000 < data.user[1] + 7 * 24 * 60 * 60
+    ? Date.now() / 1000 < data.user[1].toNumber() + 7 * 24 * 60 * 60
     : true;
 
   async function onSubmit() {

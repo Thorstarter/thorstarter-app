@@ -26,26 +26,27 @@ import coverThorswap from "../public/ido/thorswap-cover.png";
 import logoThorwallet from "../public/ido/thorwallet-logo.png";
 import coverThorwallet from "../public/ido/thorwallet-cover.png";
 
-const liveIdo = {
-  name: "THORWallet",
-  token: "TGT",
-  type: "fcfs",
-  networkId: 1,
-  address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
-  xrunePrice: 0.55,
-  tiersDuration: 7200,
-  logo: logoThorwallet,
-  cover: coverThorwallet,
-  links: {
-    twitter: "https://twitter.com/ThorWallet",
-    telegram: "https://t.me/THORWalletOfficial",
-    medium: "https://thorwallet.medium.com/",
-    website: "https://thorwallet.org/",
-    docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
-  },
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "THORWallet",
+    token: "TGT",
+    type: "fcfs",
+    networkId: 1,
+    address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
+    xrunePrice: 0.55,
+    tiersDuration: 7200,
+    logo: logoThorwallet,
+    cover: coverThorwallet,
+    links: {
+      twitter: "https://twitter.com/ThorWallet",
+      telegram: "https://t.me/THORWalletOfficial",
+      medium: "https://thorwallet.medium.com/",
+      website: "https://thorwallet.org/",
+      docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
+    },
+  },
   {
     name: "THORSwap",
     token: "THOR",

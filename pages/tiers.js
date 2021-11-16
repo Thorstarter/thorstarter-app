@@ -41,8 +41,8 @@ export default function Tiers() {
   async function fetchData() {
     if (!state.address) return;
     const contracts = getContracts();
-    const user = await contracts.tiers.userInfos('0x0D3c2e5CC5CAA7a9f7EB6c8F314093DaF46E0136' || state.address);
-    const userInfo = await contracts.tiers.userInfoAmounts('0x0D3c2e5CC5CAA7a9f7EB6c8F314093DaF46E0136' || state.address);
+    const user = await contracts.tiers.userInfos(state.address);
+    const userInfo = await contracts.tiers.userInfoAmounts(state.address);
     setData({
       user: user,
       total: user[1].toNumber() > 0 ? userInfo[1] : 0,

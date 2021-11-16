@@ -7,6 +7,7 @@ import Modal from "../components/modal";
 import LoadingOverlay from "../components/loadingOverlay";
 import {
   parseUnits,
+  formatDate,
   formatNumber,
   useGlobalState,
   getContracts,
@@ -389,6 +390,9 @@ function ModalWithdraw({ asset, data, onClose }) {
   return (
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
       <h2>Withdraw {assets[asset].name}</h2>
+
+      <div className="text-sm">Last Deposit: <strong>{formatDate(data.user[1])}</strong></div>
+      <div className="text-sm mb-2">No Penalty Withdraw: <strong>{formatDate((data.user[1].toNumber()+(7*24*60*60))*1000)}</strong></div>
 
       {before7Days ? (
         <p className="error text-sm">

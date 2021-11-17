@@ -192,6 +192,7 @@ export default function Tiers() {
             </thead>
             <tbody>
               {renderAsset("xrune")}
+              {/*
               <tr>
                 <td>ThorWallet NFT</td>
                 <td className="tac" style={{ width: 110 }}>
@@ -208,6 +209,7 @@ export default function Tiers() {
                   ) : null}
                 </td>
               </tr>
+              */}
             </tbody>
           </table>
         </div>

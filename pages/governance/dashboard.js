@@ -15,8 +15,8 @@ import {
 } from "../../utils";
 import abis from "../../abis";
 
-import logoSkyrim from "../../public/ido/skyrim-logo.png";
-import coverSkyrim from "../../public/ido/skyrim-cover.png";
+// import logoSkyrim from "../../public/ido/skyrim-logo.png";
+// import coverSkyrim from "../../public/ido/skyrim-cover.png";
 import logoBnpl from "../../public/ido/bnpl-logo.png";
 import coverBnpl from "../../public/ido/bnpl-cover.png";
 import logoThorswap from "../../public/ido/thorswap-logo.png";
@@ -55,22 +55,22 @@ const vestingIdos = [
       3: "",
     },
   },
-  {
-    name: "Skyrim",
-    date: "2021-08-31",
-    initialGrant: "$ 250,000",
-    vesting: "2 years",
-    logo: logoSkyrim,
-    cover: coverSkyrim,
-    snapshotId: {
-      1: "3",
-      3: "",
-    },
-    contract: {
-      1: "0x7bc47D1632A598A79031e6f65958Aa0f681a3BD3",
-      3: "",
-    },
-  },
+  // {
+  //   name: "Skyrim",
+  //   date: "2021-08-31",
+  //   initialGrant: "$ 250,000",
+  //   vesting: "2 years",
+  //   logo: logoSkyrim,
+  //   cover: coverSkyrim,
+  //   snapshotId: {
+  //     1: "3",
+  //     3: "",
+  //   },
+  //   contract: {
+  //     1: "0x7bc47D1632A598A79031e6f65958Aa0f681a3BD3",
+  //     3: "",
+  //   },
+  // },
 ];
 
 async function fetchPrice() {
@@ -217,7 +217,8 @@ export default function GovernanceDashboard() {
   async function onClaimAll() {
     const snapshotIds = [];
     for (let ido of idos) {
-      if (ido.claimable.gt('0')) snapshotIds.push(ido.snapshotId[state.networkId]);
+      if (ido.claimable.gt("0"))
+        snapshotIds.push(ido.snapshotId[state.networkId]);
     }
     const contracts = getContracts();
     const call = contracts.vid.claimMultipleTo(snapshotIds, state.address);
@@ -225,7 +226,10 @@ export default function GovernanceDashboard() {
     fetchData();
   }
 
-  const totalClaimable = (idos || []).reduce((t, i) => t.add(i.claimable), bn("0"));
+  const totalClaimable = (idos || []).reduce(
+    (t, i) => t.add(i.claimable),
+    bn("0")
+  );
 
   return (
     <Layout title="Governance: Vesting Dashboard">

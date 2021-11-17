@@ -17,8 +17,8 @@ import {
 } from "../utils";
 import abis from "../abis";
 
-import logoSkyrim from "../public/ido/skyrim-logo.png";
-import coverSkyrim from "../public/ido/skyrim-cover.png";
+// import logoSkyrim from "../public/ido/skyrim-logo.png";
+// import coverSkyrim from "../public/ido/skyrim-cover.png";
 import logoBnpl from "../public/ido/bnpl-logo.png";
 import coverBnpl from "../public/ido/bnpl-cover.png";
 import logoThorswap from "../public/ido/thorswap-logo.png";
@@ -83,24 +83,24 @@ const idos = [
       about: "https://thorstarter.org/ido/bnpl",
     },
   },
-  {
-    name: "Skyrim Finance",
-    token: "SKYRIM",
-    type: "dutch",
-    networkId: 1,
-    address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
-    xrunePrice: 0.5,
-    logo: logoSkyrim,
-    cover: coverSkyrim,
-    links: {
-      twitter: "https://twitter.com/SkyrimFinance",
-      telegram: "https://t.me/skyrimfinance",
-      medium: "https://medium.com/@skyrimfinance",
-      website: "https://skyrim.finance/",
-      docs: "https://docs.skyrim.finance/",
-      about: "https://thorstarter.org/ido/skyrim",
-    },
-  },
+  // {
+  //   name: "Skyrim Finance",
+  //   token: "SKYRIM",
+  //   type: "dutch",
+  //   networkId: 1,
+  //   address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
+  //   xrunePrice: 0.5,
+  //   logo: logoSkyrim,
+  //   cover: coverSkyrim,
+  //   links: {
+  //     twitter: "https://twitter.com/SkyrimFinance",
+  //     telegram: "https://t.me/skyrimfinance",
+  //     medium: "https://medium.com/@skyrimfinance",
+  //     website: "https://skyrim.finance/",
+  //     docs: "https://docs.skyrim.finance/",
+  //     about: "https://thorstarter.org/ido/skyrim",
+  //   },
+  // },
 ];
 
 export default function IDOs() {
@@ -345,9 +345,15 @@ function IDOCard({ ido, parentSetParams }) {
         timestamp: lastBlock.timestamp,
         start: new Date(params[0].toNumber() * 1000),
         end: new Date(params[1].toNumber() * 1000),
-        raising: lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration ? params[4] : params[2],
+        raising:
+          lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration
+            ? params[4]
+            : params[2],
         offering: params[3],
-        cap: lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration ? allocationCap : allocationCap.add(params[5]),
+        cap:
+          lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration
+            ? allocationCap
+            : allocationCap.add(params[5]),
         comitted: params[6],
         paused: params[7],
         finalized: params[8],
@@ -376,7 +382,11 @@ function IDOCard({ ido, parentSetParams }) {
   async function callSaleMethod(method, ...args) {
     const sale = new ethers.Contract(
       ido.address,
-      ido.type === "fcfs" ? abis.saleFcfs : ido.type === "batch" ? abis.saleBatch : abis.saleDutch,
+      ido.type === "fcfs"
+        ? abis.saleFcfs
+        : ido.type === "batch"
+        ? abis.saleBatch
+        : abis.saleDutch,
       state.signer
     );
     const call = sale[method](...args);
@@ -405,8 +415,17 @@ function IDOCard({ ido, parentSetParams }) {
   }
 
   function onDepositMax() {
-    if (ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + ido.tiersDuration) {
-      setAmount(formatUnits(userInfo.allocationCap.sub(userInfo.amount)).replace(/,/g, ""));
+    if (
+      ido.type === "fcfs" &&
+      userInfo &&
+      params.timestamp < params.start.getTime() / 1000 + ido.tiersDuration
+    ) {
+      setAmount(
+        formatUnits(userInfo.allocationCap.sub(userInfo.amount)).replace(
+          /,/g,
+          ""
+        )
+      );
     } else if (formatNumber(params.cap) !== "0") {
       let cap = params.cap;
       if (userInfo) cap = cap.sub(userInfo.amount);
@@ -418,7 +437,7 @@ function IDOCard({ ido, parentSetParams }) {
 
   function onCollectOwed() {
     if (ido.type == "fcfs") {
-      callSaleMethod("harvest", false)
+      callSaleMethod("harvest", false);
     } else {
       callSaleMethod("harvestTokens");
     }
@@ -436,7 +455,7 @@ function IDOCard({ ido, parentSetParams }) {
     params &&
     params.timestamp >= params.start.getTime() / 1000 &&
     params.timestamp <= params.end.getTime() / 1000;
-  if (ido.type === 'fcfs' && params && params.raising.eq(params.comitted)) {
+  if (ido.type === "fcfs" && params && params.raising.eq(params.comitted)) {
     idoActive = false;
   }
   const canCollectOwed =
@@ -607,7 +626,10 @@ function IDOCard({ ido, parentSetParams }) {
             </div>
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Committed XRUNE</div>
-              <div>{formatNumber(params.comitted, 0)} / {formatNumber(params.raising, 0)}</div>
+              <div>
+                {formatNumber(params.comitted, 0)} /{" "}
+                {formatNumber(params.raising, 0)}
+              </div>
             </div>
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">
@@ -624,7 +646,10 @@ function IDOCard({ ido, parentSetParams }) {
                 )}
               </div>
             </div>
-            {ido.type === "fcfs" && userInfo && params.timestamp < params.start.getTime()/1000 + ido.tiersDuration ? (
+            {ido.type === "fcfs" &&
+            userInfo &&
+            params.timestamp <
+              params.start.getTime() / 1000 + ido.tiersDuration ? (
               <div className="flex">
                 <div className="flex-1 text-gray6">Your Allocation</div>
                 <div>

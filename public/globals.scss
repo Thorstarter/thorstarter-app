@@ -734,6 +734,27 @@ a:hover .icon svg {
   }
 }
 
+.flex-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  .title {
+    margin-bottom: 0;
+  }
+  @media only screen and (max-width: 992px) {
+    margin-bottom: 12px;
+  }
+}
+
+.apy-label {
+  font-size: 24px;
+  strong {
+    font-weight: 500;
+    color: var(--primary5);
+  }
+}
+
 .tiers-wrapper {
   border: 1px solid #1C3548;
   border-radius: 10px;

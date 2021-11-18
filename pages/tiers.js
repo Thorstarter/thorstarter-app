@@ -67,23 +67,25 @@ export default function Tiers() {
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
-      const totalWidth = document.querySelector(".tiers-wrapper__line").getBoundingClientRect().width;
+      const totalWidth = document
+        .querySelector(".tiers-wrapper__line")
+        .getBoundingClientRect().width;
 
       let basePercent = 0;
       let thisTier = 0;
       let nextTier = tiers[0].amount;
       for (let i = 0; total >= tiers[i].amount; i++) {
-        basePercent = (i * 25) + 12.5;
+        basePercent = i * 25 + 12.5;
         thisTier = tiers[i].amount;
         if (i === 3) {
           nextTier = 200000;
           break;
         } else {
-          nextTier = tiers[i+1].amount;
+          nextTier = tiers[i + 1].amount;
         }
       }
-      
-      const value = Math.min(1, ((total - thisTier) / (nextTier - thisTier)));
+
+      const value = Math.min(1, (total - thisTier) / (nextTier - thisTier));
       const partWidth = totalWidth / 4;
       const position = partWidth * value;
       setPercent(`calc(${basePercent}% + ${position - 24}px)`);
@@ -105,7 +107,11 @@ export default function Tiers() {
 
   async function onSignup() {
     const contracts = getContracts();
-    const call = contracts.xrune.transferAndCall(contracts.tiers.address, "0", "0x");
+    const call = contracts.xrune.transferAndCall(
+      contracts.tiers.address,
+      "0",
+      "0x"
+    );
     await runTransaction(call, setLoading, setError).then(fetchData);
   }
 
@@ -133,13 +139,15 @@ export default function Tiers() {
 
   return (
     <Layout title="Tiers" page="tiers">
-      <h1 className="title">Tiers</h1>
+      <div className="flex-heading">
+        <h1 className="title">Tiers</h1>
+        <span className="apy-label">
+          APY: <strong>10%</strong>
+        </span>
+      </div>
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">
-          <div
-            className="tiers-wrapper__progress"
-            style={{width: percent}}
-          >
+          <div className="tiers-wrapper__progress" style={{ width: percent }}>
             <div className="tiers-wrapper__data">
               Your score:{" "}
               <span>{data ? formatNumber(data.total, 0) : "-"}</span>
@@ -186,7 +194,7 @@ export default function Tiers() {
               <tr>
                 <th>Asset</th>
                 <th>Balance</th>
-                <th>Staked</th>
+                <th>Staked (Including 10% APY)</th>
                 <th />
               </tr>
             </thead>
@@ -393,8 +401,15 @@ function ModalWithdraw({ asset, data, onClose }) {
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
       <h2>Withdraw {assets[asset].name}</h2>
 
-      <div className="text-sm">Last Deposit: <strong>{formatDate(data.user[1])}</strong></div>
-      <div className="text-sm mb-2">No Penalty Withdraw: <strong>{formatDate((data.user[1].toNumber()+(7*24*60*60))*1000)}</strong></div>
+      <div className="text-sm">
+        Last Deposit: <strong>{formatDate(data.user[1])}</strong>
+      </div>
+      <div className="text-sm mb-2">
+        No Penalty Withdraw:{" "}
+        <strong>
+          {formatDate((data.user[1].toNumber() + 7 * 24 * 60 * 60) * 1000)}
+        </strong>
+      </div>
 
       {before7Days ? (
         <p className="error text-sm">

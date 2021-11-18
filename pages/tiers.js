@@ -349,7 +349,8 @@ function ModalDeposit({ asset, data, onClose }) {
         />
         <a
           className="input-link"
-          onClick={() => setAmount(formatNumber(data.balances[asset]))}
+          style={{top: 22}}
+          onClick={() => setAmount(formatUnits(data.balances[asset]))}
         >
           Max
         </a>
@@ -374,6 +375,7 @@ function ModalWithdraw({ asset, data, onClose }) {
 
   async function onSubmit() {
     if (!data) return;
+    console.log(amount.replace(/[^0-9\.]/g, ""));
     const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
     if (Number.isNaN(parsedAmount)) {
       setError("Not a valid number");
@@ -434,7 +436,8 @@ function ModalWithdraw({ asset, data, onClose }) {
         />
         <a
           className="input-link"
-          onClick={() => setAmount(formatNumber(data.staked[asset]))}
+          style={{top: 22}}
+          onClick={() => setAmount(formatUnits(data.staked[asset]))}
         >
           Max
         </a>

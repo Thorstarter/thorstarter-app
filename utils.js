@@ -242,6 +242,7 @@ export async function runTransaction(callPromise, setLoading, setError) {
   } catch (err) {
     console.error("runTransaction:", err);
     setError(formatErrorMessage(err));
+    throw err;
   } finally {
     setLoading("");
   }

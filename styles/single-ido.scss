@@ -1,0 +1,103 @@
+.ido-head {
+	background-color: #0a1f2f;
+	border-radius: 10px;
+	padding: 46px 50px 40px;
+	display: grid;
+	grid-template-columns: 0.925fr 1.075fr;
+	grid-gap: 88px;
+	&__aside {
+		position: relative;
+		padding-left: 89px;
+		.copier {
+			margin-top: 10px;
+		}
+		.ido-links {
+			margin: 24px 0 0;
+			a {
+				margin-right: 20px;
+			}
+		}
+	}
+	&__logo {
+		position: absolute;
+		top: 6px;
+		left: 0;
+		width: 64px;
+		height: auto;
+	}
+	&__title {
+		font-size: 48px;
+		line-height: 1.05;
+		font-weight: 400;
+		margin: 0;
+	}
+	&__buttons {
+		margin: 25px 0 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		li:not(:last-child) {
+			margin-right: 20px;
+		}
+		.button {
+			min-width: 155px;
+		}
+	}
+	&__meta {
+		margin: 24px 0 -8px;
+		padding: 0;
+		list-style: none;
+		font-size: 14px;
+		line-height: 1.45;
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		flex-wrap: wrap;
+		li {
+			display: inline-flex;
+			align-items: center;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+			&:not(:last-child) {
+				margin-right: 22px;
+			}
+			img {
+				margin-right: 10px;
+			}
+		}
+	}
+	&__section {
+		&:not(:last-child) {
+			margin-bottom: 25px;
+		}
+		&-value {
+			font-size: 40px;
+			line-height: 1;
+			color: var(--primary5);
+			margin-top: 8px;
+		}
+		.progress {
+			margin-top: 12px;
+		}
+	}
+	&__subtitle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font-size: 16px;
+		line-height: 1.25;
+		span {
+			font-size: 18px;
+		}
+	}
+}
+
+.ido-tables {
+	margin-top: 50px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 30px;
+	align-items: flex-start;
+}

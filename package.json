@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@walletconnect/web3-provider": "1.6.5",
+    "dateformat": "^5.0.2",
     "ethers": "5.4.7",
     "next": "11.1.2",
     "react": "17.0.2",

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import dateFormat from "dateformat";
 
 import Layout from "../../components/layout";
@@ -7,6 +8,39 @@ import { IconSvg } from "../../components/icon";
 import ido from "../../data/ido.json";
 
 export default function Single({ data }) {
+  const [about, setAbout] = useState([]);
+  const [additionalInfo, setAdditionalInfo] = useState(false);
+
+  useEffect(() => {
+    setAbout([]);
+
+    // set array of about section blocks
+    data.about.forEach((item) => {
+      item.title &&
+        item.content &&
+        setAbout((prevState) => [...prevState, item]);
+    });
+
+    // check additional section visibillity
+    if (
+      data.detailedTokenMetrics.length > 0 ||
+      data.privateSale.length > 0 ||
+      data.publicSale.length > 0
+    ) {
+      setAdditionalInfo(true);
+    }
+  }, [data]);
+
+  const smoothScrollTo = (id) => {
+    window.scrollTo({
+      top:
+        document.getElementById(id).getBoundingClientRect().top +
+        window.scrollY -
+        28,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <Layout title={data.tokenInformation.name.value} page={`/ido/${data.slug}`}>
       <div className="ido-head">
@@ -35,7 +69,7 @@ export default function Single({ data }) {
             </li>
             <li>
               <a
-                href="#"
+                href={`https://etherscan.io/address/${data.tokenInformation.address.value}`}
                 target="_blank"
                 rel="noreferrer"
                 className="button button-lg button-outline button-white"
@@ -71,7 +105,7 @@ export default function Single({ data }) {
             })}
           </div>
         </div>
-        <div>
+        <div className="ido-head__main">
           <div className="ido-head__section">
             <div className="ido-head__subtitle">
               Swap Amount{" "}
@@ -100,6 +134,7 @@ export default function Single({ data }) {
           </div>
         </div>
       </div>
+
       <div className="ido-tables">
         <table className="table justified">
           <thead>
@@ -131,23 +166,146 @@ export default function Single({ data }) {
                   true
                 )
               )} UTC`;
-              return (
-                data.poolDetails[key].label &&
-                data.poolDetails[key].value && (
-                  <tr key={idx}>
-                    <td>{data.poolDetails[key].label}</td>
-                    {key === "date" ? (
-                      <td>{dateString}</td>
-                    ) : (
-                      <td>{data.poolDetails[key].value}</td>
-                    )}
-                  </tr>
-                )
-              );
+              return data.poolDetails[key].label &&
+                data.poolDetails[key].value ? (
+                <tr key={idx}>
+                  <td>{data.poolDetails[key].label}</td>
+                  {key === "date" ? (
+                    <td>{dateString}</td>
+                  ) : (
+                    <td>{data.poolDetails[key].value}</td>
+                  )}
+                </tr>
+              ) : null;
             })}
           </tbody>
         </table>
       </div>
+
+      {about.length > 0 && (
+        <section className="ido-content">
+          <h3 className="title">About Project</h3>
+          <div className="ido-content__grid">
+            <div className="ido-content__aside">
+              <ul>
+                {about.map(
+                  (item, idx) =>
+                    item.title &&
+                    item.content && (
+                      <li
+                        key={idx}
+                        onClick={() =>
+                          smoothScrollTo(`ido-about-section-${idx}`)
+                        }
+                      >
+                        <span>{idx + 1}</span>
+                        {item.title}
+                      </li>
+                    )
+                )}
+                {additionalInfo && (
+                  <li
+                    onClick={() =>
+                      smoothScrollTo(`ido-about-section-${about.length}`)
+                    }
+                  >
+                    <span>{about.length + 1}</span>
+                    Detailed Token Metrics
+                  </li>
+                )}
+              </ul>
+            </div>
+            <div className="ido-content__main">
+              {about.map(
+                (item, idx) =>
+                  item.title &&
+                  item.content && (
+                    <section
+                      className="ido-content__section"
+                      key={idx}
+                      id={`ido-about-section-${idx}`}
+                    >
+                      <h4 className="ido-content__subtitle">
+                        {idx + 1}. {item.title}
+                      </h4>
+                      <div
+                        className="ido-content__description"
+                        dangerouslySetInnerHTML={{ __html: item.content }}
+                      />
+                    </section>
+                  )
+              )}
+              {additionalInfo && (
+                <section
+                  className="ido-content__section"
+                  id={`ido-about-section-${about.length}`}
+                >
+                  <h4 className="ido-content__subtitle">
+                    {about.length + 1}. Detailed Token Metrics
+                  </h4>
+                  {data.detailedTokenMetrics.length > 0 && (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th colSpan={2}>Key Metrics</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.detailedTokenMetrics.map((item, idx) =>
+                          item.title && item.value ? (
+                            <tr key={idx}>
+                              <td>{item.title}</td>
+                              <td>{item.value}</td>
+                            </tr>
+                          ) : null
+                        )}
+                      </tbody>
+                    </table>
+                  )}
+                  {data.privateSale.length > 0 && (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th colSpan={2}>Private Sale</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.privateSale.map((item, idx) =>
+                          item.title && item.value ? (
+                            <tr key={idx}>
+                              <td>{item.title}</td>
+                              <td>{item.value}</td>
+                            </tr>
+                          ) : null
+                        )}
+                      </tbody>
+                    </table>
+                  )}
+                  {data.publicSale.length > 0 && (
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th colSpan={2}>Public Sale (SHO)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.publicSale.map((item, idx) =>
+                          item.title && item.value ? (
+                            <tr key={idx}>
+                              <td>{item.title}</td>
+                              <td>{item.value}</td>
+                            </tr>
+                          ) : null
+                        )}
+                      </tbody>
+                    </table>
+                  )}
+                </section>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 }

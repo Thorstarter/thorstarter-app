@@ -94,7 +94,7 @@
     },
     {
       "title": "Total Supply",
-      "value": 1000000000
+      "value": "1,000,000,000"
     },
     {
       "title": "Project Valulation",
@@ -102,21 +102,21 @@
     },
     {
       "title": "Token Circulation",
-      "value": 91000000
+      "value": "91,000,000"
     },
     {
       "title": "Market cap",
-      "value": 9000000
+      "value": "9,000,000"
     },
     {
       "title": "Platform Raise",
-      "value": 7200000
+      "value": "7,200,000"
     }
   ],
   "privateSale": [
     {
       "title": "Fundraise",
-      "value": 5875000
+      "value": "5,875,000"
     },
     {
       "title": "Price",
@@ -272,19 +272,19 @@
     },
     {
       "title": "Total Supply",
-      "value": 500000000
+      "value": "500,000,000"
     },
     {
       "title": "Project Valulation",
-      "value": 37500000
+      "value": "$37,500,000"
     },
     {
       "title": "Token Circulation",
-      "value": 25000000
+      "value": "25,000,000"
     },
     {
       "title": "Market cap",
-      "value": 1875000
+      "value": "$1,875,000"
     },
     {
       "title": "Platform Raise",
@@ -294,7 +294,7 @@
   "privateSale": [
     {
       "title": "Fundraise",
-      "value": 3750000
+      "value": "$3,750,000"
     },
     {
       "title": "Price",

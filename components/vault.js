@@ -14,8 +14,10 @@ import {
 
 export default function Vault({ data }) {
   const [balance, setBalance] = useState(0);
-  const [stakeValue, setStakeValue] = useState(0);
+  const [fieldValue, setFieldValue] = useState(0);
   const [additionalStake, setAdditionalStake] = useState(false);
+  const [availableLimit, setAvailableLimit] = useState(data.maxLock);
+  const [totalStaked, setTotalStaked] = useState(0);
   const state = useGlobalState();
 
   async function onConnect() {
@@ -28,7 +30,16 @@ export default function Vault({ data }) {
 
   const onChangeField = (e) => {
     const value = e.target.value.replace(/[^0-9.]/g, "");
-    setStakeValue(value);
+    setFieldValue(value);
+  };
+
+  const onMaxClicked = () => {
+    const value = parseFloat(formatNumber(balance).replace(/,/g, ""));
+    if (value < availableLimit) {
+      setFieldValue(value);
+    } else {
+      setFieldValue(availableLimit);
+    }
   };
 
   async function fetchData() {
@@ -41,7 +52,6 @@ export default function Vault({ data }) {
   useEffect(() => {
     fetchData();
     const handle = setInterval(fetchData, 5000);
-    setTimeout(() => clearInterval(handle));
     return () => clearInterval(handle);
   }, [state.networkId, state.address]);
 
@@ -114,9 +124,13 @@ export default function Vault({ data }) {
                 placeholder="0.00"
                 className="vault__field"
                 onChange={onChangeField}
-                value={stakeValue > 0 ? stakeValue : ""}
+                value={fieldValue > 0 ? fieldValue : ""}
               />
-              <button type="button" className="vault__max">
+              <button
+                type="button"
+                className="vault__max"
+                onClick={onMaxClicked}
+              >
                 MAX
               </button>
             </div>
@@ -164,9 +178,13 @@ export default function Vault({ data }) {
                     placeholder="0.00"
                     className="vault__field"
                     onChange={onChangeField}
-                    value={stakeValue > 0 ? stakeValue : ""}
+                    value={fieldValue > 0 ? fieldValue : ""}
                   />
-                  <button type="button" className="vault__max">
+                  <button
+                    type="button"
+                    className="vault__max"
+                    onClick={onMaxClicked}
+                  >
                     MAX
                   </button>
                 </div>
@@ -188,7 +206,7 @@ export default function Vault({ data }) {
         <div className="vault__value">
           Available limit:
           <span>
-            {formatNumber(data.maxLock)} {data.earn}
+            {formatNumber(availableLimit)} {data.earn}
           </span>
           <div className="progress">
             <div className="progress-bar" style={{ width: `0%` }} />
@@ -197,7 +215,7 @@ export default function Vault({ data }) {
         <div className="vault__value">
           Total Staked:
           <span>
-            {formatNumber(0)} {data.earn}
+            {formatNumber(totalStaked)} {data.earn}
           </span>
         </div>
       </div>

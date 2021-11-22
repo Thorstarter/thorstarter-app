@@ -811,13 +811,42 @@ a:hover .icon svg {
   }
 }
 
+.tiers-upcoming-ido {
+  padding: 32px;
+  border-radius: 8px;
+  background: #0A1F2F;
+  margin: 32px 0 0;
+}
+.tiers-upcoming-ido h2 {
+  margin: 0 0 16px;
+}
+.tiers-upcoming-ido p {
+  margin: 0 0  16px;
+}
+.tiers-upcoming-ido .flex {
+  align-items: center;
+}
+.tiers-upcoming-ido table {
+  width: 100%;
+  margin: 8px 0 0;
+  border-collapse: collapse;
+}
+.tiers-upcoming-ido table td, .tiers-upcoming-ido th {
+  font-size: 14px;
+  text-align: center;
+  padding: 8px 16px;
+}
+.tiers-upcoming-ido th {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+
 .tiers-wrapper {
   border: 1px solid #1C3548;
   border-radius: 10px;
   padding: 80px 40px 40px;
   &__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     grid-gap: 20px;
     text-align: center;
   }
@@ -978,7 +1007,7 @@ a:hover .icon svg {
 }
 
 .page-section {
-  margin-top: 82px;
+  margin-top: 72px;
   .title {
     font-size: 32px;
   }

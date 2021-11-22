@@ -25,9 +25,10 @@ const assets = {
 
 const tiers = [
   { name: "Tier 1", amount: 2500, multiplier: 1 },
-  { name: "Tier 2", amount: 7500, multiplier: 1.5 },
-  { name: "Tier 3", amount: 25000, multiplier: 5 },
-  { name: "Tier 4", amount: 150000, multiplier: 10 },
+  { name: "Tier 2", amount: 7500, multiplier: 2 },
+  { name: "Tier 3", amount: 25000, multiplier: 4 },
+  { name: "Tier 4", amount: 75000, multiplier: 8 },
+  { name: "Tier 5", amount: 150000, multiplier: 16 },
 ];
 
 export default function Tiers() {
@@ -67,6 +68,7 @@ export default function Tiers() {
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
+      const tiersCount = tiers.length;
       const totalWidth = document
         .querySelector(".tiers-wrapper__line")
         .getBoundingClientRect().width;
@@ -75,9 +77,9 @@ export default function Tiers() {
       let thisTier = 0;
       let nextTier = tiers[0].amount;
       for (let i = 0; total >= tiers[i].amount; i++) {
-        basePercent = i * 25 + 12.5;
+        basePercent = i * (100 / tiersCount) + 50 / tiersCount;
         thisTier = tiers[i].amount;
-        if (i === 3) {
+        if (i === tiersCount - 1) {
           nextTier = 200000;
           break;
         } else {
@@ -86,7 +88,7 @@ export default function Tiers() {
       }
 
       const value = Math.min(1, (total - thisTier) / (nextTier - thisTier));
-      const partWidth = totalWidth / 4;
+      const partWidth = totalWidth / tiersCount;
       const position = partWidth * value;
       setPercent(`calc(${basePercent}% + ${position - 24}px)`);
     }
@@ -145,6 +147,7 @@ export default function Tiers() {
           APY: <strong>10%</strong>
         </span>
       </div>
+
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">
           <div className="tiers-wrapper__progress" style={{ width: percent }}>
@@ -184,6 +187,13 @@ export default function Tiers() {
           ))}
         </div>
       </div>
+
+      <UpcomingIDORegistration
+        ido="MNET"
+        size={150000}
+        xrune={data ? data.staked.xrune : parseUnits("0")}
+      />
+
       <section className="page-section">
         {error ? <div className="error mb-4">{error}</div> : null}
         {loading ? <LoadingOverlay message={loading} /> : null}
@@ -349,7 +359,7 @@ function ModalDeposit({ asset, data, onClose }) {
         />
         <a
           className="input-link"
-          style={{top: 22}}
+          style={{ top: 22 }}
           onClick={() => setAmount(formatUnits(data.balances[asset]))}
         >
           Max
@@ -416,7 +426,7 @@ function ModalWithdraw({ asset, data, onClose }) {
       {before7Days ? (
         <p className="error text-sm">
           WARNING You are withdrawing before waiting 7 days after you last
-          deposit. You will loose half of the amount you withdraw if you
+          deposit. You will lose half of the amount you withdraw if you
           don&apos;t wait.
         </p>
       ) : null}
@@ -436,15 +446,158 @@ function ModalWithdraw({ asset, data, onClose }) {
         />
         <a
           className="input-link"
-          style={{top: 22}}
+          style={{ top: 22 }}
           onClick={() => setAmount(formatUnits(data.staked[asset]))}
         >
           Max
         </a>
       </div>
       <Button className="mt-4 w-full" onClick={onSubmit}>
-        Withdraw{before7Days ? " (and loose 50%)" : ""}
+        Withdraw{before7Days ? " (and lose 50%)" : ""}
       </Button>
     </Modal>
+  );
+}
+
+function UpcomingIDORegistration({ ido, size, xrune }) {
+  const state = useGlobalState();
+  const [data, setData] = useState();
+
+  async function fetchData() {
+    const rawStats = await fetch(
+      "https://thorstarter-tiers-api.herokuapp.com/stats?ido=" + ido
+    ).then((r) => r.json());
+    const stats = {};
+    let totalAllocations = 0;
+    for (let i = 0; i <= tiers.length; i++) {
+      const s = rawStats.stats.find(s => s.tier === i) || {count: 0};
+      const allocations = s.count * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+      totalAllocations += allocations;
+      stats[i] = { count: s.count, allocations };
+    }
+    if (size / totalAllocations < 100) {
+      const left = size;
+      for (let i = tiers.length; i >= 0; i--) {
+        stats[i].allocation = 100 * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+        if (left / stats[i].allocations < 100) {
+          stats[i].chance = (left / 100) / stats[i].allocations;
+        }
+        left = Math.max(0, left - (stats[i].allocations * 100));
+      }
+    } else {
+      for (let i = tiers.length; i >= 0; i--) {
+        stats[i].allocation = (size / totalAllocations) * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+      }
+    }
+
+    let user;
+    let tier0 = false;
+    if (state.address) {
+      user = await fetch(
+        "https://thorstarter-tiers-api.herokuapp.com/user?address=" +
+          state.address
+      ).then((r) => r.json());
+      const lp = await fetch(
+        "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
+          state.address
+      ).then((r) => r.json());
+      if (lp.units != "0") {
+        tier0 = true;
+      }
+      const contracts = getContracts();
+      const tgBalance = await contracts.tgnft.balanceOf(state.address);
+      if (tgBalance.gt("0")) {
+        tier0 = true;
+      }
+    }
+    const registered = user
+      ? user.registrations.find((r) => r.ido === ido.toLowerCase())
+      : null;
+    setData({ stats, user, registered, tier0, });
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [state.address]);
+
+  async function onRegister() {
+    const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
+    let tier = 0;
+    for (let i = 0; i < tiers.length; i++) {
+      if (xruneBalance >= tiers[i].amount) {
+        tier = i + 1;
+      }
+    }
+    await state.signer.signMessage('Register Interest in: ' + ido + ' / Tier ' + tier);
+    await fetch(
+      "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          address: state.address,
+          tier: tier.toFixed(0),
+          xrune: xruneBalance.toFixed(0),
+          bonus: "1",
+        }),
+      }
+    );
+    fetchData();
+  }
+
+  if (!data || (!data.tier0 && xrune.eq("0"))) return null;
+  return (
+    <div className="tiers-upcoming-ido">
+      <div className="flex">
+        <div className="flex-1">
+          <h2>Register Interest in the upcoming ${ido} IDO.</h2>
+          <p>
+            Click the button on the right to indicate that you want to get an
+            allocation in the upcoming IDO.
+          </p>
+        </div>
+        <div>
+          <button
+            className="button"
+            onClick={onRegister}
+            disabled={data.registered || !state.address}
+          >
+            {data.registered
+              ? "You Are Registered!"
+              : state.address
+              ? "Register Interest"
+              : "Connect Wallet"}
+          </button>
+        </div>
+      </div>
+      <strong>Estimated Allocations (based on registrations)</strong>
+      <table>
+        <tbody>
+          <tr>
+            <th>Tier 0</th>
+            <th>Tier 1</th>
+            <th>Tier 2</th>
+            <th>Tier 3</th>
+            <th>Tier 4</th>
+            <th>Tier 5</th>
+          </tr>
+          <tr>
+            <td>$ {data.stats[0].allocation.toFixed(0)} {data.stats[0].chance ? `(${data.stats[0].chance}% chance)` : ''}</td>
+            <td>$ {data.stats[1].allocation.toFixed(0)} {data.stats[1].chance ? `(${data.stats[1].chance}% chance)` : ''}</td>
+            <td>$ {data.stats[2].allocation.toFixed(0)} {data.stats[2].chance ? `(${data.stats[2].chance}% chance)` : ''}</td>
+            <td>$ {data.stats[3].allocation.toFixed(0)} {data.stats[3].chance ? `(${data.stats[3].chance}% chance)` : ''}</td>
+            <td>$ {data.stats[4].allocation.toFixed(0)} {data.stats[4].chance ? `(${data.stats[4].chance}% chance)` : ''}</td>
+            <td>$ {data.stats[5].allocation.toFixed(0)} {data.stats[5].chance ? `(${data.stats[5].chance}% chance)` : ''}</td>
+          </tr>
+          <tr>
+            <td>{data.stats[0].count} ({data.stats[0].allocations})</td>
+            <td>{data.stats[1].count} ({data.stats[1].allocations})</td>
+            <td>{data.stats[2].count} ({data.stats[2].allocations})</td>
+            <td>{data.stats[3].count} ({data.stats[3].allocations})</td>
+            <td>{data.stats[4].count} ({data.stats[4].allocations})</td>
+            <td>{data.stats[5].count} ({data.stats[5].allocations})</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 }

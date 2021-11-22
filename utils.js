@@ -53,6 +53,7 @@ export const contractAddresses = {
     votersTcLpRequester: "0x3fe9995dAEAe2510C1984E8D211d5f4480b26727",
     tiers: "0x817ba0ecafD58460bC215316a7831220BFF11C80",
     twnft: "0x53D917d66EcFec3eF379434b0Ad481E4DdEDcF66",
+    tgnft: "0xA98b29A8F5A247802149C268ecf860b8308B7291",
   },
   3: {
     xrune: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
@@ -68,6 +69,7 @@ export const contractAddresses = {
     votersTcLpRequester: "0xcDb6137F27d579dbe8873116ACd16520D344f381",
     tiers: "0x1190C41f4c47A466F507E28C8fe4cC6aC3E34906",
     twnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
+    tgnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
   },
   250: {
     xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
@@ -147,6 +149,7 @@ function buildContracts() {
     ),
     tiers: contract(addresses.tiers, abis.tiers),
     twnft: contract(addresses.twnft, abis.token),
+    tgnft: contract(addresses.tgnft, abis.token),
   };
 }
 let contracts = buildContracts();

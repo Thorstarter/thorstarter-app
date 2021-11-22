@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Button from "./button";
 import Countdown from "./countdown";
 import ProgressSlider from "./progressSlider";
 
 import { formatNumber } from "../utils";
-import { useGlobalState, connectWallet, disconnectWallet } from "../utils";
+import {
+  useGlobalState,
+  connectWallet,
+  disconnectWallet,
+  getContracts,
+} from "../utils";
 
 export default function Vault({ data }) {
+  const [balance, setBalance] = useState(0);
   const [stakeValue, setStakeValue] = useState(0);
   const [additionalStake, setAdditionalStake] = useState(false);
   const state = useGlobalState();
@@ -24,6 +30,20 @@ export default function Vault({ data }) {
     const value = e.target.value.replace(/[^0-9.]/g, "");
     setStakeValue(value);
   };
+
+  async function fetchData() {
+    const contracts = getContracts();
+    if (state.address) {
+      setBalance(await contracts.xrune.balanceOf(state.address));
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+    const handle = setInterval(fetchData, 5000);
+    setTimeout(() => clearInterval(handle));
+    return () => clearInterval(handle);
+  }, [state.networkId, state.address]);
 
   return (
     <div className="vault">
@@ -77,7 +97,7 @@ export default function Vault({ data }) {
             <div className="vault__balance">
               Balance:{" "}
               <span>
-                {formatNumber(0)} {data.earn}
+                {formatNumber(balance)} {data.earn}
               </span>
               <a
                 href="https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x69fa0feE221AD11012BAb0FdB45d444D3D2Ce71c"
@@ -135,7 +155,7 @@ export default function Vault({ data }) {
             <div className="vault__additional tac">
               Balance:
               <span>
-                {formatNumber(0)} {data.earn}
+                {formatNumber(balance)} {data.earn}
               </span>
               {additionalStake ? (
                 <div className="vault__form">
@@ -168,7 +188,7 @@ export default function Vault({ data }) {
         <div className="vault__value">
           Available limit:
           <span>
-            {formatNumber(0)} {data.earn}
+            {formatNumber(data.maxLock)} {data.earn}
           </span>
           <div className="progress">
             <div className="progress-bar" style={{ width: `0%` }} />

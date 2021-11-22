@@ -4,7 +4,7 @@
       "value": 2,
       "label": "months"
     },
-    "maxLock": 1500,
+    "maxLock": 1500000,
     "startDate": "Nov 23, 2021",
     "endDate": "Jan 23, 2022",
     "apy": "30%",
@@ -15,7 +15,7 @@
       "value": 4,
       "label": "months"
     },
-    "maxLock": 1500,
+    "maxLock": 1500000,
     "startDate": "Nov 23, 2021",
     "endDate": "Mar 23, 2022",
     "apy": "40%",
@@ -26,7 +26,7 @@
       "value": 6,
       "label": "months"
     },
-    "maxLock": 1500,
+    "maxLock": 1500000,
     "startDate": "Nov 23, 2021",
     "endDate": "May 23, 2022",
     "apy": "60%",

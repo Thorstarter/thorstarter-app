@@ -1,5 +1,5 @@
 .ido-head {
-	background-color: #0a1f2f;
+	background-color: var(--dark);
 	border-radius: 10px;
 	padding: 46px 50px 40px;
 	display: grid;
@@ -191,7 +191,7 @@
 	}
 	&__aside {
 		padding-right: 44px;
-		border-right: 2px solid #0A1F2F;
+		border-right: 2px solid var(--dark);
 		font-size: 18px;
 		line-height: 1.15;
 		color: rgba(#FFF, .5);
@@ -226,7 +226,7 @@
 					height: 42px;
 					border-radius: 50%;
 					color: var(--primary5);
-					background-color: #0A1F2F;
+					background-color: var(--dark);
 					margin-right: 20px;
 					transition: all .3s ease-in-out;
 				}

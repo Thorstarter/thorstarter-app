@@ -1,4 +1,7 @@
 :root {
+  --white: #FFF;
+  --black: #000;
+  --dark: #0A1F2F;
   --gray0: #000000;
   --gray1: #02121d;
   --gray2: #0a1e2d;
@@ -206,6 +209,12 @@ a:hover .icon svg {
   &.button-outline {
     padding: 3px 25px;
   }
+}
+
+.button-xs {
+  font-size: 12px;
+  padding: 7px 15px;
+  border-radius: 2px;
 }
 
 @media only screen and (max-width: 1199px) {
@@ -721,6 +730,12 @@ a:hover .icon svg {
   color: var(--gray4);
 }
 
+.countdown-string {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--white);
+}
+
 .modal {
   z-index: 1;
   position: fixed;
@@ -825,7 +840,7 @@ a:hover .icon svg {
     line-height: 31px;
     text-transform: uppercase;
     color: var(--primary5);
-    background-color: #0a1f2f;
+    background-color: var(--dark);
     border-radius: 5px;
     padding: 0 10px;
     margin-bottom: 12px;
@@ -842,7 +857,7 @@ a:hover .icon svg {
   }
   &__num {
     font-size: 18px;
-    background-color: #0A1F2F;
+    background-color: var(--dark);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -858,7 +873,7 @@ a:hover .icon svg {
       transform: translate(-50%, -50%);
       width: 56px;
       height: 56px;
-      border: 1px solid #0A1F2F;
+      border: 1px solid var(--dark);
       border-radius: 50%;
       pointer-events: none;
     }
@@ -879,7 +894,7 @@ a:hover .icon svg {
   }
   &__line {
     height: 8px;
-    background-color: #0A1F2F;
+    background-color: var(--dark);
     margin-bottom: 30px;
     border-radius: 10px;
     position: relative;
@@ -1024,7 +1039,7 @@ a:hover .icon svg {
     td {
       font-size: 20px;
       padding: 12px 0;
-      background-color: #0A1F2F;
+      background-color: var(--dark);
       height: 76px;
       text-align: center;
       &.tar {
@@ -1129,7 +1144,7 @@ a:hover .icon svg {
   th {
     text-align: left;
     font-weight: 400;
-    background-color: #0a1f2f;
+    background-color: var(--dark);
     padding: 20px 25px;
   }
   td {
@@ -1141,9 +1156,58 @@ a:hover .icon svg {
     }
   }
   tr:not(:last-child) td {
-    border-bottom: 2px solid #0a1f2f;
+    border-bottom: 2px solid var(--dark);
   }
   @media only screen and (max-width: 1279px) {
     font-size: 16px;
+  }
+}
+
+.progress-slider {
+  height: 6px;
+  background-color: var(--primary5);
+  position: relative;
+  &:before, &:after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border-width: 4px;
+    border-style: solid;
+    position: absolute;
+    top: calc(50% - 7px);
+    border-radius: 50%;
+  }
+  &:before {
+    background-color: var(--dark);
+    border-color: var(--gray1);
+    left: -1px;
+  }
+  &:after {
+    background-color: var(--gray1);
+    border-color: var(--primary5);
+    right: -1px;
+  }
+  &__fill {
+    background-color: var(--gray1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    &.is-stared:before {
+      right: -16px;
+    }
+    &.is-ended:before {
+      right: -6px;
+    }
+    &:before {
+      content: '';
+      position: absolute;
+      z-index: 2;
+      top: calc(50% - 12px);
+      right: -12px;
+      width: 24px;
+      height: 24px;
+      background: url('/icons/slider-angle.svg');
+    }
   }
 }

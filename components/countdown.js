@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function Countdown({ to }) {
+export default function Countdown({ to, simple = false }) {
   const [values, setValues] = useState({
     days: 0,
     hours: 0,
@@ -33,7 +33,11 @@ export default function Countdown({ to }) {
     return () => clearInterval(handle);
   }, [to.getTime()]);
 
-  return (
+  return simple ? (
+    <div className="countdown-string">
+      {values.days}d : {values.hours}h : {values.minutes}m : {values.seconds}s
+    </div>
+  ) : (
     <div className="countdown">
       <div className="countdown-cell">
         <div className="countdown-cell-number">{values.days}</div>

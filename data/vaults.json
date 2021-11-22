@@ -1,0 +1,35 @@
+[
+  {
+    "duration": {
+      "value": 2,
+      "label": "months"
+    },
+    "maxLock": 1500,
+    "startDate": "Nov 23, 2021",
+    "endDate": "Jan 23, 2022",
+    "apy": "30%",
+    "earn": "XRUNE"
+  },
+  {
+    "duration": {
+      "value": 4,
+      "label": "months"
+    },
+    "maxLock": 1500,
+    "startDate": "Nov 23, 2021",
+    "endDate": "Mar 23, 2022",
+    "apy": "40%",
+    "earn": "XRUNE"
+  },
+  {
+    "duration": {
+      "value": 6,
+      "label": "months"
+    },
+    "maxLock": 1500,
+    "startDate": "Nov 23, 2021",
+    "endDate": "May 23, 2022",
+    "apy": "60%",
+    "earn": "XRUNE"
+  }
+]

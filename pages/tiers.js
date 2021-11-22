@@ -14,6 +14,7 @@ import {
   formatUnits,
   contractAddresses,
   runTransaction,
+  formatErrorMessage,
 } from "../utils";
 
 const assets = {
@@ -470,23 +471,25 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     const stats = {};
     let totalAllocations = 0;
     for (let i = 0; i <= tiers.length; i++) {
-      const s = rawStats.stats.find(s => s.tier === i) || {count: 0};
-      const allocations = s.count * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+      const s = rawStats.stats.find((s) => s.tier === i) || { count: 0 };
+      const allocations = s.count * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
       totalAllocations += allocations;
       stats[i] = { count: s.count, allocations };
     }
     if (size / totalAllocations < 100) {
       const left = size;
       for (let i = tiers.length; i >= 0; i--) {
-        stats[i].allocation = 100 * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+        stats[i].allocation = 100 * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
         if (left / stats[i].allocations < 100) {
-          stats[i].chance = (left / 100) / stats[i].allocations;
+          stats[i].chance = left / 100 / stats[i].allocations;
         }
-        left = Math.max(0, left - (stats[i].allocations * 100));
+        left = Math.max(0, left - stats[i].allocations * 100);
       }
     } else {
       for (let i = tiers.length; i >= 0; i--) {
-        stats[i].allocation = (size / totalAllocations) * (i === 0 ? 0.25 : tiers[i-1].multiplier);
+        stats[i].allocation =
+          (size / totalAllocations) *
+          (i === 0 ? 0.25 : tiers[i - 1].multiplier);
       }
     }
 
@@ -513,7 +516,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     const registered = user
       ? user.registrations.find((r) => r.ido === ido.toLowerCase())
       : null;
-    setData({ stats, user, registered, tier0, });
+    setData({ stats, user, registered, tier0 });
   }
 
   useEffect(() => {
@@ -521,27 +524,34 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
   }, [state.address]);
 
   async function onRegister() {
-    const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
-    let tier = 0;
-    for (let i = 0; i < tiers.length; i++) {
-      if (xruneBalance >= tiers[i].amount) {
-        tier = i + 1;
+    try {
+      const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
+      let tier = 0;
+      for (let i = 0; i < tiers.length; i++) {
+        if (xruneBalance >= tiers[i].amount) {
+          tier = i + 1;
+        }
       }
+      await state.signer.signMessage(
+        "Register Interest in: " + ido + " / Tier " + tier
+      );
+      await fetch(
+        "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            address: state.address,
+            tier: tier.toFixed(0),
+            xrune: xruneBalance.toFixed(0),
+            bonus: "1",
+          }),
+        }
+      );
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + formatErrorMessage(err));
     }
-    await state.signer.signMessage('Register Interest in: ' + ido + ' / Tier ' + tier);
-    await fetch(
-      "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          address: state.address,
-          tier: tier.toFixed(0),
-          xrune: xruneBalance.toFixed(0),
-          bonus: "1",
-        }),
-      }
-    );
-    fetchData();
   }
 
   if (!data || (!data.tier0 && xrune.eq("0"))) return null;
@@ -581,20 +591,50 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
             <th>Tier 5</th>
           </tr>
           <tr>
-            <td>$ {data.stats[0].allocation.toFixed(0)} {data.stats[0].chance ? `(${data.stats[0].chance}% chance)` : ''}</td>
-            <td>$ {data.stats[1].allocation.toFixed(0)} {data.stats[1].chance ? `(${data.stats[1].chance}% chance)` : ''}</td>
-            <td>$ {data.stats[2].allocation.toFixed(0)} {data.stats[2].chance ? `(${data.stats[2].chance}% chance)` : ''}</td>
-            <td>$ {data.stats[3].allocation.toFixed(0)} {data.stats[3].chance ? `(${data.stats[3].chance}% chance)` : ''}</td>
-            <td>$ {data.stats[4].allocation.toFixed(0)} {data.stats[4].chance ? `(${data.stats[4].chance}% chance)` : ''}</td>
-            <td>$ {data.stats[5].allocation.toFixed(0)} {data.stats[5].chance ? `(${data.stats[5].chance}% chance)` : ''}</td>
+            <td>
+              $ {data.stats[0].allocation.toFixed(0)}{" "}
+              {data.stats[0].chance ? `(${data.stats[0].chance}% chance)` : ""}
+            </td>
+            <td>
+              $ {data.stats[1].allocation.toFixed(0)}{" "}
+              {data.stats[1].chance ? `(${data.stats[1].chance}% chance)` : ""}
+            </td>
+            <td>
+              $ {data.stats[2].allocation.toFixed(0)}{" "}
+              {data.stats[2].chance ? `(${data.stats[2].chance}% chance)` : ""}
+            </td>
+            <td>
+              $ {data.stats[3].allocation.toFixed(0)}{" "}
+              {data.stats[3].chance ? `(${data.stats[3].chance}% chance)` : ""}
+            </td>
+            <td>
+              $ {data.stats[4].allocation.toFixed(0)}{" "}
+              {data.stats[4].chance ? `(${data.stats[4].chance}% chance)` : ""}
+            </td>
+            <td>
+              $ {data.stats[5].allocation.toFixed(0)}{" "}
+              {data.stats[5].chance ? `(${data.stats[5].chance}% chance)` : ""}
+            </td>
           </tr>
           <tr>
-            <td>{data.stats[0].count} ({data.stats[0].allocations})</td>
-            <td>{data.stats[1].count} ({data.stats[1].allocations})</td>
-            <td>{data.stats[2].count} ({data.stats[2].allocations})</td>
-            <td>{data.stats[3].count} ({data.stats[3].allocations})</td>
-            <td>{data.stats[4].count} ({data.stats[4].allocations})</td>
-            <td>{data.stats[5].count} ({data.stats[5].allocations})</td>
+            <td>
+              {data.stats[0].count} ({data.stats[0].allocations})
+            </td>
+            <td>
+              {data.stats[1].count} ({data.stats[1].allocations})
+            </td>
+            <td>
+              {data.stats[2].count} ({data.stats[2].allocations})
+            </td>
+            <td>
+              {data.stats[3].count} ({data.stats[3].allocations})
+            </td>
+            <td>
+              {data.stats[4].count} ({data.stats[4].allocations})
+            </td>
+            <td>
+              {data.stats[5].count} ({data.stats[5].allocations})
+            </td>
           </tr>
         </tbody>
       </table>

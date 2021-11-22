@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Copier({ label, copy = "", className }) {
+export default function Copier({ children, copy = "", className }) {
   const [copied, setCopied] = useState(false);
 
   const onCopy = () => {
@@ -19,7 +19,7 @@ export default function Copier({ label, copy = "", className }) {
   };
   return (
     <span onClick={onCopy} className={`copier${copied ? " is-copied" : ""}`}>
-      <span>{label}</span>
+      <span>{children}</span>
       <IconCopy />
     </span>
   );

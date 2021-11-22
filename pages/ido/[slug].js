@@ -1,15 +1,69 @@
+import { ethers } from "ethers";
 import { useState, useEffect } from "react";
 import dateFormat from "dateformat";
 
 import Layout from "../../components/layout";
 import Copier from "../../components/copier";
+import Countdown from "../../components/countdown";
 import { IconSvg } from "../../components/icon";
+
+import { getContracts, useGlobalState, formatNumber } from "../../utils";
+import abis from "../../abis";
 
 import ido from "../../data/ido.json";
 
 export default function Single({ data }) {
+  const state = useGlobalState();
+  const [params, setParams] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
   const [about, setAbout] = useState([]);
   const [additionalInfo, setAdditionalInfo] = useState(false);
+  const [progress, setProgress] = useState("0");
+
+  async function fetchData() {
+    const contracts = getContracts();
+    const lastBlock = await getState().provider.getBlock(-1);
+
+    if (data.type === "batch") {
+      const sale = new ethers.Contract(
+        data.address,
+        abis.saleBatch,
+        state.provider
+      );
+      const params = await sale.getParams();
+      const newParams = {
+        timestamp: lastBlock.timestamp,
+        start: new Date(params[0].toNumber() * 1000),
+        end: new Date(params[1].toNumber() * 1000),
+        raising: params[2],
+        offering: params[3],
+        cap: params[4],
+        comitted: params[5],
+        paused: params[6],
+        finalized: params[7],
+        price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
+      };
+      setParams(newParams);
+
+      if ((data.type === "batch" || ido.type === "data") && params) {
+        const value = Math.min(
+          params[5].mul(10000).div(params[2]).toNumber() / 100,
+          100
+        ).toFixed(2);
+        setProgress(value);
+      }
+
+      if (!state.address) return;
+      const userInfo = await sale.userInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedRefund: userInfo[1],
+        claimedTokens: userInfo[2],
+        allocation: await sale.getOfferingAmount(state.address),
+        refund: await sale.getRefundingAmount(state.address),
+      });
+    }
+  }
 
   useEffect(() => {
     setAbout([]);
@@ -31,6 +85,13 @@ export default function Single({ data }) {
     }
   }, [data]);
 
+  useEffect(() => {
+    fetchData();
+    const handle = setInterval(fetchData, 5000);
+    setTimeout(() => clearInterval(handle), 3 * 60 * 60 * 1000); // Stop after 3 hours
+    return () => clearInterval(handle);
+  }, [state.networkId, state.address]);
+
   const smoothScrollTo = (id) => {
     window.scrollTo({
       top:
@@ -49,35 +110,15 @@ export default function Single({ data }) {
           <h1 className="ido-head__title">
             {data.tokenInformation.name.value}
           </h1>
-          <Copier
-            label={data.tokenInformation.address.value}
-            copy={data.tokenInformation.address.value}
-          />
-          <ul className="ido-head__buttons">
-            <li>
-              <a href="#" className="button button-lg">
-                <img
-                  src="/icons/plus.svg"
-                  alt=""
-                  width={12}
-                  height={12}
-                  loading="lazy"
-                  decoding="async"
-                />
-                Join Pool
-              </a>
-            </li>
-            <li>
-              <a
-                href={`https://etherscan.io/address/${data.tokenInformation.address.value}`}
-                target="_blank"
-                rel="noreferrer"
-                className="button button-lg button-outline button-white"
-              >
-                View Etherscan
-              </a>
-            </li>
-          </ul>
+          <Copier copy={data.tokenInformation.address.value}>
+            <a
+              href={`https://etherscan.io/address/${data.tokenInformation.address.value}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {data.tokenInformation.address.value}
+            </a>
+          </Copier>
           <ul className="ido-head__meta">
             <li>
               <img
@@ -93,7 +134,6 @@ export default function Single({ data }) {
             <li>
               <span className="fill-label">Filled</span>
             </li>
-            <li>Published 1 day ago</li>
           </ul>
           <div className="ido-links">
             {data.socials.map((item, idx) => {
@@ -109,26 +149,49 @@ export default function Single({ data }) {
           <div className="ido-head__section">
             <div className="ido-head__subtitle">
               Swap Amount{" "}
-              <span>1 {data.tokenInformation.symbol.value} = $0.5</span>
+              <span>
+                1 {data.tokenInformation.symbol.value} = $
+                {params && formatNumber(params.price)}
+              </span>
             </div>
             <div className="ido-head__section-value">
-              {data.tokenInformation.totalSupply.value}{" "}
+              {params && formatNumber(params.offering)}{" "}
               {data.tokenInformation.symbol.value}
             </div>
           </div>
-          <div className="ido-head__section">
-            <div className="ido-head__subtitle">Closes in</div>
-            <div className="ido-head__section-value">Ended</div>
-          </div>
+          {params && (
+            <div className="ido-head__section">
+              <div className="ido-head__subtitle">Closes in</div>
+              <div className="ido-head__section-value">
+                {params.end.getTime() > new Date().getTime() ? (
+                  <Countdown to={params.end} simple />
+                ) : (
+                  "Ended"
+                )}
+              </div>
+            </div>
+          )}
           <div className="ido-head__section">
             <div className="ido-head__subtitle">Progress</div>
             <div className="progress with-foot">
-              <div className="progress-bar" style={{ width: `100%` }} />
+              <div className="progress-bar" style={{ width: `${progress}%` }} />
               <div className="progress-foot">
                 <span>
-                  <span className="progress-value">100%</span> (Min. 52%)
+                  <span className="progress-value">{progress}%</span>
                 </span>
-                <span>$500,000/1,000,000 BROKKR</span>
+                {params && (
+                  <span>
+                    $
+                    {formatNumber(
+                      params.comitted
+                        .mul((data.xrunePrice * 10000) | 0)
+                        .div(10000),
+                      2
+                    )}{" "}
+                    / {formatNumber(params.comitted)}{" "}
+                    {data.tokenInformation.symbol.value}
+                  </span>
+                )}
               </div>
             </div>
           </div>

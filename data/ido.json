@@ -1,5 +1,9 @@
 [{
   "slug": "bnpl",
+  "type": "batch",
+  "networkId": 1,
+  "address": "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
+  "xrunePrice": 0.2,
   "logo": "/ido/bnpl/logo.png",
   "tokenInformation": {
     "name": {
@@ -21,6 +25,10 @@
     "totalSupply": {
       "label": "Total Supply",
       "value": "1,000,000,000"
+    },
+    "offering": {
+      "label": "Offering",
+      "value": "5,000,000"
     }
   },
   "poolDetails": {
@@ -178,6 +186,10 @@
 },
 {
   "slug": "thor",
+  "type": "batch",
+  "networkId": 1,
+  "address": "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
+  "xrunePrice": 0.5,
   "logo": "/ido/thor/logo.png",
   "tokenInformation": {
     "name": {
@@ -199,6 +211,10 @@
     "totalSupply": {
       "label": "Total Supply",
       "value": "500,000,000"
+    },
+    "offering": {
+      "label": "Offering",
+      "value": "10,000,000"
     }
   },
   "poolDetails": {
@@ -323,5 +339,30 @@
       "value": "max $300 per wallet"
     }
   ],
-  "socials": []
+  "socials": [
+    {
+      "provider": "twitter",
+      "link": "https://twitter.com/thorswap"
+    },
+    {
+      "provider": "telegram",
+      "link": "https://t.me/thorswap_ann"
+    },
+    {
+      "provider": "medium",
+      "link": "https://thorswap.medium.com/"
+    },
+    {
+      "provider": "link",
+      "link": "https://thorswap.finance/"
+    },
+    {
+      "provider": "docs",
+      "link": "https://docs.thorchain.org/"
+    },
+    {
+      "provider": "discord",
+      "link": "https://discord.gg/thorswap"
+    }
+  ]
 }]

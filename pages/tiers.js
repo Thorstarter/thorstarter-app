@@ -532,9 +532,16 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           tier = i + 1;
         }
       }
-      await state.signer.signMessage(
-        "Register Interest in: " + ido + " / Tier " + tier
-      );
+      try {
+        await state.signer.signMessage(
+          "Register Interest in: " + ido + " / Tier " + tier
+        );
+      } catch (e) {
+        if (e.message.includes('denied message signature')) {
+          return;
+        }
+        // Wallet probably doesn't support signing, go on
+      }
       await fetch(
         "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
         {

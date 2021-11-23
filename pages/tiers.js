@@ -477,7 +477,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
       stats[i] = { count: s.count, allocations };
     }
     if (size / totalAllocations < 100) {
-      const left = size;
+      let left = size;
       for (let i = tiers.length; i >= 0; i--) {
         stats[i].allocation = 100 * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
         if (left / stats[i].allocations < 100) {

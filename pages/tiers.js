@@ -561,7 +561,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     }
   }
 
-  if (!data || (!data.tier0 && xrune.eq("0"))) return null;
+  if (!data) return null;
   return (
     <div className="tiers-upcoming-ido">
       <div className="flex">
@@ -576,12 +576,12 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <button
             className="button"
             onClick={onRegister}
-            disabled={data.registered || !state.address}
+            disabled={data.registered || !state.address || (!data.tier0 && xrune.eq("0"))}
           >
             {data.registered
               ? "You Are Registered!"
               : state.address
-              ? "Register Interest"
+              ? (!data.tier0 && xrune.eq("0") ? "Join a tier first" : "Register Interest")
               : "Connect Wallet"}
           </button>
         </div>

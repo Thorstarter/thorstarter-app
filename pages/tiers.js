@@ -600,27 +600,27 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <tr>
             <td>
               $ {data.stats[0].allocation.toFixed(0)}{" "}
-              {data.stats[0].chance ? `(${data.stats[0].chance}% chance)` : ""}
+              {data.stats[0].chance ? `(${(data.stats[0].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[1].allocation.toFixed(0)}{" "}
-              {data.stats[1].chance ? `(${data.stats[1].chance}% chance)` : ""}
+              {data.stats[1].chance ? `(${(data.stats[1].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[2].allocation.toFixed(0)}{" "}
-              {data.stats[2].chance ? `(${data.stats[2].chance}% chance)` : ""}
+              {data.stats[2].chance ? `(${(data.stats[2].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[3].allocation.toFixed(0)}{" "}
-              {data.stats[3].chance ? `(${data.stats[3].chance}% chance)` : ""}
+              {data.stats[3].chance ? `(${(data.stats[3].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[4].allocation.toFixed(0)}{" "}
-              {data.stats[4].chance ? `(${data.stats[4].chance}% chance)` : ""}
+              {data.stats[4].chance ? `(${(data.stats[4].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[5].allocation.toFixed(0)}{" "}
-              {data.stats[5].chance ? `(${data.stats[5].chance}% chance)` : ""}
+              {data.stats[5].chance ? `(${(data.stats[5].chance*100).toFixed(1)}% chance)` : ""}
             </td>
           </tr>
           <tr>

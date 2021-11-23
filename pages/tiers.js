@@ -474,7 +474,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
       const s = rawStats.stats.find((s) => s.tier === i) || { count: 0 };
       const allocations = s.count * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
       totalAllocations += allocations;
-      stats[i] = { count: s.count, allocations };
+      stats[i] = { count: s.count, chance: 1, allocations };
     }
     if (size / totalAllocations < 100) {
       let left = size;
@@ -600,27 +600,27 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <tr>
             <td>
               $ {data.stats[0].allocation.toFixed(0)}{" "}
-              {data.stats[0].chance ? `(${(data.stats[0].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[0].chance !== 1 ? `(${(data.stats[0].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[1].allocation.toFixed(0)}{" "}
-              {data.stats[1].chance ? `(${(data.stats[1].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[1].chance !== 1 ? `(${(data.stats[1].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[2].allocation.toFixed(0)}{" "}
-              {data.stats[2].chance ? `(${(data.stats[2].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[2].chance !== 1 ? `(${(data.stats[2].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[3].allocation.toFixed(0)}{" "}
-              {data.stats[3].chance ? `(${(data.stats[3].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[3].chance !== 1 ? `(${(data.stats[3].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[4].allocation.toFixed(0)}{" "}
-              {data.stats[4].chance ? `(${(data.stats[4].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[4].chance !== 1 ? `(${(data.stats[4].chance*100).toFixed(1)}% chance)` : ""}
             </td>
             <td>
               $ {data.stats[5].allocation.toFixed(0)}{" "}
-              {data.stats[5].chance ? `(${(data.stats[5].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[5].chance !== 1 ? `(${(data.stats[5].chance*100).toFixed(1)}% chance)` : ""}
             </td>
           </tr>
           <tr>

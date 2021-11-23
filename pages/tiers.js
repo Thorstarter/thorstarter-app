@@ -29,7 +29,7 @@ const tiers = [
   { name: "Tier 2", amount: 7500, multiplier: 2 },
   { name: "Tier 3", amount: 25000, multiplier: 4 },
   { name: "Tier 4", amount: 75000, multiplier: 8 },
-  { name: "Tier 5", amount: 150000, multiplier: 16 },
+  { name: "Tier 5", amount: 150000, multiplier: 12 },
 ];
 
 export default function Tiers() {
@@ -472,10 +472,21 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     let totalAllocations = 0;
     for (let i = 0; i <= tiers.length; i++) {
       const s = rawStats.stats.find((s) => s.tier === i) || { count: 0 };
-      const allocations = s.count * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
+      const multiplier = i === 0 ? 0.25 : tiers[i - 1].multiplier;
+      const allocations = s.count * multiplier;
+      stats[i] = { count: s.count, chance: 1, allocations, multiplier };
       totalAllocations += allocations;
-      stats[i] = { count: s.count, chance: 1, allocations };
     }
+    for (let i = 0; i <= tiers.length; i++) {
+      const tier = stats[i];
+      const minAllocation = i === 0 ? 25 : 100;
+      tier.allocation = (size / totalAllocations) * tier.multiplier; 
+      if (tier.allocation < minAllocation) {
+        tier.chance = (tier.count * tier.allocation) / minAllocation / tier.count;
+        tier.allocation = minAllocation;
+      }
+    }
+    /*
     if (size / totalAllocations < 100) {
       let left = size;
       for (let i = tiers.length; i >= 0; i--) {
@@ -492,6 +503,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           (i === 0 ? 0.25 : tiers[i - 1].multiplier);
       }
     }
+    */
 
     let user;
     let tier0 = false;

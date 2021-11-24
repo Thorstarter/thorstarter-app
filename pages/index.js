@@ -16,6 +16,7 @@ import {
   runTransaction,
 } from "../utils";
 import abis from "../abis";
+import allocationData from "../data/allocations.json";
 
 // import logoSkyrim from "../public/ido/skyrim-logo.png";
 // import coverSkyrim from "../public/ido/skyrim-cover.png";
@@ -25,18 +26,47 @@ import logoThorswap from "../public/ido/thorswap-logo.png";
 import coverThorswap from "../public/ido/thorswap-cover.png";
 import logoThorwallet from "../public/ido/thorwallet-logo.png";
 import coverThorwallet from "../public/ido/thorwallet-cover.png";
+import logoMine from "../public/ido/mine-logo.png";
+import coverMine from "../public/ido/mine-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "MINE Network",
+  token: "MNET",
+  paymentToken: "ETH",
+  type: "tiers",
+  networkId: 1,
+  address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
+  paymentPrice: 4200,
+  notFinalized: true,
+  allocations: allocationData.mnet,
+  logo: logoMine,
+  cover: coverMine,
+  links: {
+    twitter: "https://twitter.com/mine_blockchain",
+    telegram: "https://t.me/mine_blockchain",
+    medium: "https://mineblockchain.medium.com/",
+    website: "https://www.mine.network/",
+    docs: "https://docsend.com/view/d9jijm9qqvbavcen",
+  },
+  static: [
+    { label: "Offering", value: "15,000,000 MNET" },
+    { label: "Raising", value: "35.71 ETH" },
+    { label: "Claimed %", value: "100%" },
+    { label: "Price", value: "0.00000238 ETH $ 0.01" },
+  ]
+};
 
 const idos = [
   {
     name: "THORWallet",
     token: "TGT",
+    paymentToken: "XRUNE",
     type: "fcfs",
     networkId: 1,
     address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
     xrunePrice: 0.55,
     tiersDuration: 7200,
+    notFinalized: true,
     logo: logoThorwallet,
     cover: coverThorwallet,
     links: {
@@ -46,14 +76,24 @@ const idos = [
       website: "https://thorwallet.org/",
       docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
     },
+    static: [
+      { label: "Offering", value: "20,000,000 TGT" },
+      { label: "Raising", value: "909,091 XRUNE" },
+      { label: "Committed %", value: "100%" },
+      { label: "Committed $", value: "$ 500,000" },
+      { label: "Committed XRUNE", value: "909,091 / 909,091" },
+      { label: "Price", value: "0.05 XRUNE $ 0.025" },
+    ],
   },
   {
     name: "THORSwap",
     token: "THOR",
+    paymentToken: "XRUNE",
     type: "batch",
     networkId: 1,
     address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
     xrunePrice: 0.5,
+    price: ethers.utils.parseUnits("0.15"),
     logo: logoThorswap,
     cover: coverThorswap,
     links: {
@@ -64,14 +104,24 @@ const idos = [
       docs: "https://docs.thorchain.org/",
       discord: "https://discord.gg/thorswap",
     },
+    static: [
+      { label: "Offering", value: "10,000,000 THOR" },
+      { label: "Raising", value: "1,500,000 XRUNE" },
+      { label: "Committed %", value: "198%" },
+      { label: "Committed $", value: "$ 1,489,220.89" },
+      { label: "Committed XRUNE", value: "2,978,442 / 1,500,000" },
+      { label: "Price", value: "0.15 XRUNE $ 0.075" },
+    ],
   },
   {
     name: "BNPL Pay",
     token: "BNPL",
+    paymentToken: "XRUNE",
     type: "batch",
     networkId: 1,
     address: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
     xrunePrice: 0.2,
+    price: ethers.utils.parseUnits("0.2"),
     logo: logoBnpl,
     cover: coverBnpl,
     links: {
@@ -82,14 +132,24 @@ const idos = [
       docs: "https://bnplpay.io/file/BNPL%20Pay-Whitepaper%201.2.pdf",
       about: "https://thorstarter.org/ido/bnpl",
     },
+    static: [
+      { label: "Offering", value: "5,000,000 BNPL" },
+      { label: "Raising", value: "1,000,000 XRUNE" },
+      { label: "Committed %", value: "806%" },
+      { label: "Committed $", value: "$ 1,613,930.64" },
+      { label: "Committed XRUNE", value: "8,069,653 / 1,000,000" },
+      { label: "Price", value: "0.20 XRUNE $ 0.040" },
+    ],
   },
   // {
   //   name: "Skyrim Finance",
   //   token: "SKYRIM",
+  //   paymentToken: "XRUNE",
   //   type: "dutch",
   //   networkId: 1,
   //   address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
   //   xrunePrice: 0.5,
+  //   price: ethers.utils.parseUnits('0.12'),
   //   logo: logoSkyrim,
   //   cover: coverSkyrim,
   //   links: {
@@ -100,6 +160,14 @@ const idos = [
   //     docs: "https://docs.skyrim.finance/",
   //     about: "https://thorstarter.org/ido/skyrim",
   //   },
+  //   static: [
+  //     {label: 'Offering', value: '5,000,000 SKYRIM'},
+  //     {label: 'Start Price', value: '2 XRUNE $ 1'},
+  //     {label: 'Reserve Price', value: '0.20 XRUNE $ 0.10'},
+  //     {label: 'Committed $', value: '$ 3,079,116.21'},
+  //     {label: 'Committed XRUNE', value: '6,158,232'},
+  //     {label: 'Price', value: '0.12 XRUNE $ 0.61'},
+  //   ]
   // },
 ];
 
@@ -118,10 +186,9 @@ export default function IDOs() {
             liveIdoParams.timestamp < liveIdoParams.start.getTime() / 1000 ? (
               <div className="flex float-right">
                 <span>Starts in </span>
-                <Countdown to={liveIdoParams.start} />
+                <Countdown to={liveIdoParams.start} zeroText="Waiting for next block..." />
               </div>
-            ) : liveIdoParams &&
-              liveIdoParams.timestamp < liveIdoParams.end.getTime() / 1000 ? (
+            ) : liveIdoParams && Date.now() < liveIdoParams.end.getTime() ? (
               <div className="flex float-right">
                 <span>Ends in </span>
                 <Countdown to={liveIdoParams.end} />
@@ -212,7 +279,7 @@ export default function IDOs() {
       {previousIDOs.length === 0 ? "No previous IDOs... yet..." : null}
       <div className="ido-list">
         {previousIDOs.map((ido) => (
-          <IDOCard ido={ido} key={ido.name} />
+          <IDOCardStatic ido={ido} key={ido.name} />
         ))}
       </div>
       <div className="footer-buttons text-center py-16">
@@ -237,6 +304,167 @@ export default function IDOs() {
   );
 }
 
+function IDOCardStatic({ ido }) {
+  const state = useGlobalState();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
+  function getSaleContract() {
+    const abi = {
+      fcfs: abis.saleFcfs,
+      batch: abis.saleBatch,
+      dutch: abis.saleDutch,
+      tiers: abis.saleTiers,
+    }[ido.type];
+    return new ethers.Contract(
+      ido.address,
+      abi,
+      state.signer || state.provider
+    );
+  }
+
+  async function fetchData() {
+    if (!state.address) return;
+    const sale = getSaleContract();
+    if (ido.type === "tiers") {
+      const userInfo = await sale.getUserInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedTokens: userInfo[3].sub(userInfo[2]).eq("0"),
+        claimable: userInfo[3],
+        claimed: userInfo[1],
+        owed: userInfo[2],
+      });
+    } else if (ido.type === "batch") {
+      const userInfo = await sale.userInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedTokens: userInfo[2],
+        claimedRefund: userInfo[1],
+        owed: await sale.getOfferingAmount(state.address),
+        refund: await sale.getRefundingAmount(state.address),
+      });
+    } else if (ido.type === "fcfs") {
+      const userInfo = await sale.userInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedTokens: userInfo[1],
+        owed: await sale.getOfferingAmount(state.address),
+      });
+    } else if (ido.type === "dutch") {
+      const userInfo = await sale.userInfo(state.address);
+      setUserInfo({
+        amount: userInfo[0],
+        claimedTokens: userInfo[1],
+        owed: userInfo[0].mul(ethers.utils.parseUnits("1")).div(ido.price),
+      });
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [state.networkId, state.address]);
+
+  async function callSaleMethod(method, ...args) {
+    const sale = getSaleContract();
+    const call = sale[method](...args);
+    await runTransaction(call, setLoading, setError);
+    fetchData();
+  }
+
+  function onHarvest() {
+    if (ido.type == "fcfs") {
+      callSaleMethod("harvest", false);
+    } else if (ido.type === "batch") {
+      callSaleMethod("harvestTokens");
+    } else if (ido.type === "dutch") {
+      callSaleMethod("harvestTokens");
+    } else {
+      callSaleMethod("harvest");
+    }
+  }
+
+  return (
+    <div className="ido">
+      <div className="flex-1">
+        <IDOHeader ido={ido} />
+        {ido.static.map((v) => (
+          <div className="flex mb-3" key={v.label}>
+            <div className="flex-1 text-gray6">{v.label}</div>
+            <div>{v.value}</div>
+          </div>
+        ))}
+        <div className="progress mb-4">
+          <div className="progress-bar" style={{ width: "100%" }}></div>
+        </div>
+        {userInfo && userInfo.amount.gt("0") ? (
+          <>
+            <div className="flex mb-3">
+              <div className="flex-1 text-gray6">Deposited</div>
+              <div>
+                {formatNumber(userInfo.amount, 5)}{" "}
+                <span className="text-gray6">{ido.paymentToken}</span>
+              </div>
+            </div>
+            <div className="flex mb-3">
+              <div className="flex-1 text-gray6">
+                {userInfo.claimed
+                  ? "Total Owed"
+                  : userInfo.claimedTokens
+                  ? "Collected"
+                  : "Owed"}
+              </div>
+              <div>
+                {formatNumber(userInfo.owed)}{" "}
+                <span className="text-gray6">{ido.token}</span>
+              </div>
+            </div>
+            {userInfo.claimed ? (
+              <div className="flex mt-3">
+                <div className="flex-1 text-gray6">Collected</div>
+                <div>
+                  {formatNumber(userInfo.collected)}{" "}
+                  <span className="text-gray6">{ido.token}</span>
+                </div>
+              </div>
+            ) : null}
+            {userInfo.claimable ? (
+              <div className="flex mt-3">
+                <div className="flex-1 text-gray6">Vested</div>
+                <div>
+                  {formatNumber(userInfo.claimable)}{" "}
+                  <span className="text-gray6">{ido.token}</span>
+                </div>
+              </div>
+            ) : null}
+            {userInfo.refund ? (
+              <div className="flex mt-3">
+                <div className="flex-1 text-gray6">Refund</div>
+                <div>
+                  {formatNumber(userInfo.refund)}{" "}
+                  <span className="text-gray6">{ido.paymentToken}</span>
+                </div>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+        {error ? <div className="error">{error}</div> : null}
+        {userInfo && userInfo.amount.gt("0") && !userInfo.claimedTokens ? (
+          <Button
+            className="w-full mt-2"
+            onClick={onHarvest}
+            disabled={ido.notFinalized}
+          >
+            {loading ? "Loading..." : ido.notFinalized ? "Soon..." : "Collect"}
+          </Button>
+        ) : null}
+        {loading ? <LoadingOverlay message={loading} /> : null}
+      </div>
+    </div>
+  );
+}
+
 function IDOCard({ ido, parentSetParams }) {
   const state = useGlobalState();
   const [error, setError] = useState("");
@@ -246,130 +474,42 @@ function IDOCard({ ido, parentSetParams }) {
   const [params, setParams] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
 
-  function allocationForAmount(params, amount) {
-    if (amount.eq("0")) {
-      return ethers.BigNumber.from("0");
-    }
-    const estimateEndsLater = amount
-      .mul(params.offering)
-      .div(params.comitted.eq("0") ? amount : params.comitted);
-    const estimateEndsNow = amount
-      .mul(ethers.utils.parseUnits("1"))
-      .div(params.price);
-    return estimateEndsLater.lt(estimateEndsNow)
-      ? estimateEndsLater
-      : estimateEndsNow;
-  }
-
   async function fetchData() {
     const contracts = getContracts();
     const lastBlock = await getState().provider.getBlock(-1);
     if (state.address) {
-      setBalance(await contracts.xrune.balanceOf(state.address));
+      setBalance(await state.signer.getBalance());
     }
-    if (ido.type === "batch") {
-      const sale = new ethers.Contract(
-        ido.address,
-        abis.saleBatch,
-        state.provider
-      );
-      const params = await sale.getParams();
-      const newParams = {
-        timestamp: lastBlock.timestamp,
-        start: new Date(params[0].toNumber() * 1000),
-        end: new Date(params[1].toNumber() * 1000),
-        raising: params[2],
-        offering: params[3],
-        cap: params[4],
-        comitted: params[5],
-        paused: params[6],
-        finalized: params[7],
-        price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
-      };
-      setParams(newParams);
-      if (parentSetParams) parentSetParams(newParams);
-      if (!state.address) return;
-      const userInfo = await sale.userInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedRefund: userInfo[1],
-        claimedTokens: userInfo[2],
-        allocation: await sale.getOfferingAmount(state.address),
-        refund: await sale.getRefundingAmount(state.address),
-      });
-    }
-    if (ido.type === "dutch") {
-      const sale = new ethers.Contract(
-        ido.address,
-        abis.saleDutch,
-        state.provider
-      );
-      const params = await sale.getParams();
-      const newParams = {
-        timestamp: lastBlock.timestamp,
-        start: new Date(params[0].toNumber() * 1000),
-        end: new Date(params[1].toNumber() * 1000),
-        startPrice: params[2],
-        endPrice: params[3],
-        offering: params[4],
-        cap: params[5],
-        comitted: params[6],
-        price: params[7],
-        clearingPrice: params[8],
-        paused: params[9],
-        finalized: params[10],
-      };
-      setParams(newParams);
-      if (parentSetParams) parentSetParams(newParams);
-      if (!state.address) return;
-      const userInfo = await sale.userInfo(state.address);
-
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[1],
-        allocation: allocationForAmount(newParams, userInfo[0]),
-      });
-    }
-    if (ido.type === "fcfs") {
-      const sale = new ethers.Contract(
-        ido.address,
-        abis.saleFcfs,
-        state.provider
-      );
-      const params = await sale.getParams();
-      let allocationCap = parseUnits("0");
-      if (state.address) {
-        allocationCap = (await sale.getUserAllocation(state.address))[0];
-      }
-      const newParams = {
-        timestamp: lastBlock.timestamp,
-        start: new Date(params[0].toNumber() * 1000),
-        end: new Date(params[1].toNumber() * 1000),
-        raising:
-          lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration
-            ? params[4]
-            : params[2],
-        offering: params[3],
-        cap:
-          lastBlock.timestamp < params[0].toNumber() + ido.tiersDuration
-            ? allocationCap
-            : allocationCap.add(params[5]),
-        comitted: params[6],
-        paused: params[7],
-        finalized: params[8],
-        price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
-      };
-      setParams(newParams);
-      if (parentSetParams) parentSetParams(newParams);
-      if (!state.address) return;
-      const userInfo = await sale.userInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[1],
-        allocation: await sale.getOfferingAmount(state.address),
-        allocationCap: allocationCap,
-      });
-    }
+    const sale = new ethers.Contract(
+      ido.address,
+      abis.saleTiers,
+      state.provider
+    );
+    const params = await sale.getParams();
+    const newParams = {
+      timestamp: lastBlock.timestamp,
+      start: new Date(params[0].toNumber() * 1000),
+      end: new Date(params[1].toNumber() * 1000),
+      raising: params[2],
+      offering: params[3],
+      comitted: params[4],
+      paused: params[5],
+      finalized: params[6],
+      price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
+    };
+    setParams(newParams);
+    if (parentSetParams) parentSetParams(newParams);
+    if (!state.address) return;
+    const userInfo = await sale.getUserInfo(state.address);
+    const userAllocation = ido.allocations.find(
+      (a) => a.address === state.address
+    ) || { amount: "0" };
+    setUserInfo({
+      amount: userInfo[0],
+      owed: userInfo[2],
+      allocation: parseUnits(userAllocation.amount),
+      proof: userAllocation.proof,
+    });
   }
 
   useEffect(() => {
@@ -379,34 +519,24 @@ function IDOCard({ ido, parentSetParams }) {
     return () => clearInterval(handle);
   }, [state.networkId, state.address]);
 
-  async function callSaleMethod(method, ...args) {
-    const sale = new ethers.Contract(
-      ido.address,
-      ido.type === "fcfs"
-        ? abis.saleFcfs
-        : ido.type === "batch"
-        ? abis.saleBatch
-        : abis.saleDutch,
-      state.signer
-    );
-    const call = sale[method](...args);
-    await runTransaction(call, setLoading, setError);
-    fetchData();
-  }
-
   async function onDeposit() {
     try {
       const parsedAmount = ethers.utils.parseUnits(
-        amount.replace(/[^0-9\.]/g, "")
+        amount.replace(/[^0-9\.]/g, ""),
+        18
       );
       setAmount(ethers.utils.formatUnits(parsedAmount));
-      const contracts = getContracts();
-      const call = contracts.xrune.transferAndCall(
+      const sale = new ethers.Contract(
         ido.address,
-        parsedAmount,
-        "0x"
+        abis.saleTiers,
+        state.signer
       );
-      await runTransaction(call, setLoading, setError);
+      const call = sale.deposit(userInfo.allocation, userInfo.proof, {
+        value: parsedAmount,
+      });
+      try {
+        await runTransaction(call, setLoading, setError);
+      } catch (e) {}
       setAmount("");
       fetchData();
     } catch (err) {
@@ -415,345 +545,175 @@ function IDOCard({ ido, parentSetParams }) {
   }
 
   function onDepositMax() {
-    if (
-      ido.type === "fcfs" &&
-      userInfo &&
-      params.timestamp < params.start.getTime() / 1000 + ido.tiersDuration
-    ) {
-      setAmount(
-        formatUnits(userInfo.allocationCap.sub(userInfo.amount)).replace(
-          /,/g,
-          ""
-        )
-      );
-    } else if (formatNumber(params.cap) !== "0") {
-      let cap = params.cap;
-      if (userInfo) cap = cap.sub(userInfo.amount);
-      setAmount(formatUnits(bnMin(cap, balance)).replace(/,/g, ""));
+    if (userInfo && userInfo.allocation.gt("0")) {
+      const max = userInfo.allocation.sub(userInfo.amount);
+      setAmount(formatUnits(bnMin(max, balance)).replace(/,/g, ""));
     } else {
       setAmount(formatUnits(balance).replace(/,/g, ""));
     }
   }
 
-  function onCollectOwed() {
-    if (ido.type == "fcfs") {
-      callSaleMethod("harvest", false);
-    } else {
-      callSaleMethod("harvestTokens");
-    }
-  }
-
-  function onCollectRefund() {
-    callSaleMethod("harvestRefund");
-  }
-
-  function onCollectAll() {
-    callSaleMethod("harvestAll");
-  }
-
-  let idoActive =
+  const idoActive =
     params &&
     params.timestamp >= params.start.getTime() / 1000 &&
     params.timestamp <= params.end.getTime() / 1000;
-  if (ido.type === "fcfs" && params && params.raising.eq(params.comitted)) {
-    idoActive = false;
-  }
-  const canCollectOwed =
-    params &&
-    params.finalized &&
-    !params.paused &&
-    userInfo &&
-    formatNumber(userInfo.allocation) !== "0" &&
-    !userInfo.claimedTokens;
-  const canCollectRefund =
-    ido.type === "batch" &&
-    params &&
-    !params.paused &&
-    params.timestamp > params.end.getTime() / 1000 &&
-    userInfo &&
-    formatNumber(userInfo.refund) !== "0" &&
-    !userInfo.claimedRefund;
   let progress = "0";
-  if ((ido.type === "batch" || ido.type === "fcfs") && params) {
+  if (params) {
     progress = Math.min(
       params.comitted.mul(10000).div(params.raising).toNumber() / 100,
       100
     ).toFixed(2);
   }
-  if (ido.type === "dutch" && params) {
-    const progressTokens = params.comitted
-      .mul(ethers.utils.parseUnits("1"))
-      .div(params.clearingPrice)
-      .mul("100")
-      .div(params.offering)
-      .toNumber();
-    const progressTime =
-      ((params.timestamp - params.start.getTime() / 1000) * 100) /
-      ((params.end.getTime() - params.start.getTime()) / 1000);
-    progress = Math.min(100, Math.max(progressTokens, progressTime)).toFixed(2);
-  }
 
+  if (!params) {
+    return (
+      <div className="ido">
+        <div className="flex-1">
+          <div>Loading...</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="ido">
       <div className="flex-1">
-        {ido !== liveIdo ? (
+        <div className="flex mb-3">
+          <div className="flex-1 text-gray6">Offering</div>
           <div>
-            <div
-              className="ido-cover"
-              style={{ backgroundImage: `url(${ido.cover.src})` }}
-            >
-              <Image
-                src={ido.logo}
-                height={60}
-                width={(60 * ido.logo.width) / ido.logo.height}
-                alt={ido.name}
-              />
-            </div>
-            <h2>{ido.name}</h2>
-            <div className="ido-links">
-              <a
-                href={ido.links.twitter}
-                target="_blank"
-                rel="noreferrer reopener"
-              >
-                <Icon name="twitter" />
-              </a>
-              <a
-                href={ido.links.telegram}
-                target="_blank"
-                rel="noreferrer reopener"
-              >
-                <Icon name="telegram" />
-              </a>
-              <a
-                href={ido.links.medium}
-                target="_blank"
-                rel="noreferrer reopener"
-              >
-                <Icon name="medium" />
-              </a>
-              <a
-                href={ido.links.website}
-                target="_blank"
-                rel="noreferrer reopener"
-              >
-                <Icon name="link" />
-              </a>
-              <a
-                href={ido.links.docs}
-                target="_blank"
-                rel="noreferrer reopener"
-              >
-                <Icon name="docs" />
-              </a>
+            {formatNumber(params.offering)}{" "}
+            <span className="text-gray6">{ido.token}</span>
+          </div>
+        </div>
+        <div className="flex mb-3">
+          <div className="flex-1 text-gray6">Raising</div>
+          <div>
+            {formatNumber(params.raising, 2)}{" "}
+            <span className="text-gray6">ETH</span>
+          </div>
+        </div>
+        <div className="flex mb-3">
+          <div className="flex-1 text-gray6">Claimed %</div>
+          <div>
+            {formatNumber(params.comitted.mul(100).div(params.raising), 0, 0)}%
+          </div>
+        </div>
+        <div className="flex mb-3">
+          <div className="flex-1 text-gray6">Price</div>
+          <div>
+            <span className="text-gray6">
+              {formatNumber(params.price, 8)} ETH
+            </span>{" "}
+            ${" "}
+            {formatNumber(
+              params.price.mul((ido.paymentPrice * 10000) | 0).div(10000),
+              2
+            )}
+          </div>
+        </div>
+        {userInfo ? (
+          <div className="flex">
+            <div className="flex-1 text-gray6">Your Allocation</div>
+            <div>
+              {formatNumber(userInfo.allocation, 5)}{" "}
+              <span className="text-gray6">ETH</span> ${" "}
+              {formatNumber(
+                userInfo.allocation
+                  .mul((ido.paymentPrice * 10000) | 0)
+                  .div(10000),
+                2
+              )}
             </div>
           </div>
         ) : null}
-        {params ? (
+        <div className="mb-4" />
+        <div className="progress mb-4">
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
+        {userInfo ? (
           <>
+            {error ? <div className="error">{error}</div> : null}
+            {idoActive ? (
+              <>
+                <div className="text-sm mb-3">
+                  <span className="text-gray6">Balance: </span>
+                  <span className="text-primary5">
+                    {formatNumber(balance)} XRUNE
+                  </span>
+                </div>
+                <div className="input-with-link mb-4">
+                  <input
+                    className="input w-full"
+                    placeholder="Amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                  <a onClick={onDepositMax} className="input-link">
+                    Max
+                  </a>
+                </div>
+                <Button
+                  className="button-lg w-full mb-4"
+                  onClick={onDeposit}
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Deposit"}
+                </Button>
+              </>
+            ) : null}
             <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Offering</div>
+              <div className="flex-1 text-gray6">Deposited</div>
               <div>
-                {formatNumber(params.offering)}{" "}
+                {formatNumber(userInfo.amount, 5)}{" "}
+                <span className="text-gray6">ETH</span>
+              </div>
+            </div>
+            <div className="flex mb-3">
+              <div className="flex-1 text-gray6">Owed</div>
+              <div>
+                {formatNumber(userInfo.owed)}{" "}
                 <span className="text-gray6">{ido.token}</span>
               </div>
             </div>
-            {ido.type === "dutch" ? (
-              <div className="flex mb-3">
-                <div className="flex-1 text-gray6">Start Price</div>
-                <div>
-                  <span className="text-gray6">
-                    {formatNumber(params.startPrice)} XRUNE
-                  </span>{" "}
-                  ${" "}
-                  {formatNumber(
-                    params.startPrice
-                      .mul((ido.xrunePrice * 10000) | 0)
-                      .div(10000),
-                    2
-                  )}
-                </div>
-              </div>
-            ) : null}
-            {ido.type === "dutch" ? (
-              <div className="flex mb-3">
-                <div className="flex-1 text-gray6">Reserve Price</div>
-                <div>
-                  <span className="text-gray6">
-                    {formatNumber(params.endPrice)} XRUNE
-                  </span>{" "}
-                  ${" "}
-                  {formatNumber(
-                    params.endPrice
-                      .mul((ido.xrunePrice * 10000) | 0)
-                      .div(10000),
-                    2
-                  )}
-                </div>
-              </div>
-            ) : null}
-            {ido.type === "batch" ? (
-              <div className="flex mb-3">
-                <div className="flex-1 text-gray6">Raising</div>
-                <div>
-                  {formatNumber(params.raising, 0)}{" "}
-                  <span className="text-gray6">XRUNE</span>
-                </div>
-              </div>
-            ) : null}
-            {ido.type === "batch" || ido.type === "fcfs" ? (
-              <div className="flex mb-3">
-                <div className="flex-1 text-gray6">Committed %</div>
-                <div>
-                  {formatNumber(
-                    params.comitted.mul(100).div(params.raising),
-                    0,
-                    0
-                  )}
-                  %
-                </div>
-              </div>
-            ) : null}
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Committed $</div>
-              <div>
-                ${" "}
-                {formatNumber(
-                  params.comitted.mul((ido.xrunePrice * 10000) | 0).div(10000),
-                  2
-                )}
-              </div>
-            </div>
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Committed XRUNE</div>
-              <div>
-                {formatNumber(params.comitted, 0)} /{" "}
-                {formatNumber(params.raising, 0)}
-              </div>
-            </div>
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">
-                {ido.type === "dutch" ? "Current Price" : "Price"}
-              </div>
-              <div>
-                <span className="text-gray6">
-                  {formatNumber(params.price)} XRUNE
-                </span>{" "}
-                ${" "}
-                {formatNumber(
-                  params.price.mul((ido.xrunePrice * 10000) | 0).div(10000),
-                  3
-                )}
-              </div>
-            </div>
-            {ido.type === "fcfs" &&
-            userInfo &&
-            params.timestamp <
-              params.start.getTime() / 1000 + ido.tiersDuration ? (
-              <div className="flex">
-                <div className="flex-1 text-gray6">Your Allocation</div>
-                <div>
-                  {formatNumber(userInfo.allocationCap)}{" "}
-                  <span className="text-gray6">XRUNE</span>
-                </div>
-              </div>
-            ) : formatNumber(params.cap) !== "0" ? (
-              <div className="flex">
-                <div className="flex-1 text-gray6">Per User Cap</div>
-                <div>
-                  {formatNumber(params.cap)}{" "}
-                  <span className="text-gray6">XRUNE</span>
-                </div>
-              </div>
-            ) : null}
-            <div className="mb-4" />
-            <div className="progress mb-4">
-              <div
-                className="progress-bar"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-            {userInfo ? (
-              <>
-                {error ? <div className="error">{error}</div> : null}
-                {idoActive ? (
-                  <>
-                    <div className="text-sm mb-3">
-                      <span className="text-gray6">Balance: </span>
-                      <span className="text-primary5">
-                        {formatNumber(balance)} XRUNE
-                      </span>
-                    </div>
-                    <div className="input-with-link mb-4">
-                      <input
-                        className="input w-full"
-                        placeholder="Amount"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                      />
-                      <a onClick={onDepositMax} className="input-link">
-                        Max
-                      </a>
-                    </div>
-                    <Button
-                      className="button-lg w-full mb-4"
-                      onClick={onDeposit}
-                      disabled={loading}
-                    >
-                      {loading ? "Loading..." : "Deposit"}
-                    </Button>
-                  </>
-                ) : null}
-                <div className="flex mb-3">
-                  <div className="flex-1 text-gray6">Deposited</div>
-                  <div>
-                    {formatNumber(userInfo.amount)}{" "}
-                    <span className="text-gray6">XRUNE</span>
-                  </div>
-                </div>
-                <div className="flex mb-3">
-                  <div className="flex-1 text-gray6">
-                    {userInfo.claimedTokens ? "Collected" : "Owed"}
-                  </div>
-                  <div>
-                    {formatNumber(userInfo.allocation)}{" "}
-                    <span className="text-gray6">{ido.token}</span>
-                  </div>
-                </div>
-                {userInfo.refund ? (
-                  <div className="flex">
-                    <div className="flex-1 text-gray6">Refund</div>
-                    <div>
-                      {formatNumber(userInfo.refund)}{" "}
-                      <span className="text-gray6">XRUNE</span>
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            ) : null}
           </>
-        ) : (
-          <div>Loading...</div>
-        )}
+        ) : null}
       </div>
-      {userInfo ? (
-        <>
-          {canCollectOwed && canCollectRefund ? (
-            <Button className="w-full mt-2" onClick={onCollectAll}>
-              {loading ? "Loading..." : "Collect owed tokens & refund"}
-            </Button>
-          ) : canCollectOwed ? (
-            <Button className="w-full mt-2" onClick={onCollectOwed}>
-              {loading ? "Loading..." : "Collect owed tokens"}
-            </Button>
-          ) : canCollectRefund ? (
-            <Button className="w-full mt-2" onClick={onCollectRefund}>
-              {loading ? "Loading..." : "Collect refund"}
-            </Button>
-          ) : null}
-        </>
-      ) : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
+    </div>
+  );
+}
+
+function IDOHeader({ ido }) {
+  return (
+    <div>
+      <div
+        className="ido-cover"
+        style={{ backgroundImage: `url(${ido.cover.src})` }}
+      >
+        <Image
+          src={ido.logo}
+          height={60}
+          width={(60 * ido.logo.width) / ido.logo.height}
+          alt={ido.name}
+        />
+      </div>
+      <h2>{ido.name}</h2>
+      <div className="ido-links">
+        <a href={ido.links.twitter} target="_blank" rel="noreferrer reopener">
+          <Icon name="twitter" />
+        </a>
+        <a href={ido.links.telegram} target="_blank" rel="noreferrer reopener">
+          <Icon name="telegram" />
+        </a>
+        <a href={ido.links.medium} target="_blank" rel="noreferrer reopener">
+          <Icon name="medium" />
+        </a>
+        <a href={ido.links.website} target="_blank" rel="noreferrer reopener">
+          <Icon name="link" />
+        </a>
+        <a href={ido.links.docs} target="_blank" rel="noreferrer reopener">
+          <Icon name="docs" />
+        </a>
+      </div>
     </div>
   );
 }

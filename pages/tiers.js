@@ -189,11 +189,11 @@ export default function Tiers() {
         </div>
       </div>
 
-      <UpcomingIDORegistration
+      {/* <UpcomingIDORegistration
         ido="MNET"
         size={150000}
         xrune={data ? data.staked.xrune : parseUnits("0")}
-      />
+      /> */}
 
       <section className="page-section">
         {error ? <div className="error mb-4">{error}</div> : null}

@@ -503,7 +503,7 @@ function IDOCard({ ido, parentSetParams }) {
     const userInfo = await sale.getUserInfo(state.address);
     const userAllocation = ido.allocations.find(
       (a) => a.address === state.address
-    ) || { amount: "0" };
+    ) || { amount: "0", proof: [] };
     setUserInfo({
       amount: userInfo[0],
       owed: userInfo[2],
@@ -521,6 +521,10 @@ function IDOCard({ ido, parentSetParams }) {
 
   async function onDeposit() {
     try {
+      if (userInfo.allocation.eq('0')) {
+        setError('You don\'t have an allocation for this IDO');
+        return;
+      }
       const parsedAmount = ethers.utils.parseUnits(
         amount.replace(/[^0-9\.]/g, ""),
         18
@@ -664,7 +668,7 @@ function IDOCard({ ido, parentSetParams }) {
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
                 {formatNumber(userInfo.amount, 5)}{" "}
-                <span className="text-gray6">ETH</span>
+                <span className="text-gray6">{ido.paymentToken}</span>
               </div>
             </div>
             <div className="flex mb-3">

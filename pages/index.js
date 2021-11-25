@@ -637,7 +637,7 @@ function IDOCard({ ido, parentSetParams }) {
                 <div className="text-sm mb-3">
                   <span className="text-gray6">Balance: </span>
                   <span className="text-primary5">
-                    {formatNumber(balance)} XRUNE
+                    {formatNumber(balance)} {ido.paymentToken}
                   </span>
                 </div>
                 <div className="input-with-link mb-4">

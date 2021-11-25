@@ -54,7 +54,7 @@ const idos = [
     static: [
       { label: "Offering", value: "15,000,000 MNET" },
       { label: "Raising", value: "35.71 ETH" },
-      { label: "Claimed %", value: "91%" },
+      { label: "Claimed %", value: "100%" },
       { label: "Price", value: "0.00000238 ETH $ 0.01" },
     ]
   },

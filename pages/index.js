@@ -29,34 +29,35 @@ import coverThorwallet from "../public/ido/thorwallet-cover.png";
 import logoMine from "../public/ido/mine-logo.png";
 import coverMine from "../public/ido/mine-cover.png";
 
-const liveIdo = {
-  name: "MINE Network",
-  token: "MNET",
-  paymentToken: "ETH",
-  type: "tiers",
-  networkId: 1,
-  address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
-  paymentPrice: 4200,
-  notFinalized: true,
-  allocations: allocationData.mnet,
-  logo: logoMine,
-  cover: coverMine,
-  links: {
-    twitter: "https://twitter.com/mine_blockchain",
-    telegram: "https://t.me/mine_blockchain",
-    medium: "https://mineblockchain.medium.com/",
-    website: "https://www.mine.network/",
-    docs: "https://docsend.com/view/d9jijm9qqvbavcen",
-  },
-  static: [
-    { label: "Offering", value: "15,000,000 MNET" },
-    { label: "Raising", value: "35.71 ETH" },
-    { label: "Claimed %", value: "100%" },
-    { label: "Price", value: "0.00000238 ETH $ 0.01" },
-  ]
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "MINE Network",
+    token: "MNET",
+    paymentToken: "ETH",
+    type: "tiers",
+    networkId: 1,
+    address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
+    paymentPrice: 4200,
+    notFinalized: true,
+    allocations: allocationData.mnet,
+    logo: logoMine,
+    cover: coverMine,
+    links: {
+      twitter: "https://twitter.com/mine_blockchain",
+      telegram: "https://t.me/mine_blockchain",
+      medium: "https://mineblockchain.medium.com/",
+      website: "https://www.mine.network/",
+      docs: "https://docsend.com/view/d9jijm9qqvbavcen",
+    },
+    static: [
+      { label: "Offering", value: "15,000,000 MNET" },
+      { label: "Raising", value: "35.71 ETH" },
+      { label: "Claimed %", value: "91%" },
+      { label: "Price", value: "0.00000238 ETH $ 0.01" },
+    ]
+  },
   {
     name: "THORWallet",
     token: "TGT",

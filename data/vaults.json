@@ -1,5 +1,6 @@
 [
   {
+    "networkId": 1,
     "duration": {
       "value": 2,
       "label": "months"
@@ -11,6 +12,7 @@
     "earn": "XRUNE"
   },
   {
+    "networkId": 1,
     "duration": {
       "value": 4,
       "label": "months"
@@ -22,6 +24,7 @@
     "earn": "XRUNE"
   },
   {
+    "networkId": 1,
     "duration": {
       "value": 6,
       "label": "months"
@@ -30,6 +33,19 @@
     "startDate": "Nov 23, 2021",
     "endDate": "May 23, 2022",
     "apy": "60%",
+    "earn": "XRUNE"
+  },
+  {
+    "networkId": 3,
+    "contract": "0x65fB2acd5Ea7998AB081f3AA0408eB702cbdFBC5",
+    "duration": {
+      "value": 3,
+      "label": "minutes"
+    },
+    "maxLock": 100,
+    "startDate": "Nov 23, 2021",
+    "endDate": "May 23, 2022",
+    "apy": "100%",
     "earn": "XRUNE"
   }
 ]

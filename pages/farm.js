@@ -1,9 +1,10 @@
-import classnames from 'classnames';
+import classnames from "classnames";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import Button from "../components/button";
 import LoadingOverlay from "../components/loadingOverlay";
+import Vault from "../components/vault";
 import {
   bn,
   useGlobalState,
@@ -15,16 +16,18 @@ import {
 } from "../utils";
 import { parseUnits } from "@ethersproject/units";
 
+import vaults from "../data/vaults.json";
+
 const farms = [
-  {
-    name: "XRUNE",
-    token: "xrune",
-    poolId: 0,
-  },
   {
     name: "XRUNE-ETH SLP",
     token: "slp",
     poolId: 1,
+  },
+  {
+    name: "XRUNE",
+    token: "xrune",
+    poolId: 0,
   },
 ];
 
@@ -187,39 +190,51 @@ export default function Farm() {
 
             <div className="flex">
               <div className="flex-1 mr-4">
-                <label>
-                  Balance: {data ? formatNumber(data.farms[i].balance) : "-"}
-                </label>
-                <br />
-                <div className="input-with-link">
-                  <input
-                    type="text"
-                    className="input w-full mt-2"
-                    value={amounts[i].deposit || ""}
-                    onChange={onAmountChange.bind(null, i, "deposit")}
-                    placeholder="0.0"
-                  />
-                  <a
-                    className="input-link"
-                    onClick={onAmountChange.bind(null, i, "deposit", {
-                      target: {
-                        value: data
-                          ? formatNumber(data.farms[i].balance, 8)
-                          : "0",
-                      },
-                    })}
-                  >
-                    Max
-                  </a>
-                </div>
-                <Button
-                  className="button-outline mt-4 w-full"
-                  onClick={onDeposit.bind(null, i)}
-                >
-                  {farm.poolId !== 0 && data && data.farms[i].allowance.eq("0")
-                    ? "Approve"
-                    : "Deposit"}
-                </Button>
+                {farm.poolId === 0 ? (
+                  <div>
+                    Single sided XRUNE deposits have been disabled in favor of
+                    Vaults!
+                  </div>
+                ) : (
+                  <>
+                    <label>
+                      Balance:{" "}
+                      {data ? formatNumber(data.farms[i].balance) : "-"}
+                    </label>
+                    <br />
+                    <div className="input-with-link">
+                      <input
+                        type="text"
+                        className="input w-full mt-2"
+                        value={amounts[i].deposit || ""}
+                        onChange={onAmountChange.bind(null, i, "deposit")}
+                        placeholder="0.0"
+                      />
+                      <a
+                        className="input-link"
+                        onClick={onAmountChange.bind(null, i, "deposit", {
+                          target: {
+                            value: data
+                              ? formatNumber(data.farms[i].balance, 8)
+                              : "0",
+                          },
+                        })}
+                      >
+                        Max
+                      </a>
+                    </div>
+                    <Button
+                      className="button-outline mt-4 w-full"
+                      onClick={onDeposit.bind(null, i)}
+                    >
+                      {farm.poolId !== 0 &&
+                      data &&
+                      data.farms[i].allowance.eq("0")
+                        ? "Approve"
+                        : "Deposit"}
+                    </Button>
+                  </>
+                )}
               </div>
               <div className="flex-1">
                 <label>
@@ -257,6 +272,15 @@ export default function Farm() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="page-section">
+        <h1 className="title">Vaults</h1>
+        <div className="vaults-grid">
+          {vaults.map((item, idx) => (
+            <Vault data={item} key={idx} />
+          ))}
+        </div>
       </div>
     </Layout>
   );

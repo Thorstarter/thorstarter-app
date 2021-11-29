@@ -47,7 +47,7 @@ export default function AdminTiers() {
   }, []);
 
   return (
-    <Layout title="Private Investors Vesting">
+    <Layout title="Admin: Tiers">
       <h1 className="title">Admin: Tiers</h1>
 
       {!data ? "Loading..." : null}

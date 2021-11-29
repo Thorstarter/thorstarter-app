@@ -719,106 +719,106 @@ export const saleFcfs = [
 
 export const saleTiers = [
   {
-    "inputs": [],
-    "name": "getParams",
-    "outputs": [
+    inputs: [],
+    name: "getParams",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "_user",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
     ],
-    "name": "getUserInfo",
-    "outputs": [
+    name: "getUserInfo",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint256",
-        "name": "allocation",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "allocation",
+        type: "uint256",
       },
       {
-        "internalType": "bytes32[]",
-        "name": "merkleProof",
-        "type": "bytes32[]"
-      }
+        internalType: "bytes32[]",
+        name: "merkleProof",
+        type: "bytes32[]",
+      },
     ],
-    "name": "deposit",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
+    name: "deposit",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "harvest",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    inputs: [],
+    name: "harvest",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];
 
@@ -2005,6 +2005,524 @@ const tiers = [
   },
 ];
 
+const vaults = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_compRateKeeper",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_lockPeriod",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_totalLockPeriod",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_totalHardCap",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_walletHardCap",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_interestRate",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "actualHardCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "actualStaticHardCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "aggregatedNormalizedStake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "compRateKeeper",
+    outputs: [
+      {
+        internalType: "contract CompoundRateKeeper",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "endDate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "interestRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lockPeriod",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "startDate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "token",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalHardCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "userStakes",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "normalizedAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "unlockTime",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "walletHardCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_newPeriod",
+        type: "uint256",
+      },
+    ],
+    name: "setLockPeriod",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "updateCompoundRate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "updateCompoundAndStake",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "updateCompoundAndWithdraw",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
+    ],
+    name: "getPotentialNewestBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_newInterestRate",
+        type: "uint256",
+      },
+    ],
+    name: "setInterestRate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "supplyRewardPool",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRewardAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getContractInfo",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "_totalHardCap",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_walletHardCap",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_totalStake",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_lockPeriod",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_endDate",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_myTotalStake",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_myLatestRewards",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_actualStaticHardCap",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "monitorSecurityMargin",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawRest",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "_token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "transferStuckERC20",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "_to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "transferStuckNativeToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+
 export default {
   token,
   staking,
@@ -2020,4 +2538,5 @@ export default {
   vestingDispenser,
   votersTcLpRequester,
   tiers,
+  vaults,
 };

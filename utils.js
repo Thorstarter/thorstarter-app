@@ -70,6 +70,9 @@ export const contractAddresses = {
     tiers: "0x1190C41f4c47A466F507E28C8fe4cC6aC3E34906",
     twnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
     tgnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
+    vault2month: "0xcAC9E67006D37E39B234dAD5617797cD50D7bEe3",
+    vault4month: "0x3B7f242F88F8C199ebd501EbcEf82110553e2D6E",
+    vault6month: "0x0C2084360dcD91817D99073964C6322d3022f75C",
   },
   250: {
     xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
@@ -150,6 +153,9 @@ function buildContracts() {
     tiers: contract(addresses.tiers, abis.tiers),
     twnft: contract(addresses.twnft, abis.token),
     tgnft: contract(addresses.tgnft, abis.token),
+    vault2month: contract(addresses.vault2month, abis.vaults),
+    vault4month: contract(addresses.vault4month, abis.vaults),
+    vault6month: contract(addresses.vault6month, abis.vaults),
   };
 }
 let contracts = buildContracts();
@@ -275,10 +281,10 @@ export function bnMax(a, b) {
 }
 
 export function aprdToApy(rate) {
-  return Math.pow(rate+1, 365) - 1;
+  return Math.pow(rate + 1, 365) - 1;
 }
 
 export function aprde12ToApy(rate) {
-  console.log('asd', ethers.utils.formatUnits(rate, 30));
+  console.log("asd", ethers.utils.formatUnits(rate, 30));
   return aprdToApy(parseFloat(ethers.utils.formatUnits(rate, 30)));
 }

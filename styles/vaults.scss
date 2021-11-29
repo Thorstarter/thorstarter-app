@@ -15,6 +15,13 @@
 	background-color: var(--dark);
 	border-radius: 10px;
 	padding: 30px 30px 15px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: flex-start;
+	.error {
+		font-size: 13px;
+	}
 	&__head {
 		display: flex;
 		align-items: center;
@@ -221,7 +228,6 @@
 		min-width: 180px;
 	}
 	&__countdown {
-		margin-top: 20px;
 		&-head {
 			display: flex;
 			align-items: flex-end;
@@ -266,7 +272,11 @@
 			margin-left: 8px;
 			color: var(--white);
 		}
-		.vault__form, .button {
+		.vault__form {
+			margin-top: 10px;
+			margin-bottom: 0;
+		}
+		.button {
 			margin-top: 10px;
 		}
 	}

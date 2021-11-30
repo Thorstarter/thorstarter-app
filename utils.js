@@ -208,7 +208,7 @@ export function formatDate(dateLike) {
 }
 
 export function formatMDY(dateLike) {
-  if (dateLike instanceof ethers.BigNumber) {
+  if (dateLike._isBigNumber) {
     dateLike = dateLike.toNumber() * 1000;
   }
   const d = new Date(dateLike);

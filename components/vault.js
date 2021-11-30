@@ -60,7 +60,7 @@ export default function Vault({ vault }) {
       vault.address,
       parsedAmount,
       "0x",
-      {gasLimit: gasLimit.mul(120).div(100)}
+      { gasLimit: gasLimit.mul(120).div(100) }
     );
     runTransaction(call, setLoading, setError).then(
       () => {
@@ -83,6 +83,7 @@ export default function Vault({ vault }) {
     const userInfo = await contract.getUserInfo(state.address);
     const totalAmount = params[2];
     const capTotal = params[0];
+
     setData({
       progress: totalAmount.mul(10000).div(capTotal).toNumber() / 100,
       available: capTotal.sub(totalAmount),
@@ -218,32 +219,42 @@ export default function Vault({ vault }) {
                     <span>{formatNumber(data.earned)} XRUNE</span>
                   </li>
                 </ul>
-                <div className="vault__additional tac">
-                  Balance:
-                  <span>{formatNumber(balance)} XRUNE</span>
-                  {additionalStake ? (
-                    renderForm()
-                  ) : (
-                    <div className="tac">
-                      <button
-                        className="button button-lg vault__stake"
-                        onClick={() => setAdditionalStake(true)}
-                      >
-                        Stake More
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {data && parseFloat(formatUnits(data.available)) > 0 ? (
+                  <div className="vault__additional tac">
+                    Balance:
+                    <span>{formatNumber(balance)} XRUNE</span>
+                    {additionalStake ? (
+                      renderForm()
+                    ) : (
+                      <div className="tac">
+                        <button
+                          className="button button-lg vault__stake"
+                          onClick={() => setAdditionalStake(true)}
+                        >
+                          Stake More
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="vault__filled">Filled</div>
+                )}
               </>
             ) : (
               <>
-                {balance.gt(0) ? (
+                {data && parseFloat(formatUnits(data.available)) > 0 ? (
                   <>
-                    {renderBalance()}
-                    {renderForm()}
+                    {balance.gt(0) ? (
+                      <>
+                        {renderBalance()}
+                        {renderForm()}
+                      </>
+                    ) : (
+                      renderBalance()
+                    )}
                   </>
                 ) : (
-                  renderBalance()
+                  <div className="vault__filled">Filled</div>
                 )}
               </>
             )}

@@ -1,51 +1,26 @@
 [
   {
     "networkId": 1,
-    "duration": {
-      "value": 2,
-      "label": "months"
-    },
-    "maxLock": 1500000,
-    "startDate": "Nov 23, 2021",
-    "endDate": "Jan 23, 2022",
-    "apy": "30%",
-    "earn": "XRUNE"
+    "address": "0x2a092e401507dD4877cCd0b4Ee70B769452DbB7a",
+    "months": 2,
+    "apy": "30%"
   },
   {
     "networkId": 1,
-    "duration": {
-      "value": 4,
-      "label": "months"
-    },
-    "maxLock": 1500000,
-    "startDate": "Nov 23, 2021",
-    "endDate": "Mar 23, 2022",
-    "apy": "40%",
-    "earn": "XRUNE"
+    "address": "0xc20434f595c32B5297A737Cb173382Dd2485C2cC",
+    "months": 4,
+    "apy": "40%"
   },
   {
     "networkId": 1,
-    "duration": {
-      "value": 6,
-      "label": "months"
-    },
-    "maxLock": 1500000,
-    "startDate": "Nov 23, 2021",
-    "endDate": "May 23, 2022",
-    "apy": "60%",
-    "earn": "XRUNE"
+    "address": "0x8ba0C510Da4507D1F5f73ff9E1FcD14Edc819EB2",
+    "months": 6,
+    "apy": "60%"
   },
   {
     "networkId": 3,
-    "contract": "0x65fB2acd5Ea7998AB081f3AA0408eB702cbdFBC5",
-    "duration": {
-      "value": 3,
-      "label": "minutes"
-    },
-    "maxLock": 100,
-    "startDate": "Nov 23, 2021",
-    "endDate": "May 23, 2022",
-    "apy": "100%",
-    "earn": "XRUNE"
+    "address": "0x2a2eC96c81a8320A088D6Bc4b7AFF4f41F717298",
+    "months": 9,
+    "apy": "100%"
   }
 ]

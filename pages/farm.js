@@ -274,14 +274,18 @@ export default function Farm() {
         ))}
       </div>
 
-      <div className="page-section">
-        <h1 className="title">Vaults</h1>
-        <div className="vaults-grid">
-          {vaults.map((item, idx) => (
-            <Vault data={item} key={idx} />
-          ))}
+      {state.networkId === 3 ? (
+        <div className="page-section">
+          <h1 className="title">Vaults</h1>
+          <div className="vaults-grid">
+            {vaults
+              .filter((i) => i.networkId === state.networkId)
+              .map((v) => (
+                <Vault vault={v} key={v.address} />
+              ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </Layout>
   );
 }

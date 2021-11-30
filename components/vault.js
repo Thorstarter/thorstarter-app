@@ -1,31 +1,34 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { parseUnits } from "@ethersproject/units";
 
 import Button from "./button";
 import Countdown from "./countdown";
 import ProgressSlider from "./progressSlider";
+import LoadingOverlay from "./loadingOverlay";
 
 import {
+  bnMin,
+  parseUnits,
+  formatUnits,
   formatNumber,
+  formatMDY,
   useGlobalState,
   connectWallet,
   disconnectWallet,
   getContracts,
   runTransaction,
-  contractAddresses,
 } from "../utils";
 
 import abis from "../abis";
 
-export default function Vault({ data }) {
-  const [balance, setBalance] = useState(0);
-  const [fieldValue, setFieldValue] = useState(0);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState("");
-  const [additionalStake, setAdditionalStake] = useState(false);
-  const [info, setInfo] = useState(null);
+export default function Vault({ vault }) {
   const state = useGlobalState();
+  const [data, setData] = useState();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState("");
+  const [balance, setBalance] = useState(parseUnits("0"));
+  const [amount, setAmount] = useState("");
+  const [additionalStake, setAdditionalStake] = useState(false);
 
   async function onConnect() {
     if (state.address) {
@@ -35,110 +38,87 @@ export default function Vault({ data }) {
     }
   }
 
-  const onMaxClicked = () => {
-    const value = parseFloat(formatNumber(balance).replaceAll(",", ""));
-    const limit = parseFloat(info.availableLimit.replaceAll(",", ""));
-    if (value < limit) {
-      setFieldValue(value);
-    } else {
-      setFieldValue(limit);
-    }
-    setLoading("");
-    setError("");
-  };
+  function onMaxClicked() {
+    setError();
+    setAmount(formatUnits(bnMin(balance, data.available)));
+  }
 
-  const onStake = async () => {
-    const amount = parseUnits(fieldValue.replace(/[^0-9\.]/g, ""));
-
-    if (Number.isNaN(amount)) {
+  async function onSubmit() {
+    const contracts = getContracts();
+    const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
+    if (Number.isNaN(parsedAmount)) {
       setError("Not a valid number");
       return;
     }
 
-    const contracts = getContracts();
-
-    const allowance = await contracts.xrune.allowance(
-      state.address,
-      contracts[`vault${data.duration.value}month`].address
+    const gasLimit = await contracts.xrune.estimateGas.transferAndCall(
+      vault.address,
+      parsedAmount,
+      "0x"
     );
-
-    if (allowance.eq("0")) {
-      const call = contracts.xrune.approve(
-        contractAddresses[state.networkId][`vault${data.duration.value}month`],
-        ethers.constants.MaxUint256
-      );
-      await runTransaction(call, setLoading, setError);
-    } else {
-      const call = contracts[
-        `vault${data.duration.value}month`
-      ].updateCompoundAndStake(amount, { gasLimit: "1000000" });
-      await runTransaction(call, setLoading, setError);
-      setFieldValue(0);
-      setLoading("");
-    }
-  };
+    const call = contracts.xrune.transferAndCall(
+      vault.address,
+      parsedAmount,
+      "0x",
+      {gasLimit: gasLimit.mul(120).div(100)}
+    );
+    runTransaction(call, setLoading, setError).then(
+      () => {
+        setAmount("");
+        fetchData();
+      },
+      () => {}
+    );
+  }
 
   async function fetchData() {
+    if (!state.address) return;
     const contracts = getContracts();
-    if (state.address) {
-      const contract = new ethers.Contract(
-        contracts[`vault${data.duration.value}month`].address,
-        abis.vaults,
-        state.signer || state.provider
-      );
-      const stakeInfo = await contract.getContractInfo();
-
-      const totalHardCap = formatNumber(stakeInfo._totalHardCap);
-      const totalStaked = formatNumber(stakeInfo._totalStake);
-      const staked = formatNumber(stakeInfo._myTotalStake);
-      const earned = formatNumber(stakeInfo._myLatestRewards);
-
-      const numTotalHardCap = parseFloat(totalHardCap.replaceAll(",", ""));
-      const numTotalStaked = parseFloat(totalStaked.replaceAll(",", ""));
-
-      const availableLimit = formatNumber(numTotalHardCap - numTotalStaked);
-      const progress = (100 * numTotalStaked) / numTotalHardCap;
-
-      const obj = {
-        totalHardCap,
-        totalStaked,
-        staked,
-        earned,
-        availableLimit,
-        progress,
-      };
-
-      setInfo((prevState) => ({ ...prevState, ...obj }));
-      setBalance(await contracts.xrune.balanceOf(state.address));
-    }
+    const contract = new ethers.Contract(
+      vault.address,
+      abis.vault,
+      state.signer || state.provider
+    );
+    const params = await contract.getParams();
+    const userInfo = await contract.getUserInfo(state.address);
+    const totalAmount = params[2];
+    const capTotal = params[0];
+    setData({
+      progress: totalAmount.mul(10000).div(capTotal).toNumber() / 100,
+      available: capTotal.sub(totalAmount),
+      totalAmount: totalAmount,
+      capTotal: capTotal,
+      startAt: params[5],
+      endAt: params[6],
+      staked: userInfo[2],
+      earned: userInfo[3],
+    });
+    setBalance(await contracts.xrune.balanceOf(state.address));
   }
 
   useEffect(() => {
     fetchData();
-    const handle = setInterval(fetchData, 5000);
+    const handle = setInterval(fetchData, 10000);
     return () => clearInterval(handle);
   }, [state.networkId, state.address]);
 
-  function BalanceBlock() {
+  function renderBalance() {
     return (
       <div className="vault__balance">
-        Balance:{" "}
-        <span>
-          {formatNumber(balance)} {data.earn}
-        </span>
+        Balance: <span>{formatNumber(balance)} XRUNE</span>
         <a
           href="https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=0x69fa0feE221AD11012BAb0FdB45d444D3D2Ce71c"
           className="button button-xs"
           target="_blank"
           rel="noreferrer"
         >
-          Buy {data.earn}
+          Buy XRUNE
         </a>
       </div>
     );
   }
 
-  function FormBLock() {
+  function renderForm() {
     return (
       <>
         <div className="vault__form">
@@ -146,19 +126,21 @@ export default function Vault({ data }) {
             type="text"
             placeholder="0.00"
             className="vault__field"
-            onChange={(e) =>
-              setFieldValue(e.target.value.replace(/[^0-9\.]/g, ""))
-            }
-            value={fieldValue > 0 ? fieldValue : ""}
+            onChange={(e) => setAmount(e.target.value)}
+            value={amount}
           />
           <button type="button" className="vault__max" onClick={onMaxClicked}>
-            MAX
+            Max
           </button>
         </div>
         {error ? <div className="error mb-4">{error}</div> : null}
         <div className="tac">
-          <button className="button button-lg vault__stake" onClick={onStake}>
-            {loading ? loading : "Stake"}
+          <button
+            className="button button-lg vault__stake"
+            onClick={onSubmit}
+            disabled={loading}
+          >
+            {loading ? "Loading..." : "Stake"}
           </button>
         </div>
       </>
@@ -168,29 +150,25 @@ export default function Vault({ data }) {
   return (
     <div className="vault">
       <div className="vault__head">
-        <span className="vault__head-label">{data.duration.value}</span>
+        <span className="vault__head-label">{vault.months}</span>
         <span className="vault__title">Month Vault</span>
       </div>
       <div className="vault__subhead">
-        MAX lock per Vault{" "}
-        <span>
-          {info ? info.totalHardCap : 0} {data.earn}
-        </span>
+        Vault max capacity{" "}
+        <span>{data ? formatNumber(data.capTotal, 0) : 0} XRUNE</span>
       </div>
       <ul className="vault__data">
         <li className="vault__duration">
           Duration
-          <span>
-            {data.duration.value} {data.duration.label}
-          </span>
+          <span>{vault.months} months</span>
         </li>
         <li className="vault__dates">
           <ul>
             <li>
-              Start Date <span>{data.startDate}</span>
+              Start Date <span>{data ? formatMDY(data.startAt) : "-"}</span>
             </li>
             <li>
-              End Date <span>{data.endDate}</span>
+              End Date <span>{data ? formatMDY(data.endAt) : "-"}</span>
             </li>
           </ul>
         </li>
@@ -199,10 +177,10 @@ export default function Vault({ data }) {
         <li className="vault__apy">
           <ul>
             <li>
-              APY <span>{data.apy}</span>
+              APY <span>{vault.apy}</span>
             </li>
             <li>
-              Earn <span>{data.earn}</span>
+              Earn <span>XRUNE</span>
             </li>
           </ul>
         </li>
@@ -214,52 +192,44 @@ export default function Vault({ data }) {
           </div>
         ) : (
           <>
-            {info && parseFloat(info.staked.replaceAll(",", "")) > 0 ? (
+            {data && data.staked.gt(0) ? (
               <>
                 <div className="vault__countdown">
                   <div className="vault__countdown-head">
                     <span>Start</span>
                     <div>
                       <span>Time till harvest</span>
-                      <Countdown to={new Date(data.endDate)} simple />
+                      <Countdown to={new Date(data.endAt * 1000)} simple />
                     </div>
                     <span>End</span>
                   </div>
                   <ProgressSlider
-                    startDate={new Date(data.startDate)}
-                    endDate={new Date(data.endDate)}
+                    startDate={new Date(data.startAt * 1000)}
+                    endDate={new Date(data.endAt * 1000)}
                   />
                 </div>
                 <ul className="vault__results">
                   <li>
                     Staked
-                    <span>
-                      {info.staked} {data.earn}
-                    </span>
+                    <span>{formatNumber(data.staked)} XRUNE</span>
                   </li>
                   <li>
                     Earned
-                    <span>
-                      {info.earned} {data.earn}
-                    </span>
+                    <span>{formatNumber(data.earned)} XRUNE</span>
                   </li>
                 </ul>
                 <div className="vault__additional tac">
                   Balance:
-                  <span>
-                    {formatNumber(balance)} {data.earn}
-                  </span>
+                  <span>{formatNumber(balance)} XRUNE</span>
                   {additionalStake ? (
-                    <>
-                      <FormBLock />
-                    </>
+                    renderForm()
                   ) : (
                     <div className="tac">
                       <button
                         className="button button-lg vault__stake"
                         onClick={() => setAdditionalStake(true)}
                       >
-                        Stake
+                        Stake More
                       </button>
                     </div>
                   )}
@@ -267,13 +237,13 @@ export default function Vault({ data }) {
               </>
             ) : (
               <>
-                {parseFloat(formatNumber(balance).replaceAll(",", "")) > 0 ? (
+                {balance.gt(0) ? (
                   <>
-                    <BalanceBlock />
-                    <FormBLock />
+                    {renderBalance()}
+                    {renderForm()}
                   </>
                 ) : (
-                  <BalanceBlock />
+                  renderBalance()
                 )}
               </>
             )}
@@ -283,23 +253,20 @@ export default function Vault({ data }) {
       <div className="vault__foot">
         <div className="vault__value">
           Available limit:
-          <span>
-            {info ? info.availableLimit : 0} {data.earn}
-          </span>
+          <span>{data ? formatNumber(data.available) : 0} XRUNE</span>
           <div className="progress">
             <div
               className="progress-bar"
-              style={{ width: info ? info.progress + "%" : "0%" }}
+              style={{ width: data ? data.progress + "%" : "0%" }}
             />
           </div>
         </div>
         <div className="vault__value">
-          Total Staked:
-          <span>
-            {info ? info.totalStaked : 0} {data.earn}
-          </span>
+          Total staked:
+          <span>{data ? formatNumber(data.totalAmount) : 0} XRUNE</span>
         </div>
       </div>
+      {loading ? <LoadingOverlay message={loading} /> : null}
     </div>
   );
 }

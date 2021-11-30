@@ -214,7 +214,7 @@ export function formatMDY(dateLike) {
   const d = new Date(dateLike);
   if (d.getTime() === 0) return "N/A";
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${months[d.getMonth()]} ${d.getDate()+1}, ${d.getFullYear()}`;
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
 export function formatNumber(n, decimals = 2, units = 18) {

@@ -219,7 +219,7 @@ export default function Vault({ vault }) {
                     <span>{formatNumber(data.earned)} XRUNE</span>
                   </li>
                 </ul>
-                {data && parseFloat(formatUnits(data.available)) > 0 ? (
+                {data && data.available.gt(0) ? (
                   <div className="vault__additional tac">
                     Balance:
                     <span>{formatNumber(balance)} XRUNE</span>
@@ -242,7 +242,7 @@ export default function Vault({ vault }) {
               </>
             ) : (
               <>
-                {data && parseFloat(formatUnits(data.available)) > 0 ? (
+                {data && data.available.gt(0) ? (
                   <>
                     {balance.gt(0) ? (
                       <>

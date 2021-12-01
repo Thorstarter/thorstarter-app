@@ -40,7 +40,6 @@ const idos = [
     networkId: 1,
     address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
     paymentPrice: 4200,
-    notFinalized: true,
     allocations: allocationData.mnet,
     logo: logoMine,
     cover: coverMine,

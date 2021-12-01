@@ -424,7 +424,7 @@ function IDOCardStatic({ ido }) {
               <div className="flex mt-3">
                 <div className="flex-1 text-gray6">Collected</div>
                 <div>
-                  {formatNumber(userInfo.collected)}{" "}
+                  {formatNumber(userInfo.claimed)}{" "}
                   <span className="text-gray6">{ido.token}</span>
                 </div>
               </div>
@@ -454,9 +454,9 @@ function IDOCardStatic({ ido }) {
           <Button
             className="w-full mt-2"
             onClick={onHarvest}
-            disabled={ido.notFinalized}
+            disabled={ido.notFinalized || (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed))}
           >
-            {loading ? "Loading..." : ido.notFinalized ? "Soon..." : "Collect"}
+            {loading ? "Loading..." : (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed)) ? "No vested tokens": ido.notFinalized ? "Soon..." : "Collect"}
           </Button>
         ) : null}
         {loading ? <LoadingOverlay message={loading} /> : null}

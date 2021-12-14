@@ -18,8 +18,8 @@ import {
 import abis from "../abis";
 import allocationData from "../data/allocations.json";
 
-// import logoSkyrim from "../public/ido/skyrim-logo.png";
-// import coverSkyrim from "../public/ido/skyrim-cover.png";
+import logoSkyrim from "../public/ido/skyrim-logo.png";
+import coverSkyrim from "../public/ido/skyrim-cover.png";
 import logoBnpl from "../public/ido/bnpl-logo.png";
 import coverBnpl from "../public/ido/bnpl-cover.png";
 import logoThorswap from "../public/ido/thorswap-logo.png";
@@ -141,34 +141,34 @@ const idos = [
       { label: "Price", value: "0.20 XRUNE $ 0.040" },
     ],
   },
-  // {
-  //   name: "Skyrim Finance",
-  //   token: "SKYRIM",
-  //   paymentToken: "XRUNE",
-  //   type: "dutch",
-  //   networkId: 1,
-  //   address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
-  //   xrunePrice: 0.5,
-  //   price: ethers.utils.parseUnits('0.12'),
-  //   logo: logoSkyrim,
-  //   cover: coverSkyrim,
-  //   links: {
-  //     twitter: "https://twitter.com/SkyrimFinance",
-  //     telegram: "https://t.me/skyrimfinance",
-  //     medium: "https://medium.com/@skyrimfinance",
-  //     website: "https://skyrim.finance/",
-  //     docs: "https://docs.skyrim.finance/",
-  //     about: "https://thorstarter.org/ido/skyrim",
-  //   },
-  //   static: [
-  //     {label: 'Offering', value: '5,000,000 SKYRIM'},
-  //     {label: 'Start Price', value: '2 XRUNE $ 1'},
-  //     {label: 'Reserve Price', value: '0.20 XRUNE $ 0.10'},
-  //     {label: 'Committed $', value: '$ 3,079,116.21'},
-  //     {label: 'Committed XRUNE', value: '6,158,232'},
-  //     {label: 'Price', value: '0.12 XRUNE $ 0.61'},
-  //   ]
-  // },
+  {
+    name: "Skyrim Finance",
+    token: "SKYRIM",
+    paymentToken: "XRUNE",
+    type: "dutch",
+    networkId: 1,
+    address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
+    xrunePrice: 0.5,
+    price: ethers.utils.parseUnits('0.12'),
+    logo: logoSkyrim,
+    cover: coverSkyrim,
+    links: {
+      twitter: "https://twitter.com/SkyrimFinance",
+      telegram: "https://t.me/skyrimfinance",
+      medium: "https://medium.com/@skyrimfinance",
+      website: "https://skyrim.finance/",
+      docs: "https://docs.skyrim.finance/",
+      about: "https://thorstarter.org/ido/skyrim",
+    },
+    static: [
+      {label: 'Offering', value: '5,000,000 SKYRIM'},
+      {label: 'Start Price', value: '2 XRUNE $ 1'},
+      {label: 'Reserve Price', value: '0.20 XRUNE $ 0.10'},
+      {label: 'Committed $', value: '$ 3,079,116.21'},
+      {label: 'Committed XRUNE', value: '6,158,232'},
+      {label: 'Price', value: '0.12 XRUNE $ 0.61'},
+    ]
+  },
 ];
 
 export default function IDOs() {

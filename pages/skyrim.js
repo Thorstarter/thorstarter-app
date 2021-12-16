@@ -85,14 +85,14 @@ export default function SkyrimRefund() {
         <div>Connect your wallet</div>
       ) : (
         <div className="box text-center py-16">
-          <div class="title">
+          <div className="title">
             You can swap up to{" "}
             <span className="text-primary5">
               {formatNumber(allocation)}
             </span>{" "}
             SKYRIM
           </div>
-          <div class="mb-4">
+          <div className="mb-4">
             In exchange you will get{" "}
             {formatNumber(allocation.mul((rate * 1000000) | 0).div(1000000))}{" "}
             XRUNE (0.9316 per SKYRIM)

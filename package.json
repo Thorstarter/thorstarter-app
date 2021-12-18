@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@terra-money/wallet-controller": "3.6.0",
     "@walletconnect/web3-provider": "1.6.5",
     "dateformat": "^5.0.2",
     "ethers": "5.4.7",

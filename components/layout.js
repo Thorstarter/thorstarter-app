@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, Component } from "react";
 import Button from "./button";
 import Icon from "./icon";
+import Modal from "./modal";
 import {
   useGlobalState,
   setGlobalState,
@@ -11,6 +12,8 @@ import {
   connectWallet,
   disconnectWallet,
   networkNames,
+  connectWalletEthereum,
+  connectWalletTerra,
 } from "../utils";
 
 import imgLogo from "../public/logo.svg";
@@ -31,6 +34,7 @@ export default function Layout({ title, children, page }) {
     <div>
       <Head>
         <title>{title ? title + " | " : ""}Thorstarter</title>
+        <meta name="terra-wallet" />
       </Head>
       <div className="layout-header">
         <div className="layout-header-container">
@@ -45,7 +49,7 @@ export default function Layout({ title, children, page }) {
             <Link href="/">
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
-            {isHomeNetwork ? (
+            {isHomeNetwork || state.networkId === 'terra-mainnet' ? (
               <Link href="/tiers/">
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
               </Link>
@@ -117,6 +121,28 @@ export default function Layout({ title, children, page }) {
           </Link>
         </div>
       </div>
+
+      {state.walletModalOpen ? (
+        <Modal onClose={() => setGlobalState({ walletModalOpen: false })} style={{width: 325, padding: '16px'}}>
+          <h3 className="wallet-option-header">Ethereum</h3>
+          <a onClick={() => connectWalletEthereum("metamask")} className="wallet-option">
+            <img src="/wallets/xdefi.png" /> XDEFI
+          </a>
+          <a onClick={() => connectWalletEthereum("metamask")} className="wallet-option">
+            <img src="/wallets/metamask.png" /> Metamask
+          </a>
+          <a onClick={() => connectWalletEthereum("walletconnect")} className="wallet-option">
+            <img src="/wallets/walletconnect.png" /> Wallet Connect
+          </a>
+          {/* <h3 className="wallet-option-header">Terra</h3>
+          <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
+            <img src="/wallets/terrastation.png" /> Terra Station
+          </a>
+          <a onClick={() => connectWalletTerra("terrawalletconnect")} className="wallet-option">
+            <img src="/wallets/walletconnect.png" /> Wallet Connect
+          </a> */}
+        </Modal>
+      ) : null}
     </div>
   );
 }

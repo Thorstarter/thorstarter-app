@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import {
+  createLCDClient,
+  WalletController,
+} from "@terra-money/wallet-controller";
+import { Coin, Coins, isTxError } from "@terra-money/terra.js";
 import abis from "./abis";
 
 if (global.window) window.ethers = ethers;
@@ -15,7 +20,14 @@ export const networkNames = {
   1: "Ethereum",
   3: "Ropsten",
   250: "Fantom",
+  "terra-mainnet": "Terra",
+  "terra-testnet": "Terra (Testnet)",
 };
+
+export const terraGasPriceApi = {
+  'terra-mainnet': 'https://fcd.terra.dev/v1/txs/gas_prices',
+  'terra-testnet': 'https://bombay-fcd.terra.dev/v1/txs/gas_prices',
+}
 
 export const tcPoolNames = {
   1: "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
@@ -24,6 +36,12 @@ export const tcPoolNames = {
 
 const infuraProjectId = "f9dfccab907d4cc891817733689eaff4";
 const rpcUrl = `https://eth-mainnet.alchemyapi.io/v2/zGkyuksQ1Zs2_eT9ec2kv700cakDhgR0`;
+
+let terraWalletSubscription;
+let terraWalletController;
+if (global.window) {
+  terraWalletController = new WalletController({});
+}
 
 let listeners = [];
 let state = {
@@ -75,14 +93,24 @@ export const contractAddresses = {
     xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
     slp: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
   },
+  "terra-mainnet": {
+    xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
+    tiers: "terra17a3yul5w7vntzzs77hs92uj56a6tx6fhjsrl8a",
+  },
 };
 
 export async function connectWallet() {
-  if (!window.ethereum) {
+  setGlobalState({ walletModalOpen: true });
+}
+
+export async function connectWalletEthereum(wallet = "metamask") {
+  if (wallet === "walletconnect") {
     const wcProvider = new WalletConnectProvider({ infuraId: infuraProjectId });
     await wcProvider.enable();
     state.provider = new ethers.providers.Web3Provider(wcProvider);
-  } else {
+  }
+  if (wallet === "metamask") {
+    if (!window.ethereum) throw new Error("No ethereum wallet installed!");
     await window.ethereum.request({
       method: "eth_requestAccounts",
       params: [],
@@ -93,8 +121,14 @@ export async function connectWallet() {
   const signer = state.provider.getSigner();
   const address = await signer.getAddress();
   const networkId = (await state.provider.getNetwork()).chainId;
-  setGlobalState({ ready: true, signer, address, networkId });
-  window.localStorage.setItem("connectedAddress", address);
+  setGlobalState({
+    walletModalOpen: false,
+    ready: true,
+    signer,
+    address,
+    networkId,
+  });
+  window.localStorage.setItem("connectedWallet", wallet);
 
   async function updateNetworkAndAddress() {
     const signer = state.provider.getSigner();
@@ -107,8 +141,40 @@ export async function connectWallet() {
     window.ethereum.on("networkChanged", updateNetworkAndAddress);
   }
 }
+export async function connectWalletTerra(wallet = "terrastation") {
+  await terraWalletController.connect(
+    wallet === "terrawalletconnect" ? "WALLETCONNECT" : "EXTENSION"
+  );
+  terraWalletSubscription = terraWalletController.states().subscribe({
+    next: async (value) => {
+      console.log("terra wallet state", value);
+      if (!value.network || !value.wallets) return;
+      const networkId = "terra-" + value.network.name;
+      let address = "";
+      if (value.wallets && value.wallets[0]) {
+        address = value.wallets[0].terraAddress;
+      }
+      const lcd = createLCDClient({ network: value.network });
+      const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
+      setGlobalState({
+        walletModalOpen: false,
+        ready: true,
+        lcd,
+        wc: terraWalletController,
+        gasPrice: gasRes.uusd,
+        address,
+        networkId,
+      });
+      window.localStorage.setItem("connectedWallet", wallet);
+    },
+  });
+}
 
 export function disconnectWallet() {
+  if (terraWalletSubscription) {
+    terraWalletSubscription.unsubscribe();
+    terraWalletSubscription = null;
+  }
   window.localStorage.setItem("connectedAddress", "");
   setGlobalState({
     networkId: 1,
@@ -118,8 +184,13 @@ export function disconnectWallet() {
   });
 }
 
-if (global.window && window.ethereum) {
-  connectWallet();
+if (global.window) {
+  const wallet = window.localStorage.getItem("connectedWallet");
+  if (wallet && wallet.startsWith('terra')) {
+    setTimeout(() => connectWalletTerra(wallet), 2500);
+  } else {
+    connectWalletEthereum(wallet);
+  }
 }
 
 function buildContracts() {
@@ -213,7 +284,20 @@ export function formatMDY(dateLike) {
   }
   const d = new Date(dateLike);
   if (d.getTime() === 0) return "N/A";
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
@@ -246,7 +330,6 @@ export function formatErrorMessage(err) {
 
 export async function runTransaction(callPromise, setLoading, setError) {
   try {
-    const contracts = getContracts();
     setError("");
     setLoading(t("waitingForConfirmation"));
     const tx = await callPromise;
@@ -255,6 +338,28 @@ export async function runTransaction(callPromise, setLoading, setError) {
   } catch (err) {
     console.error("runTransaction:", err);
     setError(formatErrorMessage(err));
+    throw err;
+  } finally {
+    setLoading("");
+  }
+}
+
+export async function runTransactionTerra(params, setLoading, setError) {
+  try {
+    setError("");
+    setLoading(t("waitingForConfirmation"));
+    //params.gasPrices = new Coins([new Coin('uusd', state.gasPrice)]);
+    const result = await state.wc.post(params);
+    console.log("result", result);
+    if (isTxError(result)) {
+      console.error("error", result.code, result.raw_log);
+      const error = `Error: ${result.code}: ${result.codespace}`;
+      setError(error);
+      throw new Error(error);
+    }
+  } catch (err) {
+    console.error("runTransactionTerra:", err);
+    setError(String(err));
     throw err;
   } finally {
     setLoading("");

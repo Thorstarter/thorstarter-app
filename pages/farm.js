@@ -108,7 +108,7 @@ export default function Farm() {
         contracts.staking.address,
         ethers.constants.MaxUint256
       );
-    } else if (index === 0) {
+    } else if (farms[index].poolId === 0) {
       call = contracts.xrune.transferAndCall(
         contracts.staking.address,
         amount,

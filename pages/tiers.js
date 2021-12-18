@@ -1,5 +1,10 @@
 import classnames from "classnames";
-import { ethers } from "ethers";
+import {
+  MsgExecuteContract,
+  MsgSend,
+  Coin,
+  isTxError,
+} from "@terra-money/terra.js";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import Button from "../components/button";
@@ -14,6 +19,7 @@ import {
   formatUnits,
   contractAddresses,
   runTransaction,
+  runTransactionTerra,
   formatErrorMessage,
 } from "../utils";
 
@@ -32,40 +38,117 @@ const tiers = [
   { name: "Tier 5", amount: 150000, multiplier: 12 },
 ];
 
-export default function Tiers() {
+function useTiers() {
   const state = useGlobalState();
-  const [modal, setModal] = useState();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState("");
   const [data, setData] = useState(null);
-  const [percent, setPercent] = useState("0");
-  const total = data ? parseFloat(formatUnits(data.total)) : 0;
 
   async function fetchData() {
     if (!state.address) return;
-    const contracts = getContracts();
-    const user = await contracts.tiers.userInfos(state.address);
-    const userInfo = await contracts.tiers.userInfoAmounts(state.address);
-    setData({
-      user: user,
-      total: user[1].toNumber() > 0 ? userInfo[1] : 0,
-      allowances: {
-        xrune: await contracts.xrune.allowance(
-          state.address,
-          contracts.tiers.address
-        ),
-      },
-      balances: {
-        xrune: await contracts.xrune.balanceOf(state.address),
-        twnft: userInfo[4][userInfo[2].indexOf(contracts.twnft.address)],
-      },
-      staked: {
-        xrune: userInfo[4][0],
-      },
-    });
+
+    if (state.networkId === "terra-mainnet") {
+      const user = await state.lcd.wasm.contractQuery(
+        contractAddresses[state.networkId].tiers,
+        { user_state: { user: state.address } }
+      );
+      const balance = await state.lcd.wasm.contractQuery(
+        contractAddresses[state.networkId].xrune,
+        { balance: { address: state.address } }
+      );
+      setData({
+        balance: parseUnits(balance.balance + "000000000000", 0),
+        total: parseUnits(user.balance + "000000000000", 0),
+        lastDeposit: user.last_deposit,
+      });
+    } else {
+      const contracts = getContracts();
+      const user = await contracts.tiers.userInfos(state.address);
+      const userInfo = await contracts.tiers.userInfoAmounts(state.address);
+      setData({
+        balance: await contracts.xrune.balanceOf(state.address),
+        total: userInfo[4][0],
+        lastDeposit: user[1].toNumber(),
+      });
+    }
   }
 
   useEffect(fetchData, [state.networkId, state.address]);
+
+  async function onDeposit({ amount, setError, setLoading }) {
+    if (String(state.networkId).startsWith("terra-")) {
+      await runTransactionTerra(
+        {
+          msgs: [
+            new MsgExecuteContract(
+              state.address,
+              contractAddresses[state.networkId].tiers,
+              {
+                send: {
+                  amount: amount.div("1000000000000").toString(),
+                  contract: contractAddresses[state.networkId].tiers,
+                  msg: btoa(JSON.stringify({ bond: {} })),
+                },
+              }
+            ),
+          ],
+        },
+        setLoading,
+        setError
+      );
+    } else {
+      const contracts = getContracts();
+      const call = contracts.xrune.transferAndCall(
+        contracts.tiers.address,
+        amount,
+        "0x"
+      );
+      await runTransaction(call, setLoading, setError).then(onClose);
+    }
+  }
+
+  async function onWithdraw({ amount, before7Days, setError, setLoading }) {
+    if (String(state.networkId).startsWith("terra-")) {
+      await runTransactionTerra(
+        {
+          msgs: [
+            new MsgExecuteContract(
+              state.address,
+              contractAddresses[state.networkId].xrune,
+              {
+                unbond: {
+                  amount: amount.div("1000000000000").toString(),
+                },
+              }
+            ),
+          ],
+        },
+        setLoading,
+        setError
+      );
+    } else {
+      const contracts = getContracts();
+      const call = before7Days
+        ? contracts.tiers.withdrawNow(
+            contractAddresses[state.networkId][assets[asset].token],
+            amount,
+            state.address
+          )
+        : contracts.tiers.withdraw(
+            contractAddresses[state.networkId][assets[asset].token],
+            amount,
+            state.address
+          );
+      await runTransaction(call, setLoading, setError).then(onClose);
+    }
+  }
+
+  return { data, fetchData, onDeposit, onWithdraw };
+}
+
+export default function Tiers() {
+  const { data, fetchData, onDeposit, onWithdraw } = useTiers();
+  const [modal, setModal] = useState();
+  const [percent, setPercent] = useState("0");
+  const total = data ? parseFloat(formatUnits(data.total)) : 0;
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
@@ -95,49 +178,17 @@ export default function Tiers() {
     }
   }, [data, total]);
 
-  function onStartDeposit(id) {
-    setModal({ type: "deposit", asset: id });
+  function onStartDeposit() {
+    setModal({ type: "deposit" });
   }
 
-  function onStartWithdraw(id) {
-    setModal({ type: "withdraw", asset: id });
+  function onStartWithdraw() {
+    setModal({ type: "withdraw" });
   }
 
   function onClose() {
     setModal();
     fetchData();
-  }
-
-  async function onSignup() {
-    const contracts = getContracts();
-    const call = contracts.xrune.transferAndCall(
-      contracts.tiers.address,
-      "0",
-      "0x"
-    );
-    await runTransaction(call, setLoading, setError).then(fetchData);
-  }
-
-  function renderAsset(id) {
-    return (
-      <tr>
-        <td>{assets[id].name}</td>
-        <td>{data ? formatNumber(data.balances[id]) : "-"}</td>
-        <td>{data ? formatNumber(data.staked[id]) : "-"}</td>
-        <td className="tar">
-          <Button onClick={onStartDeposit.bind(null, id)} disabled={!data}>
-            Deposit
-          </Button>
-          <Button
-            onClick={onStartWithdraw.bind(null, id)}
-            disabled={!data}
-            className="button-outline"
-          >
-            Withdraw
-          </Button>
-        </td>
-      </tr>
-    );
   }
 
   return (
@@ -196,8 +247,6 @@ export default function Tiers() {
       /> */}
 
       <section className="page-section">
-        {error ? <div className="error mb-4">{error}</div> : null}
-        {loading ? <LoadingOverlay message={loading} /> : null}
         <h3 className="title">Deposit</h3>
         <div className="default-table">
           <table>
@@ -210,7 +259,23 @@ export default function Tiers() {
               </tr>
             </thead>
             <tbody>
-              {renderAsset("xrune")}
+              <tr>
+                <td>XRUNE</td>
+                <td>{data ? formatNumber(data.balance) : "-"}</td>
+                <td>{data ? formatNumber(data.total) : "-"}</td>
+                <td className="tar">
+                  <Button onClick={onStartDeposit} disabled={!data}>
+                    Deposit
+                  </Button>
+                  <Button
+                    onClick={onStartWithdraw}
+                    disabled={!data}
+                    className="button-outline"
+                  >
+                    Withdraw
+                  </Button>
+                </td>
+              </tr>
               {/*
               <tr>
                 <td>ThorWallet NFT</td>
@@ -287,50 +352,43 @@ export default function Tiers() {
       </section>
 
       {modal && modal.type === "deposit" ? (
-        <ModalDeposit asset={modal.asset} data={data} onClose={onClose} />
+        <ModalDeposit
+          asset={modal.asset}
+          data={data}
+          onClose={onClose}
+          onDeposit={onDeposit}
+        />
       ) : null}
       {modal && modal.type === "withdraw" ? (
-        <ModalWithdraw asset={modal.asset} data={data} onClose={onClose} />
+        <ModalWithdraw
+          asset={modal.asset}
+          data={data}
+          onClose={onClose}
+          onWithdraw={onWithdraw}
+        />
       ) : null}
     </Layout>
   );
 }
 
-function ModalDeposit({ asset, data, onClose }) {
-  const state = useGlobalState();
+function ModalDeposit({ data, onClose, onDeposit }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
 
-  async function onSubmit() {
+  function onSubmit() {
     if (!data) return;
-    const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
-    if (Number.isNaN(parsedAmount)) {
+    let parsedAmount;
+    try {
+      parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
+      if (Number.isNaN(parsedAmount)) throw new Error("!number");
+    } catch (err) {
       setError("Not a valid number");
       return;
     }
-    const contracts = getContracts();
-    if (asset === "xrune") {
-      const call = contracts.xrune.transferAndCall(
-        contracts.tiers.address,
-        parsedAmount,
-        "0x"
-      );
-      await runTransaction(call, setLoading, setError).then(onClose);
-    } else if (data.allowances[asset].eq("0")) {
-      const call = contracts[assets[asset].token].approve(
-        contractAddresses[state.networkId].tiers,
-        ethers.constants.MaxUint256
-      );
-      await runTransaction(call, setLoading, setError);
-    } else {
-      const call = contracts.tiers.deposit(
-        contractAddresses[state.networkId][assets[asset].token],
-        parsedAmount,
-        state.address
-      );
-      await runTransaction(call, setLoading, setError).then(onClose);
-    }
+    onDeposit({ amount: parsedAmount, setError, setLoading }).then(() =>
+      onClose()
+    );
   }
 
   if (!data) {
@@ -338,7 +396,7 @@ function ModalDeposit({ asset, data, onClose }) {
   }
   return (
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
-      <h2>Deposit {assets[asset].name}</h2>
+      <h2>Deposit XRUNE</h2>
 
       <p className="text-sm text-gray6">
         Warning: You have to wait 7 days to withdraw XRUNE after each deposit
@@ -348,7 +406,7 @@ function ModalDeposit({ asset, data, onClose }) {
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
 
-      <label>Balance: {formatNumber(data.balances[asset])}</label>
+      <label>Balance: {formatNumber(data.balance)}</label>
       <br />
       <div className="input-with-link">
         <input
@@ -361,50 +419,41 @@ function ModalDeposit({ asset, data, onClose }) {
         <a
           className="input-link"
           style={{ top: 22 }}
-          onClick={() => setAmount(formatUnits(data.balances[asset]))}
+          onClick={() => setAmount(formatUnits(data.balance))}
         >
           Max
         </a>
       </div>
       <Button className="mt-4 w-full" onClick={onSubmit}>
-        {asset !== "xrune" && data.allowances[asset].eq("0")
-          ? "Approve"
-          : "Deposit"}
+        Deposit
       </Button>
     </Modal>
   );
 }
 
-function ModalWithdraw({ asset, data, onClose }) {
+function ModalWithdraw({ data, onWithdraw, onClose }) {
   const state = useGlobalState();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
+  const isTerra = String(state.networkId).startsWith('terra-');
   const before7Days = data
-    ? Date.now() / 1000 < data.user[1].toNumber() + 7 * 24 * 60 * 60
+    ? Date.now() / 1000 < data.lastDeposit + 7 * 24 * 60 * 60
     : true;
 
-  async function onSubmit() {
+  function onSubmit() {
     if (!data) return;
-    console.log(amount.replace(/[^0-9\.]/g, ""));
-    const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
-    if (Number.isNaN(parsedAmount)) {
+    let parsedAmount;
+    try {
+      parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
+      if (Number.isNaN(parsedAmount)) throw new Error("!number");
+    } catch (err) {
       setError("Not a valid number");
       return;
     }
-    const contracts = getContracts();
-    const call = before7Days
-      ? contracts.tiers.withdrawNow(
-          contractAddresses[state.networkId][assets[asset].token],
-          parsedAmount,
-          state.address
-        )
-      : contracts.tiers.withdraw(
-          contractAddresses[state.networkId][assets[asset].token],
-          parsedAmount,
-          state.address
-        );
-    await runTransaction(call, setLoading, setError).then(onClose);
+    onWithdraw({ amount: parsedAmount, before7Days, setError, setLoading }).then(() =>
+      onClose()
+    );
   }
 
   if (!data) {
@@ -412,30 +461,32 @@ function ModalWithdraw({ asset, data, onClose }) {
   }
   return (
     <Modal onClose={onClose} style={{ maxWidth: 400 }}>
-      <h2>Withdraw {assets[asset].name}</h2>
+      <h2>Withdraw XRUNE</h2>
 
       <div className="text-sm">
-        Last Deposit: <strong>{formatDate(data.user[1])}</strong>
+        Last Deposit: <strong>{formatDate(data.lastDeposit * 1000)}</strong>
       </div>
       <div className="text-sm mb-2">
-        No Penalty Withdraw:{" "}
+        {isTerra ? 'Withdraw Available: ' : 'No Penalty Withdraw: '}
         <strong>
-          {formatDate((data.user[1].toNumber() + 7 * 24 * 60 * 60) * 1000)}
+          {formatDate((data.lastDeposit + 7 * 24 * 60 * 60) * 1000)}
         </strong>
       </div>
 
       {before7Days ? (
         <p className="error text-sm">
-          WARNING You are withdrawing before waiting 7 days after you last
-          deposit. You will lose half of the amount you withdraw if you
-          don&apos;t wait.
+          {!isTerra ? (
+            'WARNING You are withdrawing before waiting 7 days after you last deposit. You will lose half of the amount you withdraw if you don\'t wait.'
+          ) : (
+            'WARNING You can\'t withdraw before 7 days after your last deposit'
+          )}
         </p>
       ) : null}
 
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
 
-      <label>Staked: {formatNumber(data.staked[asset])}</label>
+      <label>Staked: {formatNumber(data.total)}</label>
       <br />
       <div className="input-with-link">
         <input
@@ -448,13 +499,13 @@ function ModalWithdraw({ asset, data, onClose }) {
         <a
           className="input-link"
           style={{ top: 22 }}
-          onClick={() => setAmount(formatUnits(data.staked[asset]))}
+          onClick={() => setAmount(formatUnits(data.total))}
         >
           Max
         </a>
       </div>
-      <Button className="mt-4 w-full" onClick={onSubmit}>
-        Withdraw{before7Days ? " (and lose 50%)" : ""}
+      <Button className="mt-4 w-full" onClick={onSubmit} disabled={before7Days && isTerra}>
+        Withdraw{before7Days && !isTerra ? " (and lose 50%)" : ""}
       </Button>
     </Modal>
   );
@@ -480,30 +531,13 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     for (let i = 0; i <= tiers.length; i++) {
       const tier = stats[i];
       const minAllocation = i === 0 ? 25 : 100;
-      tier.allocation = (size / totalAllocations) * tier.multiplier; 
+      tier.allocation = (size / totalAllocations) * tier.multiplier;
       if (tier.allocation < minAllocation) {
-        tier.chance = (tier.count * tier.allocation) / minAllocation / tier.count;
+        tier.chance =
+          (tier.count * tier.allocation) / minAllocation / tier.count;
         tier.allocation = minAllocation;
       }
     }
-    /*
-    if (size / totalAllocations < 100) {
-      let left = size;
-      for (let i = tiers.length; i >= 0; i--) {
-        stats[i].allocation = 100 * (i === 0 ? 0.25 : tiers[i - 1].multiplier);
-        if (left / stats[i].allocations < 100) {
-          stats[i].chance = left / 100 / stats[i].allocations;
-        }
-        left = Math.max(0, left - stats[i].allocations * 100);
-      }
-    } else {
-      for (let i = tiers.length; i >= 0; i--) {
-        stats[i].allocation =
-          (size / totalAllocations) *
-          (i === 0 ? 0.25 : tiers[i - 1].multiplier);
-      }
-    }
-    */
 
     let user;
     let tier0 = false;
@@ -544,18 +578,6 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           tier = i + 1;
         }
       }
-      /*
-      try {
-        await state.signer.signMessage(
-          "Register Interest in: " + ido + " / Tier " + tier
-        );
-      } catch (e) {
-        if (e.message.includes('denied message signature')) {
-          return;
-        }
-        // Wallet probably doesn't support signing, go on
-      }
-      */
       await fetch(
         "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
         {
@@ -590,12 +612,18 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <button
             className="button"
             onClick={onRegister}
-            disabled={data.registered || !state.address || (!data.tier0 && xrune.eq("0"))}
+            disabled={
+              data.registered ||
+              !state.address ||
+              (!data.tier0 && xrune.eq("0"))
+            }
           >
             {data.registered
               ? "You Are Registered!"
               : state.address
-              ? (!data.tier0 && xrune.eq("0") ? "Join a tier first" : "Register Interest")
+              ? !data.tier0 && xrune.eq("0")
+                ? "Join a tier first"
+                : "Register Interest"
               : "Connect Wallet"}
           </button>
         </div>
@@ -614,27 +642,39 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <tr>
             <td>
               $ {data.stats[0].allocation.toFixed(0)}{" "}
-              {data.stats[0].chance !== 1 ? `(${(data.stats[0].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[0].chance !== 1
+                ? `(${(data.stats[0].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
             <td>
               $ {data.stats[1].allocation.toFixed(0)}{" "}
-              {data.stats[1].chance !== 1 ? `(${(data.stats[1].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[1].chance !== 1
+                ? `(${(data.stats[1].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
             <td>
               $ {data.stats[2].allocation.toFixed(0)}{" "}
-              {data.stats[2].chance !== 1 ? `(${(data.stats[2].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[2].chance !== 1
+                ? `(${(data.stats[2].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
             <td>
               $ {data.stats[3].allocation.toFixed(0)}{" "}
-              {data.stats[3].chance !== 1 ? `(${(data.stats[3].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[3].chance !== 1
+                ? `(${(data.stats[3].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
             <td>
               $ {data.stats[4].allocation.toFixed(0)}{" "}
-              {data.stats[4].chance !== 1 ? `(${(data.stats[4].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[4].chance !== 1
+                ? `(${(data.stats[4].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
             <td>
               $ {data.stats[5].allocation.toFixed(0)}{" "}
-              {data.stats[5].chance !== 1 ? `(${(data.stats[5].chance*100).toFixed(1)}% chance)` : ""}
+              {data.stats[5].chance !== 1
+                ? `(${(data.stats[5].chance * 100).toFixed(1)}% chance)`
+                : ""}
             </td>
           </tr>
           <tr>

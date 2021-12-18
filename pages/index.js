@@ -149,7 +149,7 @@ const idos = [
     networkId: 1,
     address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
     xrunePrice: 0.5,
-    price: ethers.utils.parseUnits('0.12'),
+    price: ethers.utils.parseUnits('1.23164843'),
     logo: logoSkyrim,
     cover: coverSkyrim,
     links: {
@@ -166,7 +166,7 @@ const idos = [
       {label: 'Reserve Price', value: '0.20 XRUNE $ 0.10'},
       {label: 'Committed $', value: '$ 3,079,116.21'},
       {label: 'Committed XRUNE', value: '6,158,232'},
-      {label: 'Price', value: '0.12 XRUNE $ 0.61'},
+      {label: 'Price', value: '1.23 XRUNE $ 0.61'},
     ]
   },
 ];

@@ -1248,3 +1248,34 @@ a:hover .icon svg {
     }
   }
 }
+
+.wallet-option-header {
+  font-size: 20px;
+  margin: 16px 0 8px;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+.wallet-option {
+  display: block;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  background: var(--gray1);
+  img {
+    width: 32px;
+    height: 32px;
+    margin-right: 16px;
+  }
+  &:last-child {
+    margin-bottom: 0;
+  }
+  &:hover {
+    color: var(--gray9);
+    opacity: 0.9;
+    outline: 1px solid var(--primary5);
+  }
+}

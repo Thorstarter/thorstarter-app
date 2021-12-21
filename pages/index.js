@@ -66,7 +66,7 @@ const idos = [
     address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
     xrunePrice: 0.55,
     tiersDuration: 7200,
-    notFinalized: true,
+    notFinalized: false,
     logo: logoThorwallet,
     cover: coverThorwallet,
     links: {

@@ -259,9 +259,9 @@ export default function Tiers() {
       </div>
 
       {/* <UpcomingIDORegistration
-        ido="MNET"
-        size={150000}
-        xrune={data ? data.staked.xrune : parseUnits("0")}
+        ido="LUART"
+        size={500000}
+        xrune={data ? data.total : parseUnits("0")}
       /> */}
 
       <section className="page-section">
@@ -532,6 +532,9 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
 function UpcomingIDORegistration({ ido, size, xrune }) {
   const state = useGlobalState();
   const [data, setData] = useState();
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [addressTerra, setAddressTerra] = useState('');
 
   async function fetchData() {
     const rawStats = await fetch(
@@ -587,8 +590,13 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     fetchData();
   }, [state.address]);
 
-  async function onRegister() {
+  function onRegister() {
+    setModal(true);
+  }
+
+  async function onSubmit() {
     try {
+      setLoading(true);
       const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
       let tier = 0;
       for (let i = 0; i < tiers.length; i++) {
@@ -596,7 +604,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           tier = i + 1;
         }
       }
-      await fetch(
+      const res = await fetch(
         "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
         {
           method: "POST",
@@ -605,13 +613,21 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
             tier: tier.toFixed(0),
             xrune: xruneBalance.toFixed(0),
             bonus: "1",
+            terra: addressTerra,
           }),
         }
       );
+      if (!res.ok) {
+        throw new Error('Bad error code: ' + res.status);
+      }
+      setAddressTerra('');
       fetchData();
+      setModal(false);
     } catch (err) {
       console.error(err);
       alert("Error: " + formatErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -631,7 +647,6 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
             className="button"
             onClick={onRegister}
             disabled={
-              data.registered ||
               !state.address ||
               (!data.tier0 && xrune.eq("0"))
             }
@@ -717,6 +732,16 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </tr>
         </tbody>
       </table>
+
+      {modal ? (
+        <Modal onClose={() => setModal(false)} style={{width: 400}}>
+          <h2>Register</h2>
+          <label className="label">Terra Address</label>
+          <input value={addressTerra} onChange={e => setAddressTerra(e.target.value)} className="input w-full" placeholder="terra123..." />
+          <br/>
+          <button className="button mt-4" onClick={onSubmit} disabled={loading}>{loading ? 'Loading...' : 'Register'}</button>
+        </Modal>
+      ) : null}
     </div>
   );
 }

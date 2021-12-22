@@ -95,7 +95,7 @@ export const contractAddresses = {
   },
   "terra-mainnet": {
     xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
-    tiers: "terra17a3yul5w7vntzzs77hs92uj56a6tx6fhjsrl8a",
+    tiers: "terra1hnsjj2ta35mva4xjjdjjpnzxhfz4j3ephk6m4w",
   },
 };
 
@@ -155,13 +155,13 @@ export async function connectWalletTerra(wallet = "terrastation") {
         address = value.wallets[0].terraAddress;
       }
       const lcd = createLCDClient({ network: value.network });
-      const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
+      // const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
       setGlobalState({
         walletModalOpen: false,
         ready: true,
         lcd,
         wc: terraWalletController,
-        gasPrice: gasRes.uusd,
+        // gasPrice: gasRes.uusd,
         address,
         networkId,
       });

@@ -496,7 +496,7 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
       {before7Days ? (
         <p className="error text-sm">
           WARNING You are withdrawing before waiting 7 days after you last
-          deposit. You will lose half of the amount you withdraw if you don\'t
+          deposit. You will lose half of the amount you withdraw if you don&apos;t
           wait.
         </p>
       ) : null}

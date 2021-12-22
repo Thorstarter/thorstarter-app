@@ -134,13 +134,13 @@ export default function Layout({ title, children, page }) {
           <a onClick={() => connectWalletEthereum("walletconnect")} className="wallet-option">
             <img src="/wallets/walletconnect.png" /> Wallet Connect
           </a>
-          {/* <h3 className="wallet-option-header">Terra</h3>
+          <h3 className="wallet-option-header">Terra</h3>
           <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
             <img src="/wallets/terrastation.png" /> Terra Station
           </a>
           <a onClick={() => connectWalletTerra("terrawalletconnect")} className="wallet-option">
             <img src="/wallets/walletconnect.png" /> Wallet Connect
-          </a> */}
+          </a>
         </Modal>
       ) : null}
     </div>

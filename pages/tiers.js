@@ -1,10 +1,5 @@
 import classnames from "classnames";
-import {
-  MsgExecuteContract,
-  MsgSend,
-  Coin,
-  isTxError,
-} from "@terra-money/terra.js";
+import { MsgExecuteContract } from "@terra-money/terra.js";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import Button from "../components/button";
@@ -46,17 +41,26 @@ function useTiers() {
     if (!state.address) return;
 
     if (state.networkId === "terra-mainnet") {
-      const user = await state.lcd.wasm.contractQuery(
-        contractAddresses[state.networkId].tiers,
-        { user_state: { user: state.address } }
-      );
-      const balance = await state.lcd.wasm.contractQuery(
-        contractAddresses[state.networkId].xrune,
-        { balance: { address: state.address } }
-      );
+      const contracts = contractAddresses[state.networkId];
+      const tiersState = await state.lcd.wasm.contractQuery(contracts.tiers, {
+        state: {},
+      });
+      const tiersBalance = await state.lcd.wasm.contractQuery(contracts.xrune, {
+        balance: { address: contracts.tiers },
+      });
+      const user = await state.lcd.wasm.contractQuery(contracts.tiers, {
+        user_state: { user: state.address },
+      });
+      const balance = await state.lcd.wasm.contractQuery(contracts.xrune, {
+        balance: { address: state.address },
+      });
       setData({
-        balance: parseUnits(balance.balance + "000000000000", 0),
-        total: parseUnits(user.balance + "000000000000", 0),
+        tiersBalance: parseUnits(tiersBalance.balance, 12),
+        tiersTotal: parseUnits(tiersState.total_balance, 12),
+        balance: parseUnits(balance.balance, 12),
+        total: tiersState.total_balance == 0 ? parseUnits('0') : parseUnits(user.balance, 12)
+          .mul(parseUnits(tiersBalance.balance, 12))
+          .div(parseUnits(tiersState.total_balance, 12)),
         lastDeposit: user.last_deposit,
       });
     } else {
@@ -71,7 +75,11 @@ function useTiers() {
     }
   }
 
-  useEffect(fetchData, [state.networkId, state.address]);
+  useEffect(() => {
+    fetchData();
+    const handle = setInterval(() => fetchData(), 5000);
+    return () => clearTimeout(handle);
+  }, [state.networkId, state.address]);
 
   async function onDeposit({ amount, setError, setLoading }) {
     if (String(state.networkId).startsWith("terra-")) {
@@ -80,7 +88,7 @@ function useTiers() {
           msgs: [
             new MsgExecuteContract(
               state.address,
-              contractAddresses[state.networkId].tiers,
+              contractAddresses[state.networkId].xrune,
               {
                 send: {
                   amount: amount.div("1000000000000").toString(),
@@ -101,21 +109,27 @@ function useTiers() {
         amount,
         "0x"
       );
-      await runTransaction(call, setLoading, setError).then(onClose);
+      await runTransaction(call, setLoading, setError);
     }
   }
 
-  async function onWithdraw({ amount, before7Days, setError, setLoading }) {
+  async function onWithdraw({
+    data,
+    amount,
+    before7Days,
+    setError,
+    setLoading,
+  }) {
     if (String(state.networkId).startsWith("terra-")) {
       await runTransactionTerra(
         {
           msgs: [
             new MsgExecuteContract(
               state.address,
-              contractAddresses[state.networkId].xrune,
+              contractAddresses[state.networkId].tiers,
               {
-                unbond: {
-                  amount: amount.div("1000000000000").toString(),
+                [before7Days ? "unbond_now" : "unbond"]: {
+                  amount: amount.mul(data.tiersTotal).div(data.tiersBalance).div("1000000000000").toString(),
                 },
               }
             ),
@@ -128,16 +142,16 @@ function useTiers() {
       const contracts = getContracts();
       const call = before7Days
         ? contracts.tiers.withdrawNow(
-            contractAddresses[state.networkId][assets[asset].token],
+            contractAddresses[state.networkId].xrune,
             amount,
             state.address
           )
         : contracts.tiers.withdraw(
-            contractAddresses[state.networkId][assets[asset].token],
+            contractAddresses[state.networkId].xrune,
             amount,
             state.address
           );
-      await runTransaction(call, setLoading, setError).then(onClose);
+      await runTransaction(call, setLoading, setError);
     }
   }
 
@@ -145,6 +159,7 @@ function useTiers() {
 }
 
 export default function Tiers() {
+  const state = useGlobalState();
   const { data, fetchData, onDeposit, onWithdraw } = useTiers();
   const [modal, setModal] = useState();
   const [percent, setPercent] = useState("0");
@@ -191,13 +206,16 @@ export default function Tiers() {
     fetchData();
   }
 
+  const isTerra = String(state.networkId).startsWith("terra-");
   return (
     <Layout title="Tiers" page="tiers">
       <div className="flex-heading">
         <h1 className="title">Tiers</h1>
-        <span className="apy-label">
-          APY: <strong>10%</strong>
-        </span>
+        {!isTerra ? (
+          <span className="apy-label">
+            APY: <strong>10%</strong>
+          </span>
+        ) : null}
       </div>
 
       <div className="tiers-wrapper">
@@ -241,9 +259,9 @@ export default function Tiers() {
       </div>
 
       {/* <UpcomingIDORegistration
-        ido="MNET"
-        size={150000}
-        xrune={data ? data.staked.xrune : parseUnits("0")}
+        ido="LUART"
+        size={500000}
+        xrune={data ? data.total : parseUnits("0")}
       /> */}
 
       <section className="page-section">
@@ -254,7 +272,7 @@ export default function Tiers() {
               <tr>
                 <th>Asset</th>
                 <th>Balance</th>
-                <th>Staked (Including 10% APY)</th>
+                <th>Staked{!isTerra ? " (Including 10% APY)" : null}</th>
                 <th />
               </tr>
             </thead>
@@ -432,11 +450,9 @@ function ModalDeposit({ data, onClose, onDeposit }) {
 }
 
 function ModalWithdraw({ data, onWithdraw, onClose }) {
-  const state = useGlobalState();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
   const [amount, setAmount] = useState("");
-  const isTerra = String(state.networkId).startsWith('terra-');
   const before7Days = data
     ? Date.now() / 1000 < data.lastDeposit + 7 * 24 * 60 * 60
     : true;
@@ -451,9 +467,13 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
       setError("Not a valid number");
       return;
     }
-    onWithdraw({ amount: parsedAmount, before7Days, setError, setLoading }).then(() =>
-      onClose()
-    );
+    onWithdraw({
+      data,
+      amount: parsedAmount,
+      before7Days,
+      setError,
+      setLoading,
+    }).then(() => onClose());
   }
 
   if (!data) {
@@ -467,7 +487,7 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
         Last Deposit: <strong>{formatDate(data.lastDeposit * 1000)}</strong>
       </div>
       <div className="text-sm mb-2">
-        {isTerra ? 'Withdraw Available: ' : 'No Penalty Withdraw: '}
+        No Penalty Withdraw:{" "}
         <strong>
           {formatDate((data.lastDeposit + 7 * 24 * 60 * 60) * 1000)}
         </strong>
@@ -475,11 +495,9 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
 
       {before7Days ? (
         <p className="error text-sm">
-          {!isTerra ? (
-            'WARNING You are withdrawing before waiting 7 days after you last deposit. You will lose half of the amount you withdraw if you don\'t wait.'
-          ) : (
-            'WARNING You can\'t withdraw before 7 days after your last deposit'
-          )}
+          WARNING You are withdrawing before waiting 7 days after you last
+          deposit. You will lose half of the amount you withdraw if you don&apos;t
+          wait.
         </p>
       ) : null}
 
@@ -504,8 +522,8 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
           Max
         </a>
       </div>
-      <Button className="mt-4 w-full" onClick={onSubmit} disabled={before7Days && isTerra}>
-        Withdraw{before7Days && !isTerra ? " (and lose 50%)" : ""}
+      <Button className="mt-4 w-full" onClick={onSubmit}>
+        Withdraw{before7Days ? " (and lose 50%)" : ""}
       </Button>
     </Modal>
   );
@@ -514,6 +532,9 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
 function UpcomingIDORegistration({ ido, size, xrune }) {
   const state = useGlobalState();
   const [data, setData] = useState();
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [addressTerra, setAddressTerra] = useState('');
 
   async function fetchData() {
     const rawStats = await fetch(
@@ -569,8 +590,13 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     fetchData();
   }, [state.address]);
 
-  async function onRegister() {
+  function onRegister() {
+    setModal(true);
+  }
+
+  async function onSubmit() {
     try {
+      setLoading(true);
       const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
       let tier = 0;
       for (let i = 0; i < tiers.length; i++) {
@@ -578,7 +604,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           tier = i + 1;
         }
       }
-      await fetch(
+      const res = await fetch(
         "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
         {
           method: "POST",
@@ -587,13 +613,21 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
             tier: tier.toFixed(0),
             xrune: xruneBalance.toFixed(0),
             bonus: "1",
+            terra: addressTerra,
           }),
         }
       );
+      if (!res.ok) {
+        throw new Error('Bad error code: ' + res.status);
+      }
+      setAddressTerra('');
       fetchData();
+      setModal(false);
     } catch (err) {
       console.error(err);
       alert("Error: " + formatErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -613,7 +647,6 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
             className="button"
             onClick={onRegister}
             disabled={
-              data.registered ||
               !state.address ||
               (!data.tier0 && xrune.eq("0"))
             }
@@ -699,6 +732,16 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </tr>
         </tbody>
       </table>
+
+      {modal ? (
+        <Modal onClose={() => setModal(false)} style={{width: 400}}>
+          <h2>Register</h2>
+          <label className="label">Terra Address</label>
+          <input value={addressTerra} onChange={e => setAddressTerra(e.target.value)} className="input w-full" placeholder="terra123..." />
+          <br/>
+          <button className="button mt-4" onClick={onSubmit} disabled={loading}>{loading ? 'Loading...' : 'Register'}</button>
+        </Modal>
+      ) : null}
     </div>
   );
 }

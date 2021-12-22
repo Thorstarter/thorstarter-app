@@ -83,6 +83,8 @@ function useTiers() {
 
   async function onDeposit({ amount, setError, setLoading }) {
     if (String(state.networkId).startsWith("terra-")) {
+      alert('Disabled for the moment, come back later, sorry ;)')
+      return;
       await runTransactionTerra(
         {
           msgs: [

@@ -1,6 +1,7 @@
 import classnames from "classnames";
 import { MsgExecuteContract } from "@terra-money/terra.js";
 import { useEffect, useState } from "react";
+import SynapsClient from "@synaps-io/verify.js";
 import Layout from "../components/layout";
 import Button from "../components/button";
 import Modal from "../components/modal";
@@ -220,6 +221,14 @@ export default function Tiers() {
         ) : null}
       </div>
 
+      {global.window && window.location.hash == '#testkyc' ? (
+        <UpcomingIDORegistration
+          ido="LUART"
+          size={500000}
+          xrune={data ? data.total : parseUnits("0")}
+        />
+      ) : null}
+
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">
           <div className="tiers-wrapper__progress" style={{ width: percent }}>
@@ -259,12 +268,6 @@ export default function Tiers() {
           ))}
         </div>
       </div>
-
-      {/* <UpcomingIDORegistration
-        ido="LUART"
-        size={500000}
-        xrune={data ? data.total : parseUnits("0")}
-      /> */}
 
       <section className="page-section">
         <h3 className="title">Deposit</h3>
@@ -536,6 +539,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
   const [data, setData] = useState();
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [synapsData, setSynapsData] = useState(false);
   const [addressTerra, setAddressTerra] = useState('');
 
   async function fetchData() {
@@ -569,13 +573,13 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         "https://thorstarter-tiers-api.herokuapp.com/user?address=" +
           state.address
       ).then((r) => r.json());
-      const lp = await fetch(
-        "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
-          state.address
-      ).then((r) => r.json());
-      if (lp.units != "0") {
-        tier0 = true;
-      }
+      // const lp = await fetch(
+      //   "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
+      //     state.address
+      // ).then((r) => r.json());
+      // if (lp.units != "0") {
+      //   tier0 = true;
+      // }
       const contracts = getContracts();
       const tgBalance = await contracts.tgnft.balanceOf(state.address);
       if (tgBalance.gt("0")) {
@@ -590,6 +594,27 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
 
   useEffect(() => {
     fetchData();
+
+    if (!state.address) return;
+    (async () => {
+      const res = await fetch(
+        "https://thorstarter-tiers-api.herokuapp.com/kyc-start?address=" + state.address,
+        {
+          method: "POST",
+          body: "",
+        }
+      );
+      if (!res.ok) {
+        console.error('error starting synaps session', res);
+        return;
+      }
+      const response = await res.json();
+      if (!response.verified) {
+        const Synaps = new SynapsClient(response.session_id, '1637911251757');
+        Synaps.init();
+      }
+      setSynapsData(response);
+    })();
   }, [state.address]);
 
   function onRegister() {
@@ -635,7 +660,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
 
   if (!data) return null;
   return (
-    <div className="tiers-upcoming-ido">
+    <div className="tiers-upcoming-ido mb-4">
       <div className="flex">
         <div className="flex-1">
           <h2>Register Interest in the upcoming ${ido} IDO.</h2>
@@ -663,6 +688,12 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </button>
         </div>
       </div>
+      {synapsData ? (
+        <div className="error flex" style={{backgroundColor: 'rgb(247, 229, 17)', color: 'rgb(86, 81, 13)'}}>
+          <div className="flex-1">The Luart IDO requires KYC:</div>
+          <a className="button" id="synaps-btn" disabled={synapsData.verified}>{synapsData.verified ? 'You are verified' : 'Verify with Synaps'}</a>
+        </div>
+      ) : null}
       <strong>Estimated Allocations (based on registrations)</strong>
       <table>
         <tbody>

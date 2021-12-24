@@ -95,7 +95,7 @@ export const contractAddresses = {
   },
   "terra-mainnet": {
     xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
-    tiers: "terra1hnsjj2ta35mva4xjjdjjpnzxhfz4j3ephk6m4w",
+    tiers: "terra18s7n93ja9nh37mttu66rhtsw05dxrcpsmw0c45",
   },
 };
 

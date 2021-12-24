@@ -43,12 +43,6 @@ function useTiers() {
 
     if (state.networkId === "terra-mainnet") {
       const contracts = contractAddresses[state.networkId];
-      const tiersState = await state.lcd.wasm.contractQuery(contracts.tiers, {
-        state: {},
-      });
-      const tiersBalance = await state.lcd.wasm.contractQuery(contracts.xrune, {
-        balance: { address: contracts.tiers },
-      });
       const user = await state.lcd.wasm.contractQuery(contracts.tiers, {
         user_state: { user: state.address },
       });
@@ -56,12 +50,8 @@ function useTiers() {
         balance: { address: state.address },
       });
       setData({
-        tiersBalance: parseUnits(tiersBalance.balance, 12),
-        tiersTotal: parseUnits(tiersState.total_balance, 12),
         balance: parseUnits(balance.balance, 12),
-        total: tiersState.total_balance == 0 ? parseUnits('0') : parseUnits(user.balance, 12)
-          .mul(parseUnits(tiersBalance.balance, 12))
-          .div(parseUnits(tiersState.total_balance, 12)),
+        total: parseUnits(user.balance, 12),
         lastDeposit: user.last_deposit,
       });
     } else {
@@ -84,8 +74,6 @@ function useTiers() {
 
   async function onDeposit({ amount, setError, setLoading }) {
     if (String(state.networkId).startsWith("terra-")) {
-      alert('Disabled for the moment, come back later, sorry ;)')
-      return;
       await runTransactionTerra(
         {
           msgs: [

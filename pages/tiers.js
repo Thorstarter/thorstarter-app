@@ -41,6 +41,20 @@ function useTiers() {
   async function fetchData() {
     if (!state.address) return;
 
+    let lpXrune = parseUnits('0');
+    try {
+      const pool = await fetch(
+        "https://midgard.thorchain.info/v2/pool/ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C"
+      ).then((r) => r.json());
+      const lp = await fetch(
+        "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
+          state.address
+      ).then((r) => r.json());
+      lpXrune = parseUnits(lp.units, 8).mul(parseUnits(pool.assetDepth, 8)).div(parseUnits(pool.liquidityUnits, 8)).mul(parseUnits('100', 0));
+    } catch (err) {
+      console.error("fetching lp units", err.message);
+    }
+
     if (state.networkId === "terra-mainnet") {
       const contracts = contractAddresses[state.networkId];
       const user = await state.lcd.wasm.contractQuery(contracts.tiers, {
@@ -53,6 +67,7 @@ function useTiers() {
         balance: parseUnits(balance.balance, 12),
         total: parseUnits(user.balance, 12),
         lastDeposit: user.last_deposit,
+        lp: lpXrune,
       });
     } else {
       const contracts = getContracts();
@@ -62,6 +77,7 @@ function useTiers() {
         balance: await contracts.xrune.balanceOf(state.address),
         total: userInfo[4][0],
         lastDeposit: user[1].toNumber(),
+        lp: lpXrune,
       });
     }
   }
@@ -120,7 +136,11 @@ function useTiers() {
               contractAddresses[state.networkId].tiers,
               {
                 [before7Days ? "unbond_now" : "unbond"]: {
-                  amount: amount.mul(data.tiersTotal).div(data.tiersBalance).div("1000000000000").toString(),
+                  amount: amount
+                    .mul(data.tiersTotal)
+                    .div(data.tiersBalance)
+                    .div("1000000000000")
+                    .toString(),
                 },
               }
             ),
@@ -154,7 +174,7 @@ export default function Tiers() {
   const { data, fetchData, onDeposit, onWithdraw } = useTiers();
   const [modal, setModal] = useState();
   const [percent, setPercent] = useState("0");
-  const total = data ? parseFloat(formatUnits(data.total)) : 0;
+  const total = data ? parseFloat(formatUnits(data.total.add(data.lp))) : 0;
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
@@ -209,20 +229,18 @@ export default function Tiers() {
         ) : null}
       </div>
 
-      {global.window && window.location.hash == '#testkyc' ? (
-        <UpcomingIDORegistration
-          ido="LUART"
-          size={500000}
-          xrune={data ? data.total : parseUnits("0")}
-        />
-      ) : null}
+      <UpcomingIDORegistration
+        ido="LUART"
+        size={500000}
+        xrune={data ? data.total.add(data.lp) : parseUnits("0")}
+      />
 
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">
           <div className="tiers-wrapper__progress" style={{ width: percent }}>
             <div className="tiers-wrapper__data">
               Your score:{" "}
-              <span>{data ? formatNumber(data.total, 0) : "-"}</span>
+              <span>{data ? formatNumber(data.total.add(data.lp), 0) : "-"}</span>
             </div>
           </div>
         </div>
@@ -287,24 +305,17 @@ export default function Tiers() {
                   </Button>
                 </td>
               </tr>
-              {/*
               <tr>
-                <td>ThorWallet NFT</td>
+                <td>THORChain LP XRUNE</td>
                 <td className="tac" style={{ width: 110 }}>
-                  {data ? formatNumber(data.balances.twnft, 0, 0) : "-"}
+                  {data ? formatNumber(data.lp) : "-"}
                 </td>
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>
                 <td className="tar">
-                  {total === 0 && data && data.balances.twnft.toNumber() > 0 ? (
-                    <Button onClick={onSignup} disabled={!data}>
-                      Click For NFT Credit
-                    </Button>
-                  ) : null}
                 </td>
               </tr>
-              */}
             </tbody>
           </table>
         </div>
@@ -489,8 +500,8 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
       {before7Days ? (
         <p className="error text-sm">
           WARNING You are withdrawing before waiting 7 days after you last
-          deposit. You will lose half of the amount you withdraw if you don&apos;t
-          wait.
+          deposit. You will lose half of the amount you withdraw if you
+          don&apos;t wait.
         </p>
       ) : null}
 
@@ -528,7 +539,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [synapsData, setSynapsData] = useState(false);
-  const [addressTerra, setAddressTerra] = useState('');
+  const [addressTerra, setAddressTerra] = useState("");
 
   async function fetchData() {
     const rawStats = await fetch(
@@ -561,18 +572,11 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         "https://thorstarter-tiers-api.herokuapp.com/user?address=" +
           state.address
       ).then((r) => r.json());
-      // const lp = await fetch(
-      //   "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
-      //     state.address
-      // ).then((r) => r.json());
-      // if (lp.units != "0") {
+      // const contracts = getContracts();
+      // const tgBalance = await contracts.tgnft.balanceOf(state.address);
+      // if (tgBalance.gt("0")) {
       //   tier0 = true;
       // }
-      const contracts = getContracts();
-      const tgBalance = await contracts.tgnft.balanceOf(state.address);
-      if (tgBalance.gt("0")) {
-        tier0 = true;
-      }
     }
     const registered = user
       ? user.registrations.find((r) => r.ido === ido.toLowerCase())
@@ -586,19 +590,20 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     if (!state.address) return;
     (async () => {
       const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/kyc-start?address=" + state.address,
+        "https://thorstarter-tiers-api.herokuapp.com/kyc-start?address=" +
+          state.address,
         {
           method: "POST",
           body: "",
         }
       );
       if (!res.ok) {
-        console.error('error starting synaps session', res);
+        console.error("error starting synaps session", res);
         return;
       }
       const response = await res.json();
       if (!response.verified) {
-        const Synaps = new SynapsClient(response.session_id, '1637911251757');
+        const Synaps = new SynapsClient(response.session_id, "individual");
         Synaps.init();
       }
       setSynapsData(response);
@@ -633,9 +638,9 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         }
       );
       if (!res.ok) {
-        throw new Error('Bad error code: ' + res.status);
+        throw new Error("Bad error code: " + res.status);
       }
-      setAddressTerra('');
+      setAddressTerra("");
       fetchData();
       setModal(false);
     } catch (err) {
@@ -661,10 +666,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           <button
             className="button"
             onClick={onRegister}
-            disabled={
-              !state.address ||
-              (!data.tier0 && xrune.eq("0"))
-            }
+            disabled={!state.address || (!data.tier0 && xrune.eq("0"))}
           >
             {data.registered
               ? "You Are Registered!"
@@ -677,9 +679,17 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         </div>
       </div>
       {synapsData ? (
-        <div className="error flex" style={{backgroundColor: 'rgb(247, 229, 17)', color: 'rgb(86, 81, 13)'}}>
+        <div
+          className="error flex"
+          style={{
+            backgroundColor: "rgb(247, 229, 17)",
+            color: "rgb(86, 81, 13)",
+          }}
+        >
           <div className="flex-1">The Luart IDO requires KYC:</div>
-          <a className="button" id="synaps-btn" disabled={synapsData.verified}>{synapsData.verified ? 'You are verified' : 'Verify with Synaps'}</a>
+          <a className="button" id="synaps-btn" disabled={synapsData.verified}>
+            {synapsData.verified ? "You are verified" : "Verify with Synaps"}
+          </a>
         </div>
       ) : null}
       <strong>Estimated Allocations (based on registrations)</strong>
@@ -755,12 +765,19 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
       </table>
 
       {modal ? (
-        <Modal onClose={() => setModal(false)} style={{width: 400}}>
+        <Modal onClose={() => setModal(false)} style={{ width: 400 }}>
           <h2>Register</h2>
           <label className="label">Terra Address</label>
-          <input value={addressTerra} onChange={e => setAddressTerra(e.target.value)} className="input w-full" placeholder="terra123..." />
-          <br/>
-          <button className="button mt-4" onClick={onSubmit} disabled={loading}>{loading ? 'Loading...' : 'Register'}</button>
+          <input
+            value={addressTerra}
+            onChange={(e) => setAddressTerra(e.target.value)}
+            className="input w-full"
+            placeholder="terra123..."
+          />
+          <br />
+          <button className="button mt-4" onClick={onSubmit} disabled={loading}>
+            {loading ? "Loading..." : "Register"}
+          </button>
         </Modal>
       ) : null}
     </div>

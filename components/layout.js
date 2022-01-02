@@ -135,9 +135,15 @@ export default function Layout({ title, children, page }) {
             <img src="/wallets/walletconnect.png" /> Wallet Connect
           </a>
           <h3 className="wallet-option-header">Terra</h3>
-          <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
-            <img src="/wallets/terrastation.png" /> Terra Station
-          </a>
+          {window?.xfi?.terra ? (
+            <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
+              <img src="/wallets/xdefi.png" /> XDEFI
+            </a>
+          ) : (
+            <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
+              <img src="/wallets/terrastation.png" /> Terra Station
+            </a>
+          )}
           <a onClick={() => connectWalletTerra("terrawalletconnect")} className="wallet-option">
             <img src="/wallets/walletconnect.png" /> Wallet Connect
           </a>

@@ -155,13 +155,14 @@ export async function connectWalletTerra(wallet = "terrastation") {
         address = value.wallets[0].terraAddress;
       }
       const lcd = createLCDClient({ network: value.network });
-      // const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
+      const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
       setGlobalState({
         walletModalOpen: false,
         ready: true,
         lcd,
         wc: terraWalletController,
-        // gasPrice: gasRes.uusd,
+        gasPriceUusd: gasRes.uusd,
+        gasPriceLuna: gasRes.luna,
         address,
         networkId,
       });
@@ -348,7 +349,7 @@ export async function runTransactionTerra(params, setLoading, setError) {
   try {
     setError("");
     setLoading(t("waitingForConfirmation"));
-    //params.gasPrices = new Coins([new Coin('uusd', state.gasPrice)]);
+    params.gasPrices = new Coins([new Coin('uusd', state.gasPriceUusd)]);
     const result = await state.wc.post(params);
     console.log("result", result);
     if (isTxError(result)) {

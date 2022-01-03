@@ -783,7 +783,7 @@ function IDOCard({ ido, parentSetParams }) {
           </div>
         ) : null}
         <div className="mb-4" />
-        <div className="progress mb-4">
+        <div className="progress mb-4" title={`${formatNumber(params.comitted, 6)} / ${formatNumber(params.raising, 0)}`}>
           <div className="progress-bar" style={{ width: `${progress}%` }}></div>
         </div>
         {userInfo ? (

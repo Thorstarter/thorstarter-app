@@ -31,29 +31,30 @@ import coverMine from "../public/ido/mine-cover.png";
 import logoLuart from "../public/ido/luart-logo.png";
 import coverLuart from "../public/ido/luart-cover.png";
 
-const liveIdo = {
-  name: "Luart",
-  token: "LUART",
-  paymentToken: "UST",
-  type: "tiers-terra",
-  networkId: "terra-mainnet",
-  address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
-  notFinalized: true,
-  paymentPrice: 1,
-  allocations: allocationData.luart,
-  logo: logoLuart,
-  cover: coverLuart,
-  links: {
-    twitter: "https://twitter.com/luart_io",
-    telegram: "https://t.me/luart_io",
-    medium: "https://luart-io.medium.com/",
-    website: "https://www.luart.io/",
-    discord: "https://discord.com/invite/luart",
-  },
-  static: [],
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "Luart",
+    token: "LUART",
+    paymentToken: "UST",
+    type: "tiers-terra",
+    networkId: "terra-mainnet",
+    address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
+    notFinalized: true,
+    paymentPrice: 1,
+    allocations: allocationData.luart,
+    logo: logoLuart,
+    cover: coverLuart,
+    links: {
+      twitter: "https://twitter.com/luart_io",
+      telegram: "https://t.me/luart_io",
+      medium: "https://luart-io.medium.com/",
+      website: "https://www.luart.io/",
+      discord: "https://discord.com/invite/luart",
+    },
+    static: [],
+  },
   {
     name: "MINE Network",
     token: "MNET",

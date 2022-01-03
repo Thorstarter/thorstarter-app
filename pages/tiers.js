@@ -219,11 +219,11 @@ export default function Tiers() {
         ) : null}
       </div>
 
-      <UpcomingIDORegistration
+      {/* <UpcomingIDORegistration
         ido="LUART"
         size={500000}
         xrune={data ? data.total.add(data.lp) : parseUnits("0")}
-      />
+      /> */}
 
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">

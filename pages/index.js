@@ -625,7 +625,7 @@ function IDOCard({ ido, parentSetParams }) {
       setUserInfo({
         amount: userInfo[0],
         owed: userInfo[2],
-        allocationStr: userAllocation.allocation,
+        allocationStr: userAllocation.amount,
         allocation: parseUnits(userAllocation.amount),
         proof: userAllocation.proof,
       });

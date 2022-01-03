@@ -129,10 +129,7 @@ function useTiers() {
               contractAddresses[state.networkId].tiers,
               {
                 [before7Days ? "unbond_now" : "unbond"]: {
-                  amount: amount
-                    .mul(data.tiersTotal)
-                    .div(data.tiersBalance)
-                    .div("1000000000000")
+                  amount: amount.div("1000000000000")
                     .toString(),
                 },
               }

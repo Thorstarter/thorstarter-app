@@ -625,6 +625,7 @@ function IDOCard({ ido, parentSetParams }) {
       setUserInfo({
         amount: userInfo[0],
         owed: userInfo[2],
+        allocationStr: userAllocation.allocation,
         allocation: parseUnits(userAllocation.amount),
         proof: userAllocation.proof,
       });
@@ -659,9 +660,7 @@ function IDOCard({ ido, parentSetParams }) {
                     [Date.now() < params.end.getTime()
                       ? "deposit"
                       : "deposit_fcfs"]: {
-                      allocation: userInfo.allocation
-                        .div("1000000000000")
-                        .toString(),
+                      allocation: userInfo.allocationStr,
                       proof: userInfo.proof,
                     },
                   },

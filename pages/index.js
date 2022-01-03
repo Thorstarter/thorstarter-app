@@ -702,11 +702,15 @@ function IDOCard({ ido, parentSetParams }) {
   }
 
   function onDepositMax() {
+    let acutalBalance = balance;
+    if (ido.paymentToken === 'UST') {
+      acutalBalance = acutalBalance.sub(parseUnits('5'));
+    }
     if (userInfo && userInfo.allocation.gt("0")) {
       const max = userInfo.allocation.sub(userInfo.amount);
-      setAmount(formatUnits(bnMin(max, balance)).replace(/,/g, ""));
+      setAmount(formatUnits(bnMin(max, acutalBalance)).replace(/,/g, ""));
     } else {
-      setAmount(formatUnits(balance).replace(/,/g, ""));
+      setAmount(formatUnits(acutalBalance).replace(/,/g, ""));
     }
   }
 

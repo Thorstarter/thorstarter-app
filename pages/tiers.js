@@ -19,13 +19,6 @@ import {
   formatErrorMessage,
 } from "../utils";
 
-const assets = {
-  xrune: {
-    name: "XRUNE",
-    token: "xrune",
-  },
-};
-
 const tiers = [
   { name: "Tier 1", amount: 2500, multiplier: 1 },
   { name: "Tier 2", amount: 7500, multiplier: 2 },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { MsgExecuteContract, Fee, Coin } from "@terra-money/terra.js";
 import Image from "next/image";
 import Icon from "../components/icon";
 import Button from "../components/button";
@@ -8,12 +8,12 @@ import Countdown from "../components/countdown";
 import LoadingOverlay from "../components/loadingOverlay";
 import {
   bnMin,
-  getContracts,
   useGlobalState,
   formatNumber,
   parseUnits,
   formatUnits,
   runTransaction,
+  runTransactionTerra,
 } from "../utils";
 import abis from "../abis";
 import allocationData from "../data/allocations.json";
@@ -28,8 +28,30 @@ import logoThorwallet from "../public/ido/thorwallet-logo.png";
 import coverThorwallet from "../public/ido/thorwallet-cover.png";
 import logoMine from "../public/ido/mine-logo.png";
 import coverMine from "../public/ido/mine-cover.png";
+import logoLuart from "../public/ido/luart-logo.png";
+import coverLuart from "../public/ido/luart-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "Luart",
+  token: "LUART",
+  paymentToken: "UST",
+  type: "tiers-terra",
+  networkId: "terra-mainnet",
+  address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
+  notFinalized: true,
+  paymentPrice: 1,
+  allocations: allocationData.luart,
+  logo: logoLuart,
+  cover: coverLuart,
+  links: {
+    twitter: "https://twitter.com/luart_io",
+    telegram: "https://t.me/luart_io",
+    medium: "https://luart-io.medium.com/",
+    website: "https://www.luart.io/",
+    discord: "https://discord.com/invite/luart",
+  },
+  static: [],
+};
 
 const idos = [
   {
@@ -55,7 +77,7 @@ const idos = [
       { label: "Raising", value: "35.71 ETH" },
       { label: "Claimed %", value: "100%" },
       { label: "Price", value: "0.00000238 ETH $ 0.01" },
-    ]
+    ],
   },
   {
     name: "THORWallet",
@@ -93,7 +115,7 @@ const idos = [
     networkId: 1,
     address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
     xrunePrice: 0.5,
-    price: ethers.utils.parseUnits("0.15"),
+    price: parseUnits("0.15"),
     logo: logoThorswap,
     cover: coverThorswap,
     links: {
@@ -121,7 +143,7 @@ const idos = [
     networkId: 1,
     address: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
     xrunePrice: 0.2,
-    price: ethers.utils.parseUnits("0.2"),
+    price: parseUnits("0.2"),
     logo: logoBnpl,
     cover: coverBnpl,
     links: {
@@ -149,7 +171,7 @@ const idos = [
     networkId: 1,
     address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
     xrunePrice: 0.5,
-    price: ethers.utils.parseUnits('1.23164843'),
+    price: parseUnits("1.23164843"),
     logo: logoSkyrim,
     cover: coverSkyrim,
     links: {
@@ -161,13 +183,13 @@ const idos = [
       about: "https://thorstarter.org/ido/skyrim",
     },
     static: [
-      {label: 'Offering', value: '5,000,000 SKYRIM'},
-      {label: 'Start Price', value: '2 XRUNE $ 1'},
-      {label: 'Reserve Price', value: '0.20 XRUNE $ 0.10'},
-      {label: 'Committed $', value: '$ 3,079,116.21'},
-      {label: 'Committed XRUNE', value: '6,158,232'},
-      {label: 'Price', value: '1.23 XRUNE $ 0.61'},
-    ]
+      { label: "Offering", value: "5,000,000 SKYRIM" },
+      { label: "Start Price", value: "2 XRUNE $ 1" },
+      { label: "Reserve Price", value: "0.20 XRUNE $ 0.10" },
+      { label: "Committed $", value: "$ 3,079,116.21" },
+      { label: "Committed XRUNE", value: "6,158,232" },
+      { label: "Price", value: "1.23 XRUNE $ 0.61" },
+    ],
   },
 ];
 
@@ -186,12 +208,20 @@ export default function IDOs() {
             liveIdoParams.timestamp < liveIdoParams.start.getTime() / 1000 ? (
               <div className="flex float-right">
                 <span>Starts in </span>
-                <Countdown to={liveIdoParams.start} zeroText="Waiting for next block..." />
+                <Countdown
+                  to={liveIdoParams.start}
+                  zeroText="Waiting for next block..."
+                />
               </div>
             ) : liveIdoParams && Date.now() < liveIdoParams.end.getTime() ? (
               <div className="flex float-right">
-                <span>Ends in </span>
+                <span>Claiming Ends / FCFS Starts in </span>
                 <Countdown to={liveIdoParams.end} />
+              </div>
+            ) : liveIdoParams &&
+              !liveIdoParams.raising.eq(liveIdoParams.comitted) ? (
+              <div className="flex float-right">
+                <span>FCFS Ongoing</span>
               </div>
             ) : null}
           </h1>
@@ -326,8 +356,21 @@ function IDOCardStatic({ ido }) {
 
   async function fetchData() {
     if (!state.address) return;
-    const sale = getSaleContract();
-    if (ido.type === "tiers") {
+    if (ido.type === "tiers-terra") {
+      const userState = await state.lcd.wasm.contractQuery(ido.address, {
+        user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
+      });
+      const claimed = parseUnits(userState.claimed, 12);
+      const owed = parseUnits(userState.owed, 12);
+      setUserInfo({
+        amount: parseUnits(userState.amount, 12),
+        claimedTokens: owed.sub(claimed).eq("0"),
+        claimable: parseUnits(userState.claimable, 12).sub(claimed),
+        claimed,
+        owed,
+      });
+    } else if (ido.type === "tiers") {
+      const sale = getSaleContract();
       const userInfo = await sale.getUserInfo(state.address);
       setUserInfo({
         amount: userInfo[0],
@@ -337,6 +380,7 @@ function IDOCardStatic({ ido }) {
         owed: userInfo[2],
       });
     } else if (ido.type === "batch") {
+      const sale = getSaleContract();
       const userInfo = await sale.userInfo(state.address);
       setUserInfo({
         amount: userInfo[0],
@@ -346,6 +390,7 @@ function IDOCardStatic({ ido }) {
         refund: await sale.getRefundingAmount(state.address),
       });
     } else if (ido.type === "fcfs") {
+      const sale = getSaleContract();
       const userInfo = await sale.userInfo(state.address);
       setUserInfo({
         amount: userInfo[0],
@@ -353,11 +398,12 @@ function IDOCardStatic({ ido }) {
         owed: await sale.getOfferingAmount(state.address),
       });
     } else if (ido.type === "dutch") {
+      const sale = getSaleContract();
       const userInfo = await sale.userInfo(state.address);
       setUserInfo({
         amount: userInfo[0],
         claimedTokens: userInfo[1],
-        owed: userInfo[0].mul(ethers.utils.parseUnits("1")).div(ido.price),
+        owed: userInfo[0].mul(parseUnits("1")).div(ido.price),
       });
     }
   }
@@ -373,8 +419,28 @@ function IDOCardStatic({ ido }) {
     fetchData();
   }
 
-  function onHarvest() {
-    if (ido.type == "fcfs") {
+  async function onHarvest() {
+    if (ido.type === "tiers-terra") {
+      try {
+        await runTransactionTerra(
+          {
+            msgs: [
+              new MsgExecuteContract(state.address, ido.address, {
+                harvest: {},
+              }),
+            ],
+          },
+          setLoading,
+          setError
+        );
+      } catch (e) {
+        console.log("err", e);
+      }
+      fetchData();
+      setTimeout(fetchData, 5000);
+      setTimeout(fetchData, 10000);
+      setTimeout(fetchData, 20000);
+    } else if (ido.type == "fcfs") {
       callSaleMethod("harvest", false);
     } else if (ido.type === "batch") {
       callSaleMethod("harvestTokens");
@@ -403,7 +469,7 @@ function IDOCardStatic({ ido }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
-                {formatNumber(userInfo.amount, 5)}{" "}
+                {formatNumber(userInfo.amount)}{" "}
                 <span className="text-gray6">{ido.paymentToken}</span>
               </div>
             </div>
@@ -454,9 +520,18 @@ function IDOCardStatic({ ido }) {
           <Button
             className="w-full mt-2"
             onClick={onHarvest}
-            disabled={ido.notFinalized || (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed))}
+            disabled={
+              ido.notFinalized ||
+              (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed))
+            }
           >
-            {loading ? "Loading..." : (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed)) ? "No vested tokens": ido.notFinalized ? "Soon..." : "Collect"}
+            {loading
+              ? "Loading..."
+              : userInfo.claimable && userInfo.claimable.eq(userInfo.claimed)
+              ? "No vested tokens"
+              : ido.notFinalized
+              ? "Soon..."
+              : "Collect"}
           </Button>
         ) : null}
         {loading ? <LoadingOverlay message={loading} /> : null}
@@ -475,41 +550,85 @@ function IDOCard({ ido, parentSetParams }) {
   const [userInfo, setUserInfo] = useState(null);
 
   async function fetchData() {
-    const contracts = getContracts();
-    const lastBlock = await getState().provider.getBlock(-1);
-    if (state.address) {
+    if (ido.type === "tiers-terra") {
+      //if (!state.lcd) return;
+      const idoState = await state.lcd.wasm.contractQuery(ido.address, {
+        state: {},
+      });
+      const raising = parseUnits(idoState.raising_amount, 12);
+      const offering = parseUnits(idoState.offering_amount, 12);
+      const newParams = {
+        timestamp: (Date.now() / 1000) | 0,
+        start: new Date(idoState.start_time * 1000),
+        end: new Date(idoState.end_time * 1000),
+        raising: raising,
+        offering: offering,
+        comitted: parseUnits(idoState.total_amount, 12),
+        paused: false,
+        finalized: idoState.finalized,
+        price: raising.mul(parseUnits("1")).div(offering),
+      };
+      setParams(newParams);
+      if (parentSetParams) parentSetParams(newParams);
+      if (!state.address) return;
+
+      // fetch ust balance
+      const balances = await state.lcd.bank.balance(state.address);
+      const balance = (
+        balances[0].map((b) => b).find((b) => b.denom === "uusd") || {
+          amount: "0",
+        }
+      ).amount.toString();
+      setBalance(parseUnits(balance, 12));
+
+      // fetch ido user state & allocation
+      const userState = await state.lcd.wasm.contractQuery(ido.address, {
+        user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
+      });
+      console.log(userState);
+      const userAllocation = ido.allocations.find(
+        (a) => a.address === state.address
+      ) || { allocation: "0", proof: [] };
+      setUserInfo({
+        amount: parseUnits(userState.amount, 12),
+        owed: parseUnits(userState.owed, 12),
+        allocation: parseUnits(userAllocation.allocation, 12),
+        proof: userAllocation.proof,
+      });
+    } else {
+      const lastBlock = await getState().provider.getBlock(-1);
+      const sale = new ethers.Contract(
+        ido.address,
+        abis.saleTiers,
+        state.provider
+      );
+      const params = await sale.getParams();
+      const newParams = {
+        timestamp: lastBlock.timestamp,
+        start: new Date(params[0].toNumber() * 1000),
+        end: new Date(params[1].toNumber() * 1000),
+        raising: params[2],
+        offering: params[3],
+        comitted: params[4],
+        paused: params[5],
+        finalized: params[6],
+        price: params[2].mul(parseUnits("1")).div(params[3]),
+      };
+      setParams(newParams);
+      if (parentSetParams) parentSetParams(newParams);
+      if (!state.address) return;
       setBalance(await state.signer.getBalance());
+      const userInfo = await sale.getUserInfo(state.address);
+      const userAllocation = ido.allocations.find(
+        (a) => a.address === state.address
+      ) || { amount: "0", proof: [] };
+      setUserInfo({
+        amount: userInfo[0],
+        owed: userInfo[2],
+        allocation: parseUnits(userAllocation.amount),
+        proof: userAllocation.proof,
+      });
     }
-    const sale = new ethers.Contract(
-      ido.address,
-      abis.saleTiers,
-      state.provider
-    );
-    const params = await sale.getParams();
-    const newParams = {
-      timestamp: lastBlock.timestamp,
-      start: new Date(params[0].toNumber() * 1000),
-      end: new Date(params[1].toNumber() * 1000),
-      raising: params[2],
-      offering: params[3],
-      comitted: params[4],
-      paused: params[5],
-      finalized: params[6],
-      price: params[2].mul(ethers.utils.parseUnits("1")).div(params[3]),
-    };
-    setParams(newParams);
-    if (parentSetParams) parentSetParams(newParams);
-    if (!state.address) return;
-    const userInfo = await sale.getUserInfo(state.address);
-    const userAllocation = ido.allocations.find(
-      (a) => a.address === state.address
-    ) || { amount: "0", proof: [] };
-    setUserInfo({
-      amount: userInfo[0],
-      owed: userInfo[2],
-      allocation: parseUnits(userAllocation.amount),
-      proof: userAllocation.proof,
-    });
   }
 
   useEffect(() => {
@@ -520,30 +639,64 @@ function IDOCard({ ido, parentSetParams }) {
   }, [state.networkId, state.address]);
 
   async function onDeposit() {
+    setError("");
     try {
-      if (userInfo.allocation.eq('0')) {
-        setError('You don\'t have an allocation for this IDO');
+      if (userInfo.allocation.eq("0")) {
+        setError("You don't have an allocation for this IDO");
         return;
       }
-      const parsedAmount = ethers.utils.parseUnits(
-        amount.replace(/[^0-9\.]/g, ""),
-        18
-      );
-      setAmount(ethers.utils.formatUnits(parsedAmount));
-      const sale = new ethers.Contract(
-        ido.address,
-        abis.saleTiers,
-        state.signer
-      );
-      const call = sale.deposit(userInfo.allocation, userInfo.proof, {
-        value: parsedAmount,
-      });
-      try {
-        await runTransaction(call, setLoading, setError);
-      } catch (e) {}
+      const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""), 18);
+      setAmount(formatUnits(parsedAmount));
+      if (ido.type === "tiers-terra") {
+        try {
+          await runTransactionTerra(
+            {
+              msgs: [
+                new MsgExecuteContract(
+                  state.address,
+                  ido.address,
+                  {
+                    [Date.now() < params.end.getTime()
+                      ? "deposit"
+                      : "deposit_fcfs"]: {
+                      allocation: userInfo.allocation
+                        .div("1000000000000")
+                        .toString(),
+                      proof: userInfo.proof,
+                    },
+                  },
+                  [
+                    new Coin(
+                      "uusd",
+                      parsedAmount.div("1000000000000").toString()
+                    ),
+                  ]
+                ),
+              ],
+            },
+            setLoading,
+            setError
+          );
+        } catch (e) {
+          console.log("err", e);
+        }
+      } else {
+        const sale = new ethers.Contract(
+          ido.address,
+          abis.saleTiers,
+          state.signer
+        );
+        const call = sale.deposit(userInfo.allocation, userInfo.proof, {
+          value: parsedAmount,
+        });
+        try {
+          await runTransaction(call, setLoading, setError);
+        } catch (e) {}
+      }
       setAmount("");
       fetchData();
     } catch (err) {
+      console.error(err);
       setError("Invalid number provided");
     }
   }
@@ -560,7 +713,8 @@ function IDOCard({ ido, parentSetParams }) {
   const idoActive =
     params &&
     params.timestamp >= params.start.getTime() / 1000 &&
-    params.timestamp <= params.end.getTime() / 1000;
+    !params.raising.eq(params.comitted);
+  //params.timestamp <= params.end.getTime() / 1000;
   let progress = "0";
   if (params) {
     progress = Math.min(
@@ -592,11 +746,11 @@ function IDOCard({ ido, parentSetParams }) {
           <div className="flex-1 text-gray6">Raising</div>
           <div>
             {formatNumber(params.raising, 2)}{" "}
-            <span className="text-gray6">ETH</span>
+            <span className="text-gray6">{ido.paymentToken}</span>
           </div>
         </div>
         <div className="flex mb-3">
-          <div className="flex-1 text-gray6">Claimed %</div>
+          <div className="flex-1 text-gray6">Sold %</div>
           <div>
             {formatNumber(params.comitted.mul(100).div(params.raising), 0, 0)}%
           </div>
@@ -604,28 +758,27 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Price</div>
           <div>
-            <span className="text-gray6">
-              {formatNumber(params.price, 8)} ETH
-            </span>{" "}
-            ${" "}
+            {formatNumber(params.price, 3)}{" "}
+            <span className="text-gray6">UST</span>
+            {/* ${" "}
             {formatNumber(
               params.price.mul((ido.paymentPrice * 10000) | 0).div(10000),
               2
-            )}
+            )} */}
           </div>
         </div>
         {userInfo ? (
           <div className="flex">
             <div className="flex-1 text-gray6">Your Allocation</div>
             <div>
-              {formatNumber(userInfo.allocation, 5)}{" "}
-              <span className="text-gray6">ETH</span> ${" "}
+              $ {formatNumber(userInfo.allocation, 5)}
+              {/* <span className="text-gray6">{ido.paymentToken}</span> ${" "}
               {formatNumber(
                 userInfo.allocation
                   .mul((ido.paymentPrice * 10000) | 0)
                   .div(10000),
                 2
-              )}
+              )} */}
             </div>
           </div>
         ) : null}
@@ -667,7 +820,7 @@ function IDOCard({ ido, parentSetParams }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
-                {formatNumber(userInfo.amount, 5)}{" "}
+                {formatNumber(userInfo.amount)}{" "}
                 <span className="text-gray6">{ido.paymentToken}</span>
               </div>
             </div>

@@ -5,7 +5,7 @@ import {
   createLCDClient,
   WalletController,
 } from "@terra-money/wallet-controller";
-import { Coin, Coins, isTxError } from "@terra-money/terra.js";
+import { Coin, Coins, Fee, isTxError } from "@terra-money/terra.js";
 import abis from "./abis";
 
 if (global.window) window.ethers = ethers;
@@ -25,9 +25,9 @@ export const networkNames = {
 };
 
 export const terraGasPriceApi = {
-  'terra-mainnet': 'https://fcd.terra.dev/v1/txs/gas_prices',
-  'terra-testnet': 'https://bombay-fcd.terra.dev/v1/txs/gas_prices',
-}
+  "terra-mainnet": "https://fcd.terra.dev/v1/txs/gas_prices",
+  "terra-testnet": "https://bombay-fcd.terra.dev/v1/txs/gas_prices",
+};
 
 export const tcPoolNames = {
   1: "ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C",
@@ -154,15 +154,24 @@ export async function connectWalletTerra(wallet = "terrastation") {
       if (value.wallets && value.wallets[0]) {
         address = value.wallets[0].terraAddress;
       }
-      const lcd = createLCDClient({ network: value.network });
+      const lcd = createLCDClient({
+        network: value.network,
+        gasPrices: [new Coin("uusd", 0.15)],
+        gasAdjustment: 1.6,
+        gas: 750000,
+      });
       const gasRes = await (await fetch(terraGasPriceApi[networkId])).json();
+      const terraTaxRate = await lcd.treasury.taxRate();
+      const terraTaxCapUusd = await lcd.treasury.taxCap("uusd");
       setGlobalState({
         walletModalOpen: false,
         ready: true,
         lcd,
         wc: terraWalletController,
         gasPriceUusd: gasRes.uusd,
-        gasPriceLuna: gasRes.luna,
+        gasPriceLuna: gasRes.uluna,
+        terraTaxRate: parseUnits(terraTaxRate.toString(), 18),
+        terraTaxCapUusd: parseUnits(terraTaxCapUusd.amount.toString(), 8),
         address,
         networkId,
       });
@@ -187,7 +196,7 @@ export function disconnectWallet() {
 
 if (global.window) {
   const wallet = window.localStorage.getItem("connectedWallet");
-  if (wallet && wallet.startsWith('terra')) {
+  if (wallet && wallet.startsWith("terra")) {
     setTimeout(() => connectWalletTerra(wallet), 2500);
   } else {
     connectWalletEthereum(wallet);
@@ -253,6 +262,10 @@ export function useGlobalState() {
 export function setGlobalState(newState) {
   state = Object.assign(Object.assign({}, state), newState);
   listeners.forEach((l) => l());
+}
+
+export function terraTax(amount, taxRate, taxCap) {
+  return bnMin(amount.mul(taxRate).div(parseUnits("1", 18)), taxCap);
 }
 
 export function dateForBlock(block, currentBlock) {
@@ -349,7 +362,8 @@ export async function runTransactionTerra(params, setLoading, setError) {
   try {
     setError("");
     setLoading(t("waitingForConfirmation"));
-    params.gasPrices = new Coins([new Coin('uusd', state.gasPriceUusd)]);
+    //params.gasPrices = new Coins([new Coin('uusd', state.gasPriceUusd)]);
+    params.fee = new Fee(750000, { uusd: '300000' });
     const result = await state.wc.post(params);
     console.log("result", result);
     if (isTxError(result)) {
@@ -359,7 +373,7 @@ export async function runTransactionTerra(params, setLoading, setError) {
       throw new Error(error);
     }
   } catch (err) {
-    console.error("runTransactionTerra:", err);
+    console.error("runTransactionTerra:", err, JSON.stringify(err));
     setError(String(err));
     throw err;
   } finally {

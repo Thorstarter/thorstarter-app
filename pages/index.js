@@ -53,7 +53,12 @@ const idos = [
       website: "https://www.luart.io/",
       discord: "https://discord.com/invite/luart",
     },
-    static: [],
+    static: [
+      { label: "Offering", value: "20,000,000 LUART" },
+      { label: "Raising", value: "500,000 UST" },
+      { label: "Sold %", value: "100%" },
+      { label: "Price", value: "0.025 UST" },
+    ],
   },
   {
     name: "MINE Network",
@@ -704,8 +709,8 @@ function IDOCard({ ido, parentSetParams }) {
 
   function onDepositMax() {
     let acutalBalance = balance;
-    if (ido.paymentToken === 'UST') {
-      acutalBalance = acutalBalance.sub(parseUnits('5'));
+    if (ido.paymentToken === "UST") {
+      acutalBalance = acutalBalance.sub(parseUnits("5"));
     }
     if (userInfo && userInfo.allocation.gt("0")) {
       const max = userInfo.allocation.sub(userInfo.amount);
@@ -788,7 +793,13 @@ function IDOCard({ ido, parentSetParams }) {
           </div>
         ) : null}
         <div className="mb-4" />
-        <div className="progress mb-4" title={`${formatNumber(params.comitted, 6)} / ${formatNumber(params.raising, 0)}`}>
+        <div
+          className="progress mb-4"
+          title={`${formatNumber(params.comitted, 6)} / ${formatNumber(
+            params.raising,
+            0
+          )}`}
+        >
           <div className="progress-bar" style={{ width: `${progress}%` }}></div>
         </div>
         {userInfo ? (

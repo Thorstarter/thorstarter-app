@@ -24,7 +24,7 @@ export default function GovernanceToken() {
     const contracts = getContracts();
     const lastFeeGrowthGlobal = await contracts.voters.lastFeeGrowth();
     const userInfo = await contracts.voters.userInfo(state.address);
-    const total = userInfo[1].add(userInfo[2]).add(userInfo[4]);
+    const total = userInfo[1].add(userInfo[2]);
     const rewards = lastFeeGrowthGlobal
       .sub(userInfo[0])
       .mul(total)
@@ -87,10 +87,6 @@ function TokenBalances({ balances }) {
       <div className="flex mb-3">
         <div className="flex-1 text-gray6">vXRUNE for locked SLP</div>
         <div>{formatNumber(balances.lockedSsLpValue)}</div>
-      </div>
-      <div className="flex mb-3">
-        <div className="flex-1 text-gray6">vXRUNE for locked TC LP</div>
-        <div>{formatNumber(balances.lockedTcLpValue)}</div>
       </div>
       <div className="flex">
         <div className="flex-1 text-gray6">Total vXRUNE</div>

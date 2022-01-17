@@ -34,7 +34,7 @@ function useTiers() {
   async function fetchData() {
     if (!state.address) return;
 
-    let lpXrune = parseUnits('0');
+    let lpXrune = parseUnits("0");
     try {
       const pool = await fetch(
         "https://midgard.thorchain.info/v2/pool/ETH.XRUNE-0X69FA0FEE221AD11012BAB0FDB45D444D3D2CE71C"
@@ -43,7 +43,10 @@ function useTiers() {
         "https://thorstarter-xrune-liquidity.herokuapp.com/get?address=" +
           state.address
       ).then((r) => r.json());
-      lpXrune = parseUnits(lp.units, 8).mul(parseUnits(pool.assetDepth, 8)).div(parseUnits(pool.liquidityUnits, 8)).mul(parseUnits('100', 0));
+      lpXrune = parseUnits(lp.units, 8)
+        .mul(parseUnits(pool.assetDepth, 8))
+        .div(parseUnits(pool.liquidityUnits, 8))
+        .mul(parseUnits("100", 0));
     } catch (err) {
       console.error("fetching lp units", err.message);
     }
@@ -129,8 +132,7 @@ function useTiers() {
               contractAddresses[state.networkId].tiers,
               {
                 [before7Days ? "unbond_now" : "unbond"]: {
-                  amount: amount.div("1000000000000")
-                    .toString(),
+                  amount: amount.div("1000000000000").toString(),
                 },
               }
             ),
@@ -220,8 +222,6 @@ export default function Tiers() {
       </div>
 
       {/* <UpcomingIDORegistration
-        ido="LUART"
-        size={500000}
         xrune={data ? data.total.add(data.lp) : parseUnits("0")}
       /> */}
 
@@ -230,7 +230,9 @@ export default function Tiers() {
           <div className="tiers-wrapper__progress" style={{ width: percent }}>
             <div className="tiers-wrapper__data">
               Your score:{" "}
-              <span>{data ? formatNumber(data.total.add(data.lp), 0) : "-"}</span>
+              <span>
+                {data ? formatNumber(data.total.add(data.lp), 0) : "-"}
+              </span>
             </div>
           </div>
         </div>
@@ -303,8 +305,7 @@ export default function Tiers() {
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>
-                <td className="tar">
-                </td>
+                <td className="tar"></td>
               </tr>
             </tbody>
           </table>
@@ -523,7 +524,10 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
   );
 }
 
-function UpcomingIDORegistration({ ido, size, xrune }) {
+function UpcomingIDORegistration({ xrune }) {
+  const idoId = "ring";
+  const idoName = "OneRing";
+  const size = 400000;
   const state = useGlobalState();
   const [data, setData] = useState();
   const [modal, setModal] = useState(false);
@@ -532,6 +536,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
   const [addressTerra, setAddressTerra] = useState("");
 
   async function fetchData() {
+    /*
     const rawStats = await fetch(
       "https://thorstarter-tiers-api.herokuapp.com/stats?ido=" + ido
     ).then((r) => r.json());
@@ -554,29 +559,33 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         tier.allocation = minAllocation;
       }
     }
+    */
 
     let user;
     let tier0 = false;
+    const network = {
+      1: "ethereum",
+      250: "fantom",
+      "terra-mainnet": "terra",
+    }[String(state.networkId)];
     if (state.address) {
       user = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/user?address=" +
+        "https://thorstarter-tiers-api.herokuapp.com/user-fetch?network=" +
+          network +
+          "&address=" +
           state.address
       ).then((r) => r.json());
-      // const contracts = getContracts();
-      // const tgBalance = await contracts.tgnft.balanceOf(state.address);
-      // if (tgBalance.gt("0")) {
-      //   tier0 = true;
-      // }
     }
     const registered = user
-      ? user.registrations.find((r) => r.ido === ido.toLowerCase())
+      ? user.registrations.find((r) => r.ido === idoId.toLowerCase())
       : null;
-    setData({ stats, user, registered, tier0 });
+    setData({ user: user.user, registered });
   }
 
   useEffect(() => {
     fetchData();
 
+    /*
     if (!state.address) return;
     (async () => {
       const res = await fetch(
@@ -598,6 +607,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
       }
       setSynapsData(response);
     })();
+    */
   }, [state.address]);
 
   function onRegister() {
@@ -615,17 +625,11 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
         }
       }
       const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/register?ido=" + ido,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            address: state.address,
-            tier: tier.toFixed(0),
-            xrune: xruneBalance.toFixed(0),
-            bonus: "1",
-            terra: addressTerra,
-          }),
-        }
+        "https://thorstarter-tiers-api.herokuapp.com/user-register?user_id=" +
+          data.user.id +
+          "&ido=" +
+          idoId,
+        { method: "POST" }
       );
       if (!res.ok) {
         throw new Error("Bad error code: " + res.status);
@@ -646,7 +650,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
     <div className="tiers-upcoming-ido mb-4">
       <div className="flex">
         <div className="flex-1">
-          <h2>Register Interest in the upcoming ${ido} IDO.</h2>
+          <h2>Register Interest in the upcoming ${idoName} IDO.</h2>
           <p>
             Click the button on the right to indicate that you want to get an
             allocation in the upcoming IDO.
@@ -668,6 +672,8 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </button>
         </div>
       </div>
+
+      {/*
       {synapsData ? (
         <div
           className="error flex"
@@ -682,6 +688,9 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </a>
         </div>
       ) : null}
+      */}
+
+      {/*
       <strong>Estimated Allocations (based on registrations)</strong>
       <table>
         <tbody>
@@ -753,6 +762,7 @@ function UpcomingIDORegistration({ ido, size, xrune }) {
           </tr>
         </tbody>
       </table>
+      */}
 
       {modal ? (
         <Modal onClose={() => setModal(false)} style={{ width: 400 }}>

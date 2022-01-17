@@ -49,7 +49,9 @@ export default function Layout({ title, children, page }) {
             <Link href="/">
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
-            {isHomeNetwork || state.networkId === 'terra-mainnet' ? (
+            {isHomeNetwork ||
+            state.networkId === "terra-mainnet" ||
+            state.networkId === 250 ? (
               <Link href="/tiers/">
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
               </Link>
@@ -123,28 +125,49 @@ export default function Layout({ title, children, page }) {
       </div>
 
       {state.walletModalOpen ? (
-        <Modal onClose={() => setGlobalState({ walletModalOpen: false })} style={{width: 325, padding: '16px'}}>
+        <Modal
+          onClose={() => setGlobalState({ walletModalOpen: false })}
+          style={{ width: 325, padding: "16px" }}
+        >
           <h3 className="wallet-option-header">Ethereum</h3>
-          <a onClick={() => connectWalletEthereum("metamask")} className="wallet-option">
+          <a
+            onClick={() => connectWalletEthereum("metamask")}
+            className="wallet-option"
+          >
             <img src="/wallets/xdefi.png" /> XDEFI
           </a>
-          <a onClick={() => connectWalletEthereum("metamask")} className="wallet-option">
+          <a
+            onClick={() => connectWalletEthereum("metamask")}
+            className="wallet-option"
+          >
             <img src="/wallets/metamask.png" /> Metamask
           </a>
-          <a onClick={() => connectWalletEthereum("walletconnect")} className="wallet-option">
+          <a
+            onClick={() => connectWalletEthereum("walletconnect")}
+            className="wallet-option"
+          >
             <img src="/wallets/walletconnect.png" /> Wallet Connect
           </a>
           <h3 className="wallet-option-header">Terra</h3>
           {window?.xfi?.terra ? (
-            <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
+            <a
+              onClick={() => connectWalletTerra("terrastation")}
+              className="wallet-option"
+            >
               <img src="/wallets/xdefi.png" /> XDEFI
             </a>
           ) : (
-            <a onClick={() => connectWalletTerra("terrastation")} className="wallet-option">
+            <a
+              onClick={() => connectWalletTerra("terrastation")}
+              className="wallet-option"
+            >
               <img src="/wallets/terrastation.png" /> Terra Station
             </a>
           )}
-          <a onClick={() => connectWalletTerra("terrawalletconnect")} className="wallet-option">
+          <a
+            onClick={() => connectWalletTerra("terrawalletconnect")}
+            className="wallet-option"
+          >
             <img src="/wallets/walletconnect.png" /> Wallet Connect
           </a>
         </Modal>

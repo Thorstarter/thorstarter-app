@@ -65,6 +65,15 @@ function useTiers() {
         lastDeposit: user.last_deposit,
         lp: lpXrune,
       });
+    } else if (state.networkId === 250) {
+      const contracts = getContracts();
+      const userInfo = await contracts.tiersSimple.userInfos(state.address);
+      setData({
+        balance: await contracts.xrune.balanceOf(state.address),
+        total: userInfo[0],
+        lastDeposit: userInfo[1].toNumber(),
+        lp: lpXrune,
+      });
     } else {
       const contracts = getContracts();
       const user = await contracts.tiers.userInfos(state.address);
@@ -105,6 +114,14 @@ function useTiers() {
         setLoading,
         setError
       );
+    } else if (state.networkId === 250) {
+      const contracts = getContracts();
+      const call = contracts.xrune.transferAndCall(
+        contracts.tiersSimple.address,
+        amount,
+        "0x"
+      );
+      await runTransaction(call, setLoading, setError);
     } else {
       const contracts = getContracts();
       const call = contracts.xrune.transferAndCall(
@@ -141,6 +158,10 @@ function useTiers() {
         setLoading,
         setError
       );
+    } else if (state.networkId === 250) {
+      const contracts = getContracts();
+      const call = contracts.tiersSimple.withdraw(amount);
+      await runTransaction(call, setLoading, setError);
     } else {
       const contracts = getContracts();
       const call = before7Days
@@ -209,12 +230,12 @@ export default function Tiers() {
     fetchData();
   }
 
-  const isTerra = String(state.networkId).startsWith("terra-");
+  const isMainnet = state.networkId === 1;
   return (
     <Layout title="Tiers" page="tiers">
       <div className="flex-heading">
         <h1 className="title">Tiers</h1>
-        {!isTerra ? (
+        {isMainnet ? (
           <span className="apy-label">
             APY: <strong>10%</strong>
           </span>
@@ -275,7 +296,7 @@ export default function Tiers() {
               <tr>
                 <th>Asset</th>
                 <th>Balance</th>
-                <th>Staked{!isTerra ? " (Including 10% APY)" : null}</th>
+                <th>Staked{isMainnet ? " (Including 10% APY)" : null}</th>
                 <th />
               </tr>
             </thead>
@@ -412,8 +433,7 @@ function ModalDeposit({ data, onClose, onDeposit }) {
       <h2>Deposit XRUNE</h2>
 
       <p className="text-sm text-gray6">
-        Warning: You have to wait 7 days to withdraw XRUNE after each deposit
-        (you can withdraw before 7 days at a cost of 50% of the amount).
+        WARNING: You have to wait 7 days to withdraw XRUNE after each deposit.
       </p>
 
       {error ? <div className="error mb-4">{error}</div> : null}
@@ -454,6 +474,7 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
 
   function onSubmit() {
     if (!data) return;
+    if (before7Days) return;
     let parsedAmount;
     try {
       parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""));
@@ -482,7 +503,7 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
         Last Deposit: <strong>{formatDate(data.lastDeposit * 1000)}</strong>
       </div>
       <div className="text-sm mb-2">
-        No Penalty Withdraw:{" "}
+        Withdraw After:{" "}
         <strong>
           {formatDate((data.lastDeposit + 7 * 24 * 60 * 60) * 1000)}
         </strong>
@@ -490,9 +511,8 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
 
       {before7Days ? (
         <p className="error text-sm">
-          WARNING You are withdrawing before waiting 7 days after you last
-          deposit. You will lose half of the amount you withdraw if you
-          don&apos;t wait.
+          WARNING You can&rsquo;t withdraw before waiting 7 days after your last
+          deposit.
         </p>
       ) : null}
 
@@ -517,8 +537,8 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
           Max
         </a>
       </div>
-      <Button className="mt-4 w-full" onClick={onSubmit}>
-        Withdraw{before7Days ? " (and lose 50%)" : ""}
+      <Button className="mt-4 w-full" disabled={before7Days} onClick={onSubmit}>
+        {before7Days ? "Wait at least 7 days" : "Withdraw"}
       </Button>
     </Modal>
   );

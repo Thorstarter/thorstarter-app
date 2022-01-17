@@ -90,8 +90,8 @@ export const contractAddresses = {
     tgnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
   },
   250: {
-    xrune: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
-    slp: "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83",
+    xrune: "0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6",
+    tiersSimple: "0xbc373f851d1EC6aaba27a9d039948D25a6EE8036",
   },
   "terra-mainnet": {
     xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
@@ -229,6 +229,7 @@ function buildContracts() {
       abis.votersTcLpRequester
     ),
     tiers: contract(addresses.tiers, abis.tiers),
+    tiersSimple: contract(addresses.tiersSimple, abis.tiersSimple),
     twnft: contract(addresses.twnft, abis.token),
     tgnft: contract(addresses.tgnft, abis.token),
   };
@@ -362,7 +363,7 @@ export async function runTransactionTerra(params, setLoading, setError) {
   try {
     setError("");
     setLoading(t("waitingForConfirmation"));
-    params.gasPrices = new Coins([new Coin('uusd', state.gasPriceUusd)]);
+    params.gasPrices = new Coins([new Coin("uusd", state.gasPriceUusd)]);
     //console.log('gas', state.gasPriceUusd)
     //params.fee = new Fee(750000, { uusd: '2000000' });
     const result = await state.wc.post(params);

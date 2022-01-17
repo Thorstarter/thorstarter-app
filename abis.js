@@ -2005,6 +2005,46 @@ const tiers = [
   },
 ];
 
+const tiersSimple = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "userInfos",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lastDeposit",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+
 const vault = [
   {
     inputs: [],
@@ -2113,5 +2153,6 @@ export default {
   vestingDispenser,
   votersTcLpRequester,
   tiers,
+  tiersSimple,
   vault,
 };

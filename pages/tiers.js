@@ -6,6 +6,7 @@ import Layout from "../components/layout";
 import Button from "../components/button";
 import Modal from "../components/modal";
 import LoadingOverlay from "../components/loadingOverlay";
+import IDORegistration from "../components/idoRegistration";
 import {
   parseUnits,
   formatDate,
@@ -233,6 +234,8 @@ export default function Tiers() {
   const isMainnet = state.networkId === 1;
   return (
     <Layout title="Tiers" page="tiers">
+      <IDORegistration />
+
       <div className="flex-heading">
         <h1 className="title">Tiers</h1>
         {isMainnet ? (
@@ -241,10 +244,6 @@ export default function Tiers() {
           </span>
         ) : null}
       </div>
-
-      {/* <UpcomingIDORegistration
-        xrune={data ? data.total.add(data.lp) : parseUnits("0")}
-      /> */}
 
       <div className="tiers-wrapper">
         <div className="tiers-wrapper__line">
@@ -541,265 +540,5 @@ function ModalWithdraw({ data, onWithdraw, onClose }) {
         {before7Days ? "Wait at least 7 days" : "Withdraw"}
       </Button>
     </Modal>
-  );
-}
-
-function UpcomingIDORegistration({ xrune }) {
-  const idoId = "ring";
-  const idoName = "OneRing";
-  const size = 400000;
-  const state = useGlobalState();
-  const [data, setData] = useState();
-  const [modal, setModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [synapsData, setSynapsData] = useState(false);
-  const [addressTerra, setAddressTerra] = useState("");
-
-  async function fetchData() {
-    /*
-    const rawStats = await fetch(
-      "https://thorstarter-tiers-api.herokuapp.com/stats?ido=" + ido
-    ).then((r) => r.json());
-    const stats = {};
-    let totalAllocations = 0;
-    for (let i = 0; i <= tiers.length; i++) {
-      const s = rawStats.stats.find((s) => s.tier === i) || { count: 0 };
-      const multiplier = i === 0 ? 0.25 : tiers[i - 1].multiplier;
-      const allocations = s.count * multiplier;
-      stats[i] = { count: s.count, chance: 1, allocations, multiplier };
-      totalAllocations += allocations;
-    }
-    for (let i = 0; i <= tiers.length; i++) {
-      const tier = stats[i];
-      const minAllocation = i === 0 ? 25 : 100;
-      tier.allocation = (size / totalAllocations) * tier.multiplier;
-      if (tier.allocation < minAllocation) {
-        tier.chance =
-          (tier.count * tier.allocation) / minAllocation / tier.count;
-        tier.allocation = minAllocation;
-      }
-    }
-    */
-
-    let user;
-    let tier0 = false;
-    const network = {
-      1: "ethereum",
-      250: "fantom",
-      "terra-mainnet": "terra",
-    }[String(state.networkId)];
-    if (state.address) {
-      user = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/user-fetch?network=" +
-          network +
-          "&address=" +
-          state.address
-      ).then((r) => r.json());
-    }
-    const registered = user
-      ? user.registrations.find((r) => r.ido === idoId.toLowerCase())
-      : null;
-    setData({ user: user.user, registered });
-  }
-
-  useEffect(() => {
-    fetchData();
-
-    /*
-    if (!state.address) return;
-    (async () => {
-      const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/kyc-start?address=" +
-          state.address,
-        {
-          method: "POST",
-          body: "",
-        }
-      );
-      if (!res.ok) {
-        console.error("error starting synaps session", res);
-        return;
-      }
-      const response = await res.json();
-      if (!response.verified) {
-        const Synaps = new SynapsClient(response.session_id, "individual");
-        Synaps.init();
-      }
-      setSynapsData(response);
-    })();
-    */
-  }, [state.address]);
-
-  function onRegister() {
-    setModal(true);
-  }
-
-  async function onSubmit() {
-    try {
-      setLoading(true);
-      const xruneBalance = parseFloat(formatUnits(xrune)) | 0;
-      let tier = 0;
-      for (let i = 0; i < tiers.length; i++) {
-        if (xruneBalance >= tiers[i].amount) {
-          tier = i + 1;
-        }
-      }
-      const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/user-register?user_id=" +
-          data.user.id +
-          "&ido=" +
-          idoId,
-        { method: "POST" }
-      );
-      if (!res.ok) {
-        throw new Error("Bad error code: " + res.status);
-      }
-      setAddressTerra("");
-      fetchData();
-      setModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Error: " + formatErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (!data) return null;
-  return (
-    <div className="tiers-upcoming-ido mb-4">
-      <div className="flex">
-        <div className="flex-1">
-          <h2>Register Interest in the upcoming ${idoName} IDO.</h2>
-          <p>
-            Click the button on the right to indicate that you want to get an
-            allocation in the upcoming IDO.
-          </p>
-        </div>
-        <div>
-          <button
-            className="button"
-            onClick={onRegister}
-            disabled={!state.address || (!data.tier0 && xrune.eq("0"))}
-          >
-            {data.registered
-              ? "You Are Registered!"
-              : state.address
-              ? !data.tier0 && xrune.eq("0")
-                ? "Join a tier first"
-                : "Register Interest"
-              : "Connect Wallet"}
-          </button>
-        </div>
-      </div>
-
-      {/*
-      {synapsData ? (
-        <div
-          className="error flex"
-          style={{
-            backgroundColor: "rgb(247, 229, 17)",
-            color: "rgb(86, 81, 13)",
-          }}
-        >
-          <div className="flex-1">The Luart IDO requires KYC:</div>
-          <a className="button" id="synaps-btn" disabled={synapsData.verified}>
-            {synapsData.verified ? "You are verified" : "Verify with Synaps"}
-          </a>
-        </div>
-      ) : null}
-      */}
-
-      {/*
-      <strong>Estimated Allocations (based on registrations)</strong>
-      <table>
-        <tbody>
-          <tr>
-            <th>Tier 0</th>
-            <th>Tier 1</th>
-            <th>Tier 2</th>
-            <th>Tier 3</th>
-            <th>Tier 4</th>
-            <th>Tier 5</th>
-          </tr>
-          <tr>
-            <td>
-              $ {data.stats[0].allocation.toFixed(0)}{" "}
-              {data.stats[0].chance !== 1
-                ? `(${(data.stats[0].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-            <td>
-              $ {data.stats[1].allocation.toFixed(0)}{" "}
-              {data.stats[1].chance !== 1
-                ? `(${(data.stats[1].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-            <td>
-              $ {data.stats[2].allocation.toFixed(0)}{" "}
-              {data.stats[2].chance !== 1
-                ? `(${(data.stats[2].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-            <td>
-              $ {data.stats[3].allocation.toFixed(0)}{" "}
-              {data.stats[3].chance !== 1
-                ? `(${(data.stats[3].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-            <td>
-              $ {data.stats[4].allocation.toFixed(0)}{" "}
-              {data.stats[4].chance !== 1
-                ? `(${(data.stats[4].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-            <td>
-              $ {data.stats[5].allocation.toFixed(0)}{" "}
-              {data.stats[5].chance !== 1
-                ? `(${(data.stats[5].chance * 100).toFixed(1)}% chance)`
-                : ""}
-            </td>
-          </tr>
-          <tr>
-            <td>
-              {data.stats[0].count} ({data.stats[0].allocations})
-            </td>
-            <td>
-              {data.stats[1].count} ({data.stats[1].allocations})
-            </td>
-            <td>
-              {data.stats[2].count} ({data.stats[2].allocations})
-            </td>
-            <td>
-              {data.stats[3].count} ({data.stats[3].allocations})
-            </td>
-            <td>
-              {data.stats[4].count} ({data.stats[4].allocations})
-            </td>
-            <td>
-              {data.stats[5].count} ({data.stats[5].allocations})
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      */}
-
-      {modal ? (
-        <Modal onClose={() => setModal(false)} style={{ width: 400 }}>
-          <h2>Register</h2>
-          <label className="label">Terra Address</label>
-          <input
-            value={addressTerra}
-            onChange={(e) => setAddressTerra(e.target.value)}
-            className="input w-full"
-            placeholder="terra123..."
-          />
-          <br />
-          <button className="button mt-4" onClick={onSubmit} disabled={loading}>
-            {loading ? "Loading..." : "Register"}
-          </button>
-        </Modal>
-      ) : null}
-    </div>
   );
 }

@@ -185,7 +185,7 @@ export default function IDORegistration() {
               <div>
                 <strong>Total: </strong>
                 {userTotal(data.user)} ({data.user["amount_" + data.network]}{" "}
-                tiers + {data.user.amount_tclp} TC LP) (
+                tiers + {data.user.amount_tclp || 0} TC LP) (
                 <a onClick={() => fetchData(true)} className="text-primary5">
                   Refresh
                 </a>

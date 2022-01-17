@@ -40,7 +40,9 @@ const rpcUrl = `https://eth-mainnet.alchemyapi.io/v2/zGkyuksQ1Zs2_eT9ec2kv700cak
 let terraWalletSubscription;
 let terraWalletController;
 if (global.window) {
-  terraWalletController = new WalletController({});
+  try {
+    terraWalletController = new WalletController({});
+  } catch (e) {}
 }
 
 let listeners = [];
@@ -105,7 +107,13 @@ export async function connectWallet() {
 
 export async function connectWalletEthereum(wallet = "metamask") {
   if (wallet === "walletconnect") {
-    const wcProvider = new WalletConnectProvider({ infuraId: infuraProjectId });
+    const wcProvider = new WalletConnectProvider({
+      infuraId: infuraProjectId,
+      rpc: {
+        137: "https://polygon-rpc.com/",
+        250: "https://rpc.fantom.network",
+      },
+    });
     await wcProvider.enable();
     state.provider = new ethers.providers.Web3Provider(wcProvider);
   }

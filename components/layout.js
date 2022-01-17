@@ -129,7 +129,7 @@ export default function Layout({ title, children, page }) {
           onClose={() => setGlobalState({ walletModalOpen: false })}
           style={{ width: 325, padding: "16px" }}
         >
-          <h3 className="wallet-option-header">Ethereum</h3>
+          <h3 className="wallet-option-header">Ethereum / Fantom</h3>
           <a
             onClick={() => connectWalletEthereum("metamask")}
             className="wallet-option"

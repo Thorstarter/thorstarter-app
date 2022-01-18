@@ -41,7 +41,17 @@ let terraWalletSubscription;
 let terraWalletController;
 if (global.window) {
   try {
-    terraWalletController = new WalletController({});
+    terraWalletController = new WalletController({
+      walletConnectChainIds: {
+        1: {
+          chainID: "columbus-5",
+          lcd: "https://lcd.terra.dev",
+          mantle: "https://mantle.terra.dev",
+          name: "mainnet",
+          walletconnectID: 1,
+        },
+      },
+    });
   } catch (e) {}
 }
 

@@ -19,6 +19,7 @@ export const formatUnits = ethers.utils.formatUnits;
 export const networkNames = {
   1: "Ethereum",
   3: "Ropsten",
+  4: "Rinkeby",
   250: "Fantom",
   "terra-mainnet": "Terra",
   "terra-testnet": "Terra (Testnet)",
@@ -100,6 +101,9 @@ export const contractAddresses = {
     tiers: "0x1190C41f4c47A466F507E28C8fe4cC6aC3E34906",
     twnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
     tgnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
+  },
+  4: {
+    xrune: "0xbd66a8dbe53c4118c27c6c06646bc5a046bcb511",
   },
   250: {
     xrune: "0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6",

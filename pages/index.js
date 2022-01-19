@@ -30,8 +30,38 @@ import logoMine from "../public/ido/mine-logo.png";
 import coverMine from "../public/ido/mine-cover.png";
 import logoLuart from "../public/ido/luart-logo.png";
 import coverLuart from "../public/ido/luart-cover.png";
+import logoOnering from "../public/ido/onering-logo.png";
+import coverOnering from "../public/ido/onering-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "OneRing",
+  token: "RING",
+  paymentToken: "USDC",
+  type: "tiers",
+  networkId: 3,
+  address: "0xb3A8A4CA08D9c13966018581FDBecaaDb37E605c",
+  notFinalized: true,
+  paymentPrice: 1,
+  paymentTokenAddress: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
+  paymentDecimals: 6,
+  paymentDecimalsShown: 2,
+  allocations: allocationData.ring,
+  logo: logoOnering,
+  cover: coverOnering,
+  links: {
+    twitter: "https://twitter.com/Onering_Finance",
+    telegram: "https://t.me/OneRing_Finance",
+    medium: "https://onering-finance.medium.com/",
+    website: "https://www.onering.finance/",
+    discord: "https://discord.com/invite/oneringfinance",
+  },
+  static: [
+    { label: "Offering", value: "800,000 RING" },
+    { label: "Raising", value: "400,000 USDC" },
+    { label: "Sold %", value: "100%" },
+    { label: "Price", value: "0.50 USDC" },
+  ],
+};
 
 const idos = [
   {
@@ -202,7 +232,7 @@ const idos = [
 export default function IDOs() {
   const state = useGlobalState();
   const [liveIdoParams, setLiveIdoParams] = useState(null);
-  const previousIDOs = idos.filter((i) => i.networkId === state.networkId);
+  const previousIDOs = idos;
 
   return (
     <Layout title="IDOs" page="idos">
@@ -362,6 +392,7 @@ function IDOCardStatic({ ido }) {
 
   async function fetchData() {
     if (!state.address) return;
+    if (state.networkId !== ido.networkId) return;
     if (ido.type === "tiers-terra") {
       const userState = await state.lcd.wasm.contractQuery(ido.address, {
         user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
@@ -380,7 +411,7 @@ function IDOCardStatic({ ido }) {
       const userInfo = await sale.getUserInfo(state.address);
       setUserInfo({
         amount: userInfo[0],
-        claimedTokens: userInfo[3].sub(userInfo[2]).eq("0"),
+        claimedTokens: userInfo[3].sub(userInfo[1]).eq("0"),
         claimable: userInfo[3],
         claimed: userInfo[1],
         owed: userInfo[2],
@@ -475,7 +506,11 @@ function IDOCardStatic({ ido }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
-                {formatNumber(userInfo.amount)}{" "}
+                {formatNumber(
+                  userInfo.amount,
+                  ido.paymentDecimalsShown,
+                  ido.paymentDecimals
+                )}{" "}
                 <span className="text-gray6">{ido.paymentToken}</span>
               </div>
             </div>
@@ -604,6 +639,11 @@ function IDOCard({ ido, parentSetParams }) {
       });
     } else {
       const lastBlock = await getState().provider.getBlock(-1);
+      const paymentToken = new ethers.Contract(
+        ido.paymentTokenAddress,
+        abis.token,
+        state.provider
+      );
       const sale = new ethers.Contract(
         ido.address,
         abis.saleTiers,
@@ -624,7 +664,7 @@ function IDOCard({ ido, parentSetParams }) {
       setParams(newParams);
       if (parentSetParams) parentSetParams(newParams);
       if (!state.address) return;
-      setBalance(await state.signer.getBalance());
+      setBalance(await paymentToken.balanceOf(state.address));
       const userInfo = await sale.getUserInfo(state.address);
       const userAllocation = ido.allocations.find(
         (a) => a.address === state.address
@@ -633,7 +673,7 @@ function IDOCard({ ido, parentSetParams }) {
         amount: userInfo[0],
         owed: userInfo[2],
         allocationStr: userAllocation.amount,
-        allocation: parseUnits(userAllocation.amount),
+        allocation: parseUnits(userAllocation.amount, ido.paymentDecimals),
         proof: userAllocation.proof,
       });
     }
@@ -653,8 +693,11 @@ function IDOCard({ ido, parentSetParams }) {
         setError("You don't have an allocation for this IDO");
         return;
       }
-      const parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""), 18);
-      setAmount(formatUnits(parsedAmount));
+      const parsedAmount = parseUnits(
+        amount.replace(/[^0-9\.]/g, ""),
+        ido.paymentDecimals
+      );
+      setAmount(formatUnits(parsedAmount, ido.paymentDecimals));
       if (ido.type === "tiers-terra") {
         try {
           await runTransactionTerra(
@@ -687,14 +730,26 @@ function IDOCard({ ido, parentSetParams }) {
           console.log("err", e);
         }
       } else {
+        const paymentToken = new ethers.Contract(
+          ido.paymentTokenAddress,
+          abis.token,
+          state.signer
+        );
         const sale = new ethers.Contract(
           ido.address,
           abis.saleTiers,
           state.signer
         );
-        const call = sale.deposit(userInfo.allocation, userInfo.proof, {
-          value: parsedAmount,
-        });
+
+        const data = ethers.utils.defaultAbiCoder.encode(
+          ["uint", "bytes32[]"],
+          [userInfo.allocation, userInfo.proof]
+        );
+        const call = paymentToken.transferAndCall(
+          ido.address,
+          parsedAmount,
+          data
+        );
         try {
           await runTransaction(call, setLoading, setError);
         } catch (e) {}
@@ -714,9 +769,16 @@ function IDOCard({ ido, parentSetParams }) {
     }
     if (userInfo && userInfo.allocation.gt("0")) {
       const max = userInfo.allocation.sub(userInfo.amount);
-      setAmount(formatUnits(bnMin(max, acutalBalance)).replace(/,/g, ""));
+      setAmount(
+        formatUnits(bnMin(max, acutalBalance), ido.paymentDecimals).replace(
+          /,/g,
+          ""
+        )
+      );
     } else {
-      setAmount(formatUnits(acutalBalance).replace(/,/g, ""));
+      setAmount(
+        formatUnits(acutalBalance, ido.paymentDecimals).replace(/,/g, "")
+      );
     }
   }
 
@@ -755,7 +817,7 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Raising</div>
           <div>
-            {formatNumber(params.raising, 2)}{" "}
+            {formatNumber(params.raising, 2, ido.paymentDecimals)}{" "}
             <span className="text-gray6">{ido.paymentToken}</span>
           </div>
         </div>
@@ -768,8 +830,8 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Price</div>
           <div>
-            {formatNumber(params.price, 3)}{" "}
-            <span className="text-gray6">UST</span>
+            {formatNumber(params.price, 2, ido.paymentDecimals)}{" "}
+            <span className="text-gray6">{ido.paymentToken}</span>
             {/* ${" "}
             {formatNumber(
               params.price.mul((ido.paymentPrice * 10000) | 0).div(10000),
@@ -781,7 +843,12 @@ function IDOCard({ ido, parentSetParams }) {
           <div className="flex">
             <div className="flex-1 text-gray6">Your Allocation</div>
             <div>
-              $ {formatNumber(userInfo.allocation, 5)}
+              ${" "}
+              {formatNumber(
+                userInfo.allocation,
+                ido.paymentDecimalsShown,
+                ido.paymentDecimals
+              )}
               {/* <span className="text-gray6">{ido.paymentToken}</span> ${" "}
               {formatNumber(
                 userInfo.allocation
@@ -810,7 +877,12 @@ function IDOCard({ ido, parentSetParams }) {
                 <div className="text-sm mb-3">
                   <span className="text-gray6">Balance: </span>
                   <span className="text-primary5">
-                    {formatNumber(balance)} {ido.paymentToken}
+                    {formatNumber(
+                      balance,
+                      ido.paymentDecimalsShown,
+                      ido.paymentDecimals
+                    )}{" "}
+                    {ido.paymentToken}
                   </span>
                 </div>
                 <div className="input-with-link mb-4">
@@ -836,7 +908,11 @@ function IDOCard({ ido, parentSetParams }) {
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
-                {formatNumber(userInfo.amount)}{" "}
+                {formatNumber(
+                  userInfo.amount,
+                  ido.paymentDecimalsShown,
+                  ido.paymentDecimals
+                )}{" "}
                 <span className="text-gray6">{ido.paymentToken}</span>
               </div>
             </div>

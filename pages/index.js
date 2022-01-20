@@ -39,10 +39,10 @@ const liveIdo = {
   paymentToken: "USDC",
   type: "tiers",
   networkId: 3,
-  address: "0x4185BEFb545a31b4712eA019254027a7EaedDdD0",
+  address: "0xE9a4EF54f82367BE587E44e82b7deB9924b6a292",
   notFinalized: true,
   paymentPrice: 1,
-  paymentTokenAddress: "0x0fe3ecd525d16fa09aa1ff177014de5304c835e2",
+  paymentTokenAddress: "0x21C018f0879F581A925A3846025C06a32280a953",
   paymentDecimals: 6,
   paymentDecimalsShown: 2,
   allocations: allocationData.ring,
@@ -626,7 +626,6 @@ function IDOCard({ ido, parentSetParams }) {
       const userState = await state.lcd.wasm.contractQuery(ido.address, {
         user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
       });
-      console.log(userState);
       const userAllocation = ido.allocations.find(
         (a) => a.address === state.address
       ) || { allocation: "0", proof: [] };
@@ -669,11 +668,18 @@ function IDOCard({ ido, parentSetParams }) {
       const userAllocation = ido.allocations.find(
         (a) => a.address === state.address
       ) || { amount: "0", proof: [] };
+      let allocation = parseUnits(userAllocation.amount, ido.paymentDecimals);
+      if (
+        lastBlock.timestamp >= params[1].toNumber() &&
+        !params[2].eq(params[4])
+      ) {
+        allocation = allocation.add(params[2].mul(25).div(10000));
+      }
       setUserInfo({
         amount: userInfo[0],
         owed: userInfo[2],
         allocationStr: userAllocation.amount,
-        allocation: parseUnits(userAllocation.amount, ido.paymentDecimals),
+        allocation: allocation,
         proof: userAllocation.proof,
       });
     }

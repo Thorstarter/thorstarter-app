@@ -251,7 +251,7 @@ export default function IDOs() {
               </div>
             ) : liveIdoParams && Date.now() < liveIdoParams.end.getTime() ? (
               <div className="flex float-right">
-                <span>Claiming Ends / FCFS Starts in </span>
+                <span>Allocations Round Ends / FCFS Round Starts in </span>
                 <Countdown to={liveIdoParams.end} />
               </div>
             ) : liveIdoParams &&
@@ -749,7 +749,10 @@ function IDOCard({ ido, parentSetParams }) {
 
         const data = ethers.utils.defaultAbiCoder.encode(
           ["uint", "bytes32[]"],
-          [userInfo.allocation, userInfo.proof]
+          [
+            parseUnits(userInfo.allocationStr, ido.paymentDecimals),
+            userInfo.proof,
+          ]
         );
         const call = paymentToken.transferAndCall(
           ido.address,

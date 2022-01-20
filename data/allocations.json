@@ -2,19 +2,28 @@
   "mnet": [],
   "luart": [],
   "ring": [
-    {
-      "address": "0x41B720be5796ECb7BEB5f712e1cC57dE631240c0",
-      "amount": "123.45",
-      "proof": [
-        "0x678e04189834c0d3f3d32448483d8b49d9b67b14ae95eb5e05435e4025325ef7"
-      ]
-    },
-    {
-      "address": "0x69539C1c678dFd26E626f109149b7cEBDd5E4768",
-      "amount": "100.0",
-      "proof": [
-        "0xf4ea4a489a9a8b27972191f96625a6d0fd448d6dc15342ea50e99d22d531ce9a"
-      ]
-    }
+  {
+    "address": "0x41B720be5796ECb7BEB5f712e1cC57dE631240c0",
+    "amount": "123.45",
+    "proof": [
+      "0xa551e50eb30d733fb8dfce2c6bbcb85af20a9a25fb7553518f74dc6de9ab8ab3"
+    ]
+  },
+  {
+    "address": "0x69539C1c678dFd26E626f109149b7cEBDd5E4768",
+    "amount": "100.0",
+    "proof": [
+      "0x0521277600f494ca589b098979292ecee836a5d5934a98ae8c504e472a8c55ee",
+      "0xf4ea4a489a9a8b27972191f96625a6d0fd448d6dc15342ea50e99d22d531ce9a"
+    ]
+  },
+  {
+    "address": "0x2Be2273452ce4C80c0f9e9180D3f0d6eEDfa7923",
+    "amount": "100.0",
+    "proof": [
+      "0x678e04189834c0d3f3d32448483d8b49d9b67b14ae95eb5e05435e4025325ef7",
+      "0xf4ea4a489a9a8b27972191f96625a6d0fd448d6dc15342ea50e99d22d531ce9a"
+    ]
+  }
   ]
 }

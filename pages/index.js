@@ -38,11 +38,11 @@ const liveIdo = {
   token: "RING",
   paymentToken: "USDC",
   type: "tiers",
-  networkId: 3,
-  address: "0xE9a4EF54f82367BE587E44e82b7deB9924b6a292",
+  networkId: 250,
+  address: "0xFfA332907C6b9ff7c6Bf0011a894c10f1d0011dD",
   notFinalized: true,
   paymentPrice: 1,
-  paymentTokenAddress: "0x21C018f0879F581A925A3846025C06a32280a953",
+  paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
   paymentDecimals: 6,
   paymentDecimalsShown: 2,
   allocations: allocationData.ring,
@@ -673,7 +673,7 @@ function IDOCard({ ido, parentSetParams }) {
         lastBlock.timestamp >= params[1].toNumber() &&
         !params[2].eq(params[4])
       ) {
-        allocation = allocation.add(params[2].mul(25).div(10000));
+        allocation = allocation.add(params[2].mul(125).div(100000));
       }
       setUserInfo({
         amount: userInfo[0],

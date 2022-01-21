@@ -2,48 +2,5 @@
   "mnet": [],
   "luart": [],
   "ring": [
-  {
-    "address": "0x41B720be5796ECb7BEB5f712e1cC57dE631240c0",
-    "amount": "99.5",
-    "proof": [
-      "0xc5a7ef7a7f6c41411f0d5f187c7aceed413acd1ec779a0e889af7e55420eee90"
-    ]
-  },
-  {
-    "address": "0x69539C1c678dFd26E626f109149b7cEBDd5E4768",
-    "amount": "199.0",
-    "proof": [
-      "0x2de75739b33025ced3ef4e71728b1eefabf086fc3108710a3066f40c6cbfedc7",
-      "0x811a709d307fa6f30bda4bf59a5166bcf6379ce316c4c8f487994b472cab77d1",
-      "0xd7ac47255364800d0fd53ddb40a9c258bbde2131b79fc24ebd31f55e60620364"
-    ]
-  },
-  {
-    "address": "0x78Bf8b271510E949ae4479bEd90c0c9a17cf020b",
-    "amount": "99.5",
-    "proof": [
-      "0x41926fdd12f66935cfd78cf8c0c984cf34d8a338afb0c224bf12757cddbce302",
-      "0x811a709d307fa6f30bda4bf59a5166bcf6379ce316c4c8f487994b472cab77d1",
-      "0xd7ac47255364800d0fd53ddb40a9c258bbde2131b79fc24ebd31f55e60620364"
-    ]
-  },
-  {
-    "address": "0xe139aB520c71C6dD7dF0af0015c2773002742C0c",
-    "amount": "99.5",
-    "proof": [
-      "0x5414919ba5897a35b54791d4a9b19e6d38f82d8becf98fcf14b9ed0cdee518d3",
-      "0x893a6125020cda320f4fd3c3001a81dcc6d31d312161516a3d6adb1b1e92def2",
-      "0xd7ac47255364800d0fd53ddb40a9c258bbde2131b79fc24ebd31f55e60620364"
-    ]
-  },
-  {
-    "address": "0x2Be2273452ce4C80c0f9e9180D3f0d6eEDfa7923",
-    "amount": "99.5",
-    "proof": [
-      "0x626b7a0da3024921e2cc803b24aa234b29e8a4aebd7e85030269720accdaebec",
-      "0x893a6125020cda320f4fd3c3001a81dcc6d31d312161516a3d6adb1b1e92def2",
-      "0xd7ac47255364800d0fd53ddb40a9c258bbde2131b79fc24ebd31f55e60620364"
-    ]
-  }
   ]
 }

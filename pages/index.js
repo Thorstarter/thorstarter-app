@@ -680,6 +680,7 @@ function IDOCard({ ido, parentSetParams }) {
         owed: userInfo[2],
         allocationStr: userAllocation.amount,
         allocation: allocation,
+        allocationFcfs: allocation.add(params[2].mul(125).div(100000)),
         proof: userAllocation.proof,
       });
     }
@@ -747,17 +748,27 @@ function IDOCard({ ido, parentSetParams }) {
           state.signer
         );
 
-        const data = ethers.utils.defaultAbiCoder.encode(
-          ["uint", "bytes32[]"],
-          [
-            parseUnits(userInfo.allocationStr, ido.paymentDecimals),
-            userInfo.proof,
-          ]
+        const allowance = await paymentToken.allowance(
+          state.address,
+          sale.address
         );
-        const call = paymentToken.transferAndCall(
-          ido.address,
+        if (allowance.lt(userInfo.allocationFcfs)) {
+          const call = paymentToken.approve(
+            sale.address,
+            userInfo.allocationFcfs
+          );
+          try {
+            await runTransaction(call, setLoading, setError);
+          } catch (e) {
+            return;
+          }
+        }
+
+        console.log(userInfo.proof);
+        const call = sale.deposit(
           parsedAmount,
-          data
+          parseUnits(userInfo.allocationStr, ido.paymentDecimals),
+          userInfo.proof
         );
         try {
           await runTransaction(call, setLoading, setError);

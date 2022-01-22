@@ -762,9 +762,9 @@ function IDOCard({ ido, parentSetParams }) {
           } catch (e) {
             return;
           }
+          await new Promise((resolve) => setTimeout(resolve, 3000));
         }
 
-        console.log(userInfo.proof);
         const call = sale.deposit(
           parsedAmount,
           parseUnits(userInfo.allocationStr, ido.paymentDecimals),

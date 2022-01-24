@@ -20,6 +20,7 @@ export const networkNames = {
   1: "Ethereum",
   3: "Ropsten",
   4: "Rinkeby",
+  137: "Polygon",
   250: "Fantom",
   "terra-mainnet": "Terra",
   "terra-testnet": "Terra (Testnet)",
@@ -137,7 +138,7 @@ export async function connectWalletEthereum(wallet = "metamask") {
       method: "eth_requestAccounts",
       params: [],
     });
-    state.provider = new ethers.providers.Web3Provider(window.ethereum);
+    state.provider = new ethers.providers.Web3Provider(window.ethereum, "any");
   }
 
   const signer = state.provider.getSigner();

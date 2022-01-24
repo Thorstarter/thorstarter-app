@@ -28,9 +28,9 @@ const tiers = [
 ];
 
 export default function IDORegistration() {
-  const idoId = "ring";
-  const idoName = "OneRing";
-  const idoSize = 400000;
+  const idoId = "remn";
+  const idoName = "Remnant Labs";
+  const idoSize = 200000;
   const state = useGlobalState();
   const [data, setData] = useState();
   const [modal, setModal] = useState(false);
@@ -84,9 +84,7 @@ export default function IDORegistration() {
           "&address=" +
           state.address +
           "&refresh=" +
-          (refresh ? "1" : "0") +
-          "&size=" +
-          idoSize
+          (refresh ? "1" : "0")
       ).then((r) => r.json());
     }
     const registration = user
@@ -129,6 +127,7 @@ export default function IDORegistration() {
   }, [state.address]);
 
   function onRegister() {
+    // TODO change this if raise is not on EVM chain
     if (state.address.startsWith("0x")) {
       setRegisterAddress(state.address);
     }
@@ -148,6 +147,9 @@ export default function IDORegistration() {
         { method: "POST" }
       );
       if (!res.ok) {
+        if (res.status === 400) {
+          throw new Error((await res.json()).error);
+        }
         throw new Error("Bad error code: " + res.status);
       }
       setRegisterAddress("");
@@ -195,12 +197,6 @@ export default function IDORegistration() {
                 <strong>Tier: </strong>
                 {userTier(data.user)} (Multiplier: {userMultiplier(data.user)}x)
               </div>
-              {data.luart2x ? (
-                <div>
-                  <strong>Getting 2x allocation (Luart bug): </strong>
-                  Yes
-                </div>
-              ) : null}
               <div>
                 <strong>Registered: </strong>
                 {data.registration ? "Yes" : "No"}

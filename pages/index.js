@@ -14,6 +14,7 @@ import {
   formatUnits,
   runTransaction,
   runTransactionTerra,
+  networkNames,
 } from "../utils";
 import abis from "../abis";
 import allocationData from "../data/allocations.json";
@@ -32,38 +33,68 @@ import logoLuart from "../public/ido/luart-logo.png";
 import coverLuart from "../public/ido/luart-cover.png";
 import logoOnering from "../public/ido/onering-logo.png";
 import coverOnering from "../public/ido/onering-cover.png";
+import logoRemnant from "../public/ido/remnant-logo.png";
+import coverRemnant from "../public/ido/remnant-cover.png";
 
 const liveIdo = {
-  name: "OneRing",
-  token: "RING",
+  name: "Remnant Labs",
+  token: "REMN",
   paymentToken: "USDC",
   type: "tiers",
-  networkId: 250,
-  address: "0xFfA332907C6b9ff7c6Bf0011a894c10f1d0011dD",
+  networkId: 137,
+  address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
   notFinalized: true,
   paymentPrice: 1,
-  paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+  paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
   paymentDecimals: 6,
   paymentDecimalsShown: 2,
-  allocations: allocationData.ring,
-  logo: logoOnering,
-  cover: coverOnering,
+  allocations: allocationData.remn,
+  logo: logoRemnant,
+  cover: coverRemnant,
   links: {
-    twitter: "https://twitter.com/Onering_Finance",
-    telegram: "https://t.me/OneRing_Finance",
-    medium: "https://onering-finance.medium.com/",
-    website: "https://www.onering.finance/",
-    discord: "https://discord.com/invite/oneringfinance",
+    twitter: "https://twitter.com/RemnantLabs",
+    medium: "https://t.me/joinchat/LOHF0SfrmZ1jYWEx",
+    website: "https://remnant.gg/",
+    discord: "https://discord.com/invite/EG22EmHVmy",
   },
   static: [
-    { label: "Offering", value: "800,000 RING" },
-    { label: "Raising", value: "400,000 USDC" },
+    { label: "Offering", value: "363,636,363 REMN" },
+    { label: "Raising", value: "200,000 USDC" },
     { label: "Sold %", value: "100%" },
-    { label: "Price", value: "0.50 USDC" },
+    { label: "Price", value: "0.00055 USDC" },
   ],
 };
 
 const idos = [
+  {
+    name: "OneRing",
+    token: "RING",
+    paymentToken: "USDC",
+    type: "tiers",
+    networkId: 250,
+    address: "0xFfA332907C6b9ff7c6Bf0011a894c10f1d0011dD",
+    notFinalized: true,
+    paymentPrice: 1,
+    paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+    paymentDecimals: 6,
+    paymentDecimalsShown: 2,
+    allocations: allocationData.ring,
+    logo: logoOnering,
+    cover: coverOnering,
+    links: {
+      twitter: "https://twitter.com/Onering_Finance",
+      telegram: "https://t.me/OneRing_Finance",
+      medium: "https://onering-finance.medium.com/",
+      website: "https://www.onering.finance/",
+      discord: "https://discord.com/invite/oneringfinance",
+    },
+    static: [
+      { label: "Offering", value: "800,000 RING" },
+      { label: "Raising", value: "400,000 USDC" },
+      { label: "Sold %", value: "100%" },
+      { label: "Price", value: "0.50 USDC" },
+    ],
+  },
   {
     name: "Luart",
     token: "LUART",
@@ -236,7 +267,7 @@ export default function IDOs() {
 
   return (
     <Layout title="IDOs" page="idos">
-      {liveIdo && liveIdo.networkId === state.networkId ? (
+      {liveIdo ? (
         <>
           <h1 className="live-ido-title title clear">
             {liveIdo.name} IDO
@@ -263,7 +294,18 @@ export default function IDOs() {
           </h1>
           <div className="live-ido flex">
             <div className="live-ido-card">
-              <IDOCard ido={liveIdo} parentSetParams={setLiveIdoParams} />
+              {liveIdo.networkId === state.networkId ? (
+                <IDOCard ido={liveIdo} parentSetParams={setLiveIdoParams} />
+              ) : (
+                <div
+                  className="ido text-center pt-4"
+                  style={{ display: "block" }}
+                >
+                  Wrong network ({networkNames[state.networkId]}), switch to{" "}
+                  <b>{networkNames[liveIdo.networkId]}</b> to participate in
+                  this IDO
+                </div>
+              )}
             </div>
             <div
               className="live-ido-info flex-1 flex flex-column"
@@ -287,13 +329,15 @@ export default function IDOs() {
                   >
                     <Icon name="link" /> <span>Website</span>
                   </a>
-                  <a
-                    href={liveIdo.links.docs}
-                    target="_blank"
-                    rel="noreferrer reopener"
-                  >
-                    <Icon name="docs" /> <span>Whitepaper</span>
-                  </a>
+                  {liveIdo.links.docs ? (
+                    <a
+                      href={liveIdo.links.docs}
+                      target="_blank"
+                      rel="noreferrer reopener"
+                    >
+                      <Icon name="docs" /> <span>Whitepaper</span>
+                    </a>
+                  ) : null}
                   <a
                     href={liveIdo.links.twitter}
                     target="_blank"
@@ -301,13 +345,15 @@ export default function IDOs() {
                   >
                     <Icon name="twitter" />
                   </a>
-                  <a
-                    href={liveIdo.links.telegram}
-                    target="_blank"
-                    rel="noreferrer reopener"
-                  >
-                    <Icon name="telegram" />
-                  </a>
+                  {liveIdo.links.telegram ? (
+                    <a
+                      href={liveIdo.links.telegram}
+                      target="_blank"
+                      rel="noreferrer reopener"
+                    >
+                      <Icon name="telegram" />
+                    </a>
+                  ) : null}
                   {liveIdo.links.discord ? (
                     <a
                       href={liveIdo.links.discord}
@@ -850,7 +896,7 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Price</div>
           <div>
-            {formatNumber(params.price, 2, ido.paymentDecimals)}{" "}
+            {formatNumber(params.price, 5, ido.paymentDecimals)}{" "}
             <span className="text-gray6">{ido.paymentToken}</span>
             {/* ${" "}
             {formatNumber(
@@ -975,18 +1021,31 @@ function IDOHeader({ ido }) {
         <a href={ido.links.twitter} target="_blank" rel="noreferrer reopener">
           <Icon name="twitter" />
         </a>
-        <a href={ido.links.telegram} target="_blank" rel="noreferrer reopener">
-          <Icon name="telegram" />
-        </a>
+        {ido.links.telegram ? (
+          <a
+            href={ido.links.telegram}
+            target="_blank"
+            rel="noreferrer reopener"
+          >
+            <Icon name="telegram" />
+          </a>
+        ) : null}
+        {ido.links.discord ? (
+          <a href={ido.links.discord} target="_blank" rel="noreferrer reopener">
+            <Icon name="discord" />
+          </a>
+        ) : null}
         <a href={ido.links.medium} target="_blank" rel="noreferrer reopener">
           <Icon name="medium" />
         </a>
         <a href={ido.links.website} target="_blank" rel="noreferrer reopener">
           <Icon name="link" />
         </a>
-        <a href={ido.links.docs} target="_blank" rel="noreferrer reopener">
-          <Icon name="docs" />
-        </a>
+        {ido.links.docs ? (
+          <a href={ido.links.docs} target="_blank" rel="noreferrer reopener">
+            <Icon name="docs" />
+          </a>
+        ) : null}
       </div>
     </div>
   );

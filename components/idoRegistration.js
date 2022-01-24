@@ -328,7 +328,7 @@ export default function IDORegistration() {
           <p>
             Enter the address you want to claim your allocation with on IDO day.
           </p>
-          <label className="label">Fantom Address</label>
+          <label className="label">Polygon (Matic) Address</label>
           <input
             value={registerAddress}
             onChange={(e) => setRegisterAddress(e.target.value)}

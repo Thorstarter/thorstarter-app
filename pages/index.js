@@ -905,7 +905,7 @@ function IDOCard({ ido, parentSetParams }) {
             )} */}
           </div>
         </div>
-        {userInfo ? (
+        {userInfo && userInfo.proof.length > 0 ? (
           <div className="flex">
             <div className="flex-1 text-gray6">Your Allocation</div>
             <div>

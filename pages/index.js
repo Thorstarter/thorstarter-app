@@ -726,7 +726,10 @@ function IDOCard({ ido, parentSetParams }) {
         owed: userInfo[2],
         allocationStr: userAllocation.amount,
         allocation: allocation,
-        allocationFcfs: allocation.add(params[2].mul(125).div(100000)),
+        allocationFcfs: parseUnits(
+          userAllocation.amount,
+          ido.paymentDecimals
+        ).add(params[2].mul(125).div(100000)),
         proof: userAllocation.proof,
       });
     }

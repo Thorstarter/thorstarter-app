@@ -15,6 +15,7 @@ import {
   runTransaction,
   runTransactionTerra,
   networkNames,
+  cannonicalAddress,
 } from "../utils";
 import abis from "../abis";
 import allocationData from "../data/allocations.json";
@@ -712,7 +713,7 @@ function IDOCard({ ido, parentSetParams }) {
       setBalance(await paymentToken.balanceOf(state.address));
       const userInfo = await sale.getUserInfo(state.address);
       const userAllocation = ido.allocations.find(
-        (a) => a.address === state.address
+        (a) => cannonicalAddress(a.address) === state.address
       ) || { amount: "0", proof: [] };
       let allocation = parseUnits(userAllocation.amount, ido.paymentDecimals);
       if (

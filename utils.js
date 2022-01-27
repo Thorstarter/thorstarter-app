@@ -437,3 +437,10 @@ export function aprde12ToApy(rate) {
   console.log("asd", ethers.utils.formatUnits(rate, 30));
   return aprdToApy(parseFloat(ethers.utils.formatUnits(rate, 30)));
 }
+
+export function cannonicalAddress(address) {
+  if (address.startsWith("0x")) {
+    return ethers.utils.getAddress(address.toLowerCase());
+  }
+  return address;
+}

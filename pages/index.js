@@ -8,6 +8,7 @@ import Countdown from "../components/countdown";
 import LoadingOverlay from "../components/loadingOverlay";
 import {
   bnMin,
+  bnMax,
   useGlobalState,
   formatNumber,
   parseUnits,
@@ -802,11 +803,12 @@ function IDOCard({ ido, parentSetParams }) {
           state.address,
           sale.address
         );
-        if (allowance.lt(userInfo.allocationFcfs)) {
-          const call = paymentToken.approve(
-            sale.address,
-            userInfo.allocationFcfs
-          );
+        const allowanceNeeded = bnMax(
+          userInfo.allocationFcfs.sub(userInfo.amount),
+          parsedAmount
+        );
+        if (allowance.lt(allowanceNeeded)) {
+          const call = paymentToken.approve(sale.address, allowanceNeeded);
           try {
             await runTransaction(call, setLoading, setError);
           } catch (e) {

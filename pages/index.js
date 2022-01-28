@@ -38,36 +38,37 @@ import coverOnering from "../public/ido/onering-cover.png";
 import logoRemnant from "../public/ido/remnant-logo.png";
 import coverRemnant from "../public/ido/remnant-cover.png";
 
-const liveIdo = {
-  name: "Remnant Labs",
-  token: "REMN",
-  paymentToken: "USDC",
-  type: "tiers",
-  networkId: 137,
-  address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
-  notFinalized: true,
-  paymentPrice: 1,
-  paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-  paymentDecimals: 6,
-  paymentDecimalsShown: 2,
-  allocations: allocationData.remn,
-  logo: logoRemnant,
-  cover: coverRemnant,
-  links: {
-    twitter: "https://twitter.com/RemnantLabs",
-    medium: "https://t.me/joinchat/LOHF0SfrmZ1jYWEx",
-    website: "https://remnant.gg/",
-    discord: "https://discord.com/invite/EG22EmHVmy",
-  },
-  static: [
-    { label: "Offering", value: "363,636,363 REMN" },
-    { label: "Raising", value: "200,000 USDC" },
-    { label: "Sold %", value: "100%" },
-    { label: "Price", value: "0.00055 USDC" },
-  ],
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "Remnant Labs",
+    token: "REMN",
+    paymentToken: "USDC",
+    type: "tiers",
+    networkId: 137,
+    address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
+    notFinalized: true,
+    paymentPrice: 1,
+    paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+    paymentDecimals: 6,
+    paymentDecimalsShown: 2,
+    allocations: allocationData.remn,
+    logo: logoRemnant,
+    cover: coverRemnant,
+    links: {
+      twitter: "https://twitter.com/RemnantLabs",
+      medium: "https://t.me/joinchat/LOHF0SfrmZ1jYWEx",
+      website: "https://remnant.gg/",
+      discord: "https://discord.com/invite/EG22EmHVmy",
+    },
+    static: [
+      { label: "Offering", value: "363,636,363 REMN" },
+      { label: "Raising", value: "200,000 USDC" },
+      { label: "Sold %", value: "100%" },
+      { label: "Price", value: "0.00055 USDC" },
+    ],
+  },
   {
     name: "OneRing",
     token: "RING",

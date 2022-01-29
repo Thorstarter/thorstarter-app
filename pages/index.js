@@ -76,7 +76,6 @@ const idos = [
     type: "tiers",
     networkId: 250,
     address: "0xFfA332907C6b9ff7c6Bf0011a894c10f1d0011dD",
-    notFinalized: true,
     paymentPrice: 1,
     paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
     paymentDecimals: 6,

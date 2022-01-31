@@ -72,6 +72,22 @@ export default function Vault({ vault }) {
     );
   }
 
+  async function onHarvest() {
+    const contract = new ethers.Contract(
+      vault.address,
+      abis.vault,
+      state.signer || state.provider
+    );
+    const call = contract.withdraw(data.staked.add(data.earned));
+    runTransaction(call, setLoading, setError).then(
+      () => {
+        setAmount("");
+        fetchData();
+      },
+      () => {}
+    );
+  }
+
   async function fetchData() {
     if (!state.address) return;
     const contracts = getContracts();
@@ -223,9 +239,10 @@ export default function Vault({ vault }) {
                     <div className="vault__additional tac">
                       <button
                         className="button button-lg vault__stake"
-                        disabled
+                        onClick={onHarvest}
+                        disabled={loading}
                       >
-                        Harvest
+                        {loading ? "Loading..." : "Harvest"}
                       </button>
                     </div>
                   </>
@@ -276,7 +293,9 @@ export default function Vault({ vault }) {
               </>
             ) : (
               <>
-                {data && data.available.gt(0) ? (
+                {data && Date.now() > data.endAt * 1000 ? (
+                  <div className="vault__filled">Ended</div>
+                ) : data && data.available.gt(0) ? (
                   <>
                     {balance.gt(0) ? (
                       <>

@@ -29,6 +29,7 @@ export default function Vault({ vault }) {
   const [balance, setBalance] = useState(parseUnits("0"));
   const [amount, setAmount] = useState("");
   const [additionalStake, setAdditionalStake] = useState(false);
+  const [now, setNow] = useState(new Date().getTime());
 
   async function onConnect() {
     if (state.address) {
@@ -94,6 +95,7 @@ export default function Vault({ vault }) {
       staked: userInfo[2],
       earned: userInfo[3],
     });
+
     setBalance(await contracts.xrune.balanceOf(state.address));
   }
 
@@ -102,6 +104,11 @@ export default function Vault({ vault }) {
     const handle = setInterval(fetchData, 10000);
     return () => clearInterval(handle);
   }, [state.networkId, state.address]);
+
+  useEffect(() => {
+    const handle = setInterval(setNow(new Date().getTime()), 1000);
+    return () => clearInterval(handle);
+  }, []);
 
   function renderBalance() {
     return (
@@ -145,6 +152,21 @@ export default function Vault({ vault }) {
           </button>
         </div>
       </>
+    );
+  }
+
+  function renderResults() {
+    return (
+      <ul className="vault__results">
+        <li>
+          Staked
+          <span>{formatNumber(data.staked)} XRUNE</span>
+        </li>
+        <li>
+          Earned
+          <span>{formatNumber(data.earned)} XRUNE</span>
+        </li>
+      </ul>
     );
   }
 
@@ -195,51 +217,57 @@ export default function Vault({ vault }) {
           <>
             {data && data.staked.gt(0) ? (
               <>
-                <div className="vault__countdown">
-                  <div className="vault__countdown-head">
-                    <span>Start</span>
-                    <div>
-                      <span>Time till harvest</span>
-                      <Countdown to={new Date(data.endAt * 1000)} simple />
+                {now > data.endAt.toNumber() * 1000 ? (
+                  <>
+                    {renderResults()}
+                    <div className="vault__additional tac">
+                      <button
+                        className="button button-lg vault__stake"
+                        disabled
+                      >
+                        Harvest
+                      </button>
                     </div>
-                    <span>End</span>
-                  </div>
-                  <ProgressSlider
-                    startDate={new Date(data.startAt * 1000)}
-                    endDate={new Date(data.endAt * 1000)}
-                  />
-                </div>
-                <ul className="vault__results">
-                  <li>
-                    Staked
-                    <span>{formatNumber(data.staked)} XRUNE</span>
-                  </li>
-                  <li>
-                    Earned
-                    <span>{formatNumber(data.earned)} XRUNE</span>
-                  </li>
-                </ul>
-                {/* === if user can harvest === */}
-                {/*<div className="vault__additional tac">*/}
-                {/*  <button className="button button-lg vault__stake">*/}
-                {/*    Harvest 0 XRUNE*/}
-                {/*  </button>*/}
-                {/*</div>*/}
+                  </>
+                ) : (
+                  <>
+                    <div className="vault__countdown">
+                      <div className="vault__countdown-head">
+                        <span>Start</span>
+                        <div>
+                          <span>Time till harvest</span>
+                          <Countdown to={new Date(data.endAt * 1000)} simple />
+                        </div>
+                        <span>End</span>
+                      </div>
+                      <ProgressSlider
+                        startDate={new Date(data.startAt * 1000)}
+                        endDate={new Date(data.endAt * 1000)}
+                      />
+                    </div>
+                    {renderResults()}
+                  </>
+                )}
+
                 {data && data.available.gt(0) ? (
                   <div className="vault__additional tac">
                     Balance:
                     <span>{formatNumber(balance)} XRUNE</span>
-                    {additionalStake ? (
-                      renderForm()
-                    ) : (
-                      <div className="tac">
-                        <button
-                          className="button button-lg vault__stake"
-                          onClick={() => setAdditionalStake(true)}
-                        >
-                          Stake More
-                        </button>
-                      </div>
+                    {now < data.endAt.toNumber() * 1000 && (
+                      <>
+                        {additionalStake ? (
+                          renderForm()
+                        ) : (
+                          <div className="tac">
+                            <button
+                              className="button button-lg vault__stake"
+                              onClick={() => setAdditionalStake(true)}
+                            >
+                              Stake More
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (

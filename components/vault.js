@@ -219,6 +219,12 @@ export default function Vault({ vault }) {
                     <span>{formatNumber(data.earned)} XRUNE</span>
                   </li>
                 </ul>
+                {/* === if user can harvest === */}
+                {/*<div className="vault__additional tac">*/}
+                {/*  <button className="button button-lg vault__stake">*/}
+                {/*    Harvest 0 XRUNE*/}
+                {/*  </button>*/}
+                {/*</div>*/}
                 {data && data.available.gt(0) ? (
                   <div className="vault__additional tac">
                     Balance:

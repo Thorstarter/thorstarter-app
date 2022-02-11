@@ -27,10 +27,14 @@ const tiers = [
   { name: "Tier 5", amount: 150000, multiplier: 12 },
 ];
 
+//const TIERS_API_URL = "http://localhost:8000";
+const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
+const idoId = "mint";
+const idoName = "Mint DAO";
+const idoChain = "terra";
+const idoSize = 300000;
+
 export default function IDORegistration() {
-  const idoId = "remn";
-  const idoName = "Remnant Labs";
-  const idoSize = 200000;
   const state = useGlobalState();
   const [data, setData] = useState();
   const [modal, setModal] = useState(false);
@@ -79,7 +83,8 @@ export default function IDORegistration() {
     }[String(state.networkId)];
     if (state.address) {
       user = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/user-fetch?network=" +
+        TIERS_API_URL +
+          "/user-fetch?network=" +
           network +
           "&address=" +
           state.address +
@@ -101,17 +106,12 @@ export default function IDORegistration() {
   useEffect(() => {
     fetchData();
 
-    /*
     if (!state.address) return;
     (async () => {
-      const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/kyc-start?address=" +
-          state.address,
-        {
-          method: "POST",
-          body: "",
-        }
-      );
+      const res = await fetch(TIERS_API_URL + "/kyc?address=" + state.address, {
+        method: "POST",
+        body: "",
+      });
       if (!res.ok) {
         console.error("error starting synaps session", res);
         return;
@@ -123,12 +123,13 @@ export default function IDORegistration() {
       }
       setSynapsData(response);
     })();
-    */
   }, [state.address]);
 
   function onRegister() {
-    // TODO change this if raise is not on EVM chain
-    if (state.address.startsWith("0x")) {
+    if (idoChain !== "terra" && state.address.startsWith("0x")) {
+      setRegisterAddress(state.address);
+    }
+    if (idoChain === "terra" && state.address.startsWith("terra")) {
       setRegisterAddress(state.address);
     }
     setModal(true);
@@ -138,7 +139,8 @@ export default function IDORegistration() {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://thorstarter-tiers-api.herokuapp.com/user-register?user_id=" +
+        TIERS_API_URL +
+          "/user-register?user_id=" +
           data.user.id +
           "&ido=" +
           idoId +
@@ -229,22 +231,35 @@ export default function IDORegistration() {
             </div>
           </div>
 
-          {/*
-      {synapsData ? (
-        <div
-          className="error flex"
-          style={{
-            backgroundColor: "rgb(247, 229, 17)",
-            color: "rgb(86, 81, 13)",
-          }}
-        >
-          <div className="flex-1">The Luart IDO requires KYC:</div>
-          <a className="button" id="synaps-btn" disabled={synapsData.verified}>
-            {synapsData.verified ? "You are verified" : "Verify with Synaps"}
-          </a>
-        </div>
-      ) : null}
-      */}
+          {synapsData ? (
+            <div
+              className="error flex mt-4 mb-0"
+              style={{
+                backgroundColor: "rgb(247, 229, 17)",
+                color: "rgb(86, 81, 13)",
+              }}
+            >
+              <div className="flex-1">The {idoName} IDO requires KYC:</div>
+              <a
+                className="button"
+                id="synaps-btn"
+                disabled={synapsData.verified}
+              >
+                {synapsData.verified
+                  ? "You are verified!"
+                  : "Verify with Synaps"}
+              </a>
+            </div>
+          ) : null}
+
+          <p>
+            You only need to register once, connecting your wallet that is in a
+            Thorstarter tier. When registering, you will be asked for the
+            address you want claim your allocation with (the day of the sale).
+            You don&apos;t need to visit the tiers page with the
+            registered/allocation address, simply connect that wallet on the day
+            of the sale on the &quot;IDOs&quot; page.
+          </p>
 
           {/*
       <strong>Estimated Allocations (based on registrations)</strong>
@@ -328,12 +343,14 @@ export default function IDORegistration() {
           <p>
             Enter the address you want to claim your allocation with on IDO day.
           </p>
-          <label className="label">Polygon (Matic) Address</label>
+          <label className="label">
+            {{ terra: "Terra " }[idoChain] || ""}Address
+          </label>
           <input
             value={registerAddress}
             onChange={(e) => setRegisterAddress(e.target.value)}
             className="input w-full"
-            placeholder="0x..."
+            placeholder={idoChain === "terra" ? "terra..." : "0x..."}
           />
           <br />
           <button

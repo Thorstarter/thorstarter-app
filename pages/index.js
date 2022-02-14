@@ -37,8 +37,34 @@ import logoOnering from "../public/ido/onering-logo.png";
 import coverOnering from "../public/ido/onering-cover.png";
 import logoRemnant from "../public/ido/remnant-logo.png";
 import coverRemnant from "../public/ido/remnant-cover.png";
+import logoMintdao from "../public/ido/mintdao-logo.png";
+import coverMintdao from "../public/ido/mintdao-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+    name: "MintDAO",
+    token: "MINT",
+    paymentToken: "UST",
+    type: "tiers-terra",
+    networkId: "terra-mainnet",
+    address: "terra1dvlkmlfa5j0sdzj3f99a4dlhguu9k4acdt5nzx",
+    notFinalized: true,
+    paymentPrice: 1,
+    allocations: allocationData.luart,
+    logo: logoMintdao,
+    cover: coverMintdao,
+    links: {
+      twitter: "https://twitter.com/mintdao_io",
+      medium: "https://medium.com/@mintdao",
+      website: "https://mintdao.io/",
+      discord: "https://discord.gg/mintdao",
+    },
+    static: [
+      { label: "Offering", value: "3,529,411 MINT" },
+      { label: "Raising", value: "300,000 UST" },
+      { label: "Sold %", value: "100%" },
+      { label: "Price", value: "0.085 UST" },
+    ],
+  };
 
 const idos = [
   {

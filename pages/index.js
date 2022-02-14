@@ -915,7 +915,7 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Raising</div>
           <div>
-            {formatNumber(params.raising, 2, ido.paymentDecimals)}{" "}
+            {formatNumber(params.raising, 0, ido.paymentDecimals)}{" "}
             <span className="text-gray6">{ido.paymentToken}</span>
           </div>
         </div>
@@ -928,7 +928,7 @@ function IDOCard({ ido, parentSetParams }) {
         <div className="flex mb-3">
           <div className="flex-1 text-gray6">Price</div>
           <div>
-            {formatNumber(params.price, 5, ido.paymentDecimals)}{" "}
+            {formatNumber(params.price, 3, ido.paymentDecimals)}{" "}
             <span className="text-gray6">{ido.paymentToken}</span>
             {/* ${" "}
             {formatNumber(

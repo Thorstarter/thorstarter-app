@@ -942,14 +942,12 @@ function IDOCard({ ido, parentSetParams }) {
                 ido.paymentDecimalsShown,
                 ido.paymentDecimals
               )}
-              {/* <span className="text-gray6">{ido.paymentToken}</span> ${" "}
-              {formatNumber(
-                userInfo.allocation
-                  .mul((ido.paymentPrice * 10000) | 0)
-                  .div(10000),
-                2
-              )} */}
             </div>
+          </div>
+        ) : userInfo ? (
+          <div className="flex">
+            <div className="flex-1 text-gray6">Your Allocation</div>
+            <div>None</div>
           </div>
         ) : null}
         <div className="mb-4" />

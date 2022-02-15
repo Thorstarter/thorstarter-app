@@ -667,13 +667,14 @@ function IDOCard({ ido, parentSetParams }) {
       });
       const raising = parseUnits(idoState.raising_amount, 12);
       const offering = parseUnits(idoState.offering_amount, 12);
+      const comitted = parseUnits(idoState.total_amount, 12);
       const newParams = {
         timestamp: (Date.now() / 1000) | 0,
         start: new Date(idoState.start_time * 1000),
         end: new Date(idoState.end_time * 1000),
         raising: raising,
         offering: offering,
-        comitted: parseUnits(idoState.total_amount, 12),
+        comitted: comitted,
         paused: false,
         finalized: idoState.finalized,
         price: raising.mul(parseUnits("1")).div(offering),
@@ -698,11 +699,18 @@ function IDOCard({ ido, parentSetParams }) {
       const userAllocation = allocationData.find(
         (a) => a.address === state.address
       ) || { allocation: "0", proof: [] };
+      let allocation = parseUnits(userAllocation.allocation, 12);
+      if (
+        Date.now()/1000 >= idoState.end_time &&
+        !raising.eq(comitted)
+      ) {
+        allocation = allocation.add(parseUnits("125", 18));
+      }
       setUserInfo({
         amount: parseUnits(userState.amount, 12),
         owed: parseUnits(userState.owed, 12),
         allocationStr: userAllocation.allocation,
-        allocation: parseUnits(userAllocation.allocation, 12),
+        allocation: allocation,
         proof: userAllocation.proof,
       });
     } else {

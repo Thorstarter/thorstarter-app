@@ -49,7 +49,6 @@ const liveIdo = {
     address: "terra1dvlkmlfa5j0sdzj3f99a4dlhguu9k4acdt5nzx",
     notFinalized: true,
     paymentPrice: 1,
-    allocations: allocationData.luart,
     logo: logoMintdao,
     cover: coverMintdao,
     links: {
@@ -79,7 +78,6 @@ const idos = [
     paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
     paymentDecimals: 6,
     paymentDecimalsShown: 2,
-    allocations: allocationData.remn,
     logo: logoRemnant,
     cover: coverRemnant,
     links: {
@@ -106,7 +104,6 @@ const idos = [
     paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
     paymentDecimals: 6,
     paymentDecimalsShown: 2,
-    allocations: allocationData.ring,
     logo: logoOnering,
     cover: coverOnering,
     links: {
@@ -132,7 +129,6 @@ const idos = [
     address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
     notFinalized: true,
     paymentPrice: 1,
-    allocations: allocationData.luart,
     logo: logoLuart,
     cover: coverLuart,
     links: {
@@ -157,7 +153,6 @@ const idos = [
     networkId: 1,
     address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
     paymentPrice: 4200,
-    allocations: allocationData.mnet,
     logo: logoMine,
     cover: coverMine,
     links: {
@@ -700,7 +695,7 @@ function IDOCard({ ido, parentSetParams }) {
       const userState = await state.lcd.wasm.contractQuery(ido.address, {
         user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
       });
-      const userAllocation = ido.allocations.find(
+      const userAllocation = allocationData.find(
         (a) => a.address === state.address
       ) || { allocation: "0", proof: [] };
       setUserInfo({
@@ -739,7 +734,7 @@ function IDOCard({ ido, parentSetParams }) {
       if (!state.address) return;
       setBalance(await paymentToken.balanceOf(state.address));
       const userInfo = await sale.getUserInfo(state.address);
-      const userAllocation = ido.allocations.find(
+      const userAllocation = allocationData.find(
         (a) => cannonicalAddress(a.address) === state.address
       ) || { amount: "0", proof: [] };
       let allocation = parseUnits(userAllocation.amount, ido.paymentDecimals);

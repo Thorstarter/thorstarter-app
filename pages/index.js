@@ -40,7 +40,10 @@ import coverRemnant from "../public/ido/remnant-cover.png";
 import logoMintdao from "../public/ido/mintdao-logo.png";
 import coverMintdao from "../public/ido/mintdao-cover.png";
 
-const liveIdo = {
+const liveIdo = null;
+
+const idos = [
+  {
     name: "MintDAO",
     token: "MINT",
     paymentToken: "UST",
@@ -63,9 +66,7 @@ const liveIdo = {
       { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.085 UST" },
     ],
-  };
-
-const idos = [
+  },
   {
     name: "Remnant Labs",
     token: "REMN",

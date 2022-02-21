@@ -21,17 +21,17 @@ import {
 
 const tiers = [
   { name: "Tier 1", amount: 2500, multiplier: 1 },
-  { name: "Tier 2", amount: 7500, multiplier: 2 },
-  { name: "Tier 3", amount: 25000, multiplier: 4 },
-  { name: "Tier 4", amount: 75000, multiplier: 8 },
-  { name: "Tier 5", amount: 150000, multiplier: 12 },
+  { name: "Tier 2", amount: 7500, multiplier: 3 },
+  { name: "Tier 3", amount: 25000, multiplier: 10 },
+  { name: "Tier 4", amount: 50000, multiplier: 20 },
+  { name: "Tier 5", amount: 100000, multiplier: 40 },
 ];
 
 //const TIERS_API_URL = "http://localhost:8000";
 const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
-const idoId = "mint";
-const idoName = "Mint DAO";
-const idoChain = "terra";
+const idoId = "detf";
+const idoName = "D-EFT";
+const idoChain = "evm";
 const idoSize = 300000;
 
 export default function IDORegistration() {
@@ -106,6 +106,7 @@ export default function IDORegistration() {
   useEffect(() => {
     fetchData();
 
+    /*
     if (!state.address) return;
     (async () => {
       const res = await fetch(TIERS_API_URL + "/kyc?address=" + state.address, {
@@ -123,6 +124,7 @@ export default function IDORegistration() {
       }
       setSynapsData(response);
     })();
+    */
   }, [state.address]);
 
   function onRegister() {
@@ -184,7 +186,7 @@ export default function IDORegistration() {
       </div>
       {data.user ? (
         <div className="tiers-upcoming-ido mb-4">
-          <div className="flex">
+          <div className="flex mb-4">
             <div className="flex-1">
               <div>
                 <strong>Total: </strong>
@@ -252,7 +254,7 @@ export default function IDORegistration() {
             </div>
           ) : null}
 
-          <p>
+          <p className="text-sm">
             You only need to register once, connecting your wallet that is in a
             Thorstarter tier. When registering, you will be asked for the
             address you want claim your allocation with (the day of the sale).

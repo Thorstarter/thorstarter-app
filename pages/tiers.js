@@ -22,10 +22,10 @@ import {
 
 const tiers = [
   { name: "Tier 1", amount: 2500, multiplier: 1 },
-  { name: "Tier 2", amount: 7500, multiplier: 2 },
-  { name: "Tier 3", amount: 25000, multiplier: 4 },
-  { name: "Tier 4", amount: 75000, multiplier: 8 },
-  { name: "Tier 5", amount: 150000, multiplier: 12 },
+  { name: "Tier 2", amount: 7500, multiplier: 3 },
+  { name: "Tier 3", amount: 25000, multiplier: 10 },
+  { name: "Tier 4", amount: 50000, multiplier: 20 },
+  { name: "Tier 5", amount: 100000, multiplier: 40 },
 ];
 
 function useTiers() {
@@ -234,7 +234,7 @@ export default function Tiers() {
   const isMainnet = state.networkId === 1;
   return (
     <Layout title="Tiers" page="tiers">
-      {/*<IDORegistration />*/}
+      <IDORegistration />
 
       <div className="flex-heading">
         <h1 className="title">Tiers</h1>

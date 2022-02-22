@@ -30,7 +30,7 @@ const tiers = [
 //const TIERS_API_URL = "http://localhost:8000";
 const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
 const idoId = "detf";
-const idoName = "D-EFT";
+const idoName = "D-ETF";
 const idoChain = "evm";
 const idoSize = 300000;
 

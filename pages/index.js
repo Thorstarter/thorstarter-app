@@ -48,7 +48,7 @@ const liveIdo = {
   paymentToken: "USDC",
   type: "tiers",
   networkId: 1,
-  address: "0xa1B97404b22ff7Df434b22D16C197e379bB10033",
+  address: "0xfA47Db225d985B98A404839733D8598FD699A996",
   paymentPrice: 1,
   paymentTokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
   paymentDecimals: 6,

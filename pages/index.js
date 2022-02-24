@@ -775,7 +775,7 @@ function IDOCard({ ido, parentSetParams }) {
         lastBlock.timestamp >= params[1].toNumber() &&
         !params[2].eq(params[4])
       ) {
-        allocation = allocation.add(params[2].mul(625).div(1000000));
+        allocation = allocation.add(params[2].mul(1000).div(1000000));
       }
       setUserInfo({
         amount: userInfo[0],

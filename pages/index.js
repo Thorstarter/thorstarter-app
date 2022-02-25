@@ -801,7 +801,10 @@ function IDOCard({ ido, parentSetParams }) {
   async function onDeposit() {
     setError("");
     try {
-      if (userInfo.proof.length === 0) {
+      if (
+        params.timestamp < params.end.getTime() &&
+        userInfo.proof.length === 0
+      ) {
         setError("You don't have an allocation for this IDO");
         return;
       }

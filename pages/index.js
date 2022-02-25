@@ -66,7 +66,7 @@ const idos = [
       website: "https://d-etf.com/",
     },
     static: [
-      { label: "Offering", value: "333,333,333 DETF" },
+      { label: "Offering", value: "3,333,333 DETF" },
       { label: "Raising", value: "300,000 USDC" },
       { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.09 USDC" },

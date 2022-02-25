@@ -42,34 +42,36 @@ import coverMintdao from "../public/ido/mintdao-cover.png";
 import logoDetf from "../public/ido/detf-logo.png";
 import coverDetf from "../public/ido/detf-cover.png";
 
-const liveIdo = {
-  name: "D-ETF",
-  token: "DETF",
-  paymentToken: "USDC",
-  type: "tiers",
-  networkId: 1,
-  address: "0xfA47Db225d985B98A404839733D8598FD699A996",
-  paymentPrice: 1,
-  paymentTokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-  paymentDecimals: 6,
-  paymentDecimalsShown: 2,
-  logo: logoDetf,
-  cover: coverDetf,
-  links: {
-    twitter: "https://twitter.com/detf_official",
-    telegram: "https://t.me/joinchat/zaitoJI4IBcwYzcy",
-    medium: "https://medium.com/@detf_official",
-    website: "https://d-etf.com/",
-  },
-  static: [
-    { label: "Offering", value: "800,000 DETF" },
-    { label: "Raising", value: "400,000 USDC" },
-    { label: "Sold %", value: "100%" },
-    { label: "Price", value: "0.09 USDC" },
-  ],
-};
+const liveIdo = null;
 
 const idos = [
+  {
+    name: "D-ETF",
+    token: "DETF",
+    paymentToken: "USDC",
+    type: "tiers",
+    networkId: 1,
+    address: "0xfA47Db225d985B98A404839733D8598FD699A996",
+    paymentPrice: 1,
+    paymentTokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    paymentDecimals: 6,
+    paymentDecimalsShown: 2,
+    notFinalized: true,
+    logo: logoDetf,
+    cover: coverDetf,
+    links: {
+      twitter: "https://twitter.com/detf_official",
+      telegram: "https://t.me/joinchat/zaitoJI4IBcwYzcy",
+      medium: "https://medium.com/@detf_official",
+      website: "https://d-etf.com/",
+    },
+    static: [
+      { label: "Offering", value: "333,333,333 DETF" },
+      { label: "Raising", value: "300,000 USDC" },
+      { label: "Sold %", value: "100%" },
+      { label: "Price", value: "0.09 USDC" },
+    ],
+  },
   {
     name: "MintDAO",
     token: "MINT",

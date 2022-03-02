@@ -157,7 +157,6 @@ const idos = [
     type: "tiers-terra",
     networkId: "terra-mainnet",
     address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
-    notFinalized: true,
     paymentPrice: 1,
     logo: logoLuart,
     cover: coverLuart,

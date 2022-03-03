@@ -2143,6 +2143,111 @@ const vault = [
   },
 ];
 
+const forge = [
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "stakeIndex",
+        type: "uint256",
+      },
+    ],
+    name: "unstake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "stakeIndex",
+        type: "uint256",
+      },
+    ],
+    name: "unstakeEarly",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "userStakeCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "users",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lockTime",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lockDays",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "unstaked",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
 export default {
   token,
   staking,
@@ -2160,4 +2265,5 @@ export default {
   tiers,
   tiersSimple,
   vault,
+  forge,
 };

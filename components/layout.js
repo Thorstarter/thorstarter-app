@@ -56,6 +56,11 @@ export default function Layout({ title, children, page }) {
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
               </Link>
             ) : null}
+            {state.networkId === 3 ? (
+              <Link href="/forge/">
+                <a className={page === "forge" ? "text-primary5" : ""}>Forge</a>
+              </Link>
+            ) : null}
             {isHomeNetwork ? (
               <Link href="/farm/">
                 <a className={page === "farm" ? "text-primary5" : ""}>Farm</a>

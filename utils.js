@@ -102,6 +102,7 @@ export const contractAddresses = {
     tiers: "0x1190C41f4c47A466F507E28C8fe4cC6aC3E34906",
     twnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
     tgnft: "0x4fc5a04948935f850ef3504bf69b2672f5b4bdc6",
+    forge: "0x021c69fF2440C7d4cB47CbEDa25bE1Cb28a2ccbB",
   },
   4: {
     xrune: "0xbd66a8dbe53c4118c27c6c06646bc5a046bcb511",
@@ -253,6 +254,7 @@ function buildContracts() {
     ),
     tiers: contract(addresses.tiers, abis.tiers),
     tiersSimple: contract(addresses.tiersSimple, abis.tiersSimple),
+    forge: contract(addresses.forge, abis.forge),
     twnft: contract(addresses.twnft, abis.token),
     tgnft: contract(addresses.tgnft, abis.token),
   };

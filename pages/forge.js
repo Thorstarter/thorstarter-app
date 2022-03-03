@@ -1,0 +1,316 @@
+import classnames from "classnames";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import Layout from "../components/layout";
+import Button from "../components/button";
+import LoadingOverlay from "../components/loadingOverlay";
+import Vault from "../components/vault";
+import {
+  bn,
+  parseUnits,
+  useGlobalState,
+  getContracts,
+  aprdToApy,
+  formatUnits,
+  formatNumber,
+  formatMDY,
+  runTransaction,
+} from "../utils";
+
+async function fetchPrice() {
+  const req = await fetch(
+    "https://1e35cbc19de1456caf8c08b2b4ead7d2.thorstarter.org/005cf62030316481c442e0ed49580de500/",
+    { method: "POST" }
+  );
+  const res = await req.json();
+  return parseFloat(res.xrune.quote.USD.price);
+}
+
+export default function Forge() {
+  const state = useGlobalState();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState("");
+  const [depositAmount, setDepositAmount] = useState("10000");
+  const [depositDays, setDepositDays] = useState("60");
+  const [calcSaleRaise, setCalcSaleRaise] = useState("300000");
+  const [calcSalesPerYear, setCalcSalesPerYear] = useState("24");
+  const [calcSaleRoi, setCalcSaleRoi] = useState("5");
+  const [calcSaleAllocation, setCalcSaleAllocation] = useState("250");
+  const [xrunePrice, setXrunePrice] = useState(0.1);
+  const [data, setData] = useState();
+
+  const amount = parseFloat(depositAmount);
+  const shares = amount + (amount * parseInt(depositDays) * 6) / 365;
+  const totalShares = 20000000;
+  const estimatedReturn =
+    (shares *
+      parseInt(calcSalesPerYear) *
+      parseInt(calcSaleRaise) *
+      0.2 *
+      (parseInt(calcSaleRoi) / 2)) /
+    totalShares;
+  const estimatedApr = estimatedReturn / (amount * xrunePrice);
+  const estimatedSaleReturn =
+    parseInt(calcSaleAllocation) *
+    parseInt(calcSalesPerYear) *
+    (parseInt(calcSaleRoi) - 1);
+  const estimatedSaleApr = estimatedSaleReturn / (amount * xrunePrice);
+
+  async function fetchData() {
+    setXrunePrice(await fetchPrice());
+    if (!state.address) return;
+
+    const contracts = getContracts();
+    const totalShares = await contracts.forge.totalSupply();
+    const userDepositCount = await contracts.forge.userStakeCount(
+      state.address
+    );
+    const deposits = [];
+    for (let i = 0; i < userDepositCount; i++) {
+      deposits.push(await contracts.forge.users(state.address, i));
+    }
+    const userShares = deposits.reduce(
+      (t, d) => t.add(d.shares),
+      parseUnits("0")
+    );
+    const userAmount = deposits.reduce(
+      (t, d) => t.add(d.amount),
+      parseUnits("0")
+    );
+    setData({
+      totalShares,
+      userShares,
+      userAmount,
+      deposits,
+    });
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [state.networkId, state.address]);
+
+  function onDeposit(e) {
+    try {
+      e.preventDefault();
+      const contracts = getContracts();
+      const parsedAmount = parseUnits(depositAmount);
+      const call = contracts.xrune.transferAndCall(
+        contracts.forge.address,
+        parsedAmount,
+        ethers.utils.defaultAbiCoder.encode(["uint256"], [depositDays])
+      );
+      runTransaction(call, setLoading, setError).then(() => {
+        setDepositAmount("");
+        setDepositDays("60");
+        fetchData();
+      });
+    } catch (err) {
+      console.error(err);
+      setError("Invalid amount");
+    }
+  }
+
+  return (
+    <Layout title="Forge" page="forge">
+      <h1 className="title">Forge</h1>
+      {error ? <div className="error mb-4">{error}</div> : null}
+      {loading ? <LoadingOverlay message={loading} /> : null}
+
+      <div className="box tac">
+        <div style={{ fontSize: "28px", fontWeight: "bold" }}>
+          Your shares:{" "}
+          <span className="text-primary5">
+            {formatNumber(data ? data.userShares : 0)}
+          </span>
+        </div>
+        <div className="mt-4" style={{ fontSize: "14px" }}>
+          XRUNE Deposited:{" "}
+          <span className="text-primary5">
+            {formatNumber(data ? data.userAmount : 0)}
+          </span>{" "}
+          Total Shares:{" "}
+          <span className="text-primary5">
+            {formatNumber(data ? data.totalShares : 0)}
+          </span>
+        </div>
+      </div>
+
+      <section className="page-section">
+        <h3 className="title">Deposit</h3>
+        <div className="box">
+          <form
+            style={{ maxWidth: "400px", margin: "0 auto" }}
+            onSubmit={onDeposit}
+          >
+            <div className="mb-4">
+              <label className="label">XRUNE Amount</label>
+              <input
+                className="input w-full"
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="label">
+                Lock Duration: {depositDays} days (
+                {(depositDays / 30).toFixed(1)} months)
+              </label>
+              <input
+                className="w-full"
+                type="range"
+                min="15"
+                max="1095"
+                step="1"
+                value={depositDays}
+                onChange={(e) => setDepositDays(e.target.value)}
+              />
+            </div>
+            <button className="button w-full mb-4" type="submit">
+              Deposit & Lock
+            </button>
+            <label className="label">Calculator</label>
+            <div
+              className="box mb-4"
+              style={{ padding: "16px", background: "var(--gray1)" }}
+            >
+              <div>
+                Shares: <b>{formatNumber(shares)}</b>
+              </div>
+              <div>
+                Estimated Forge APR:{" "}
+                <b>{formatNumber(estimatedApr * 100, 2)}%</b>
+              </div>
+              <div>
+                Estimated Forge Yearly Return:{" "}
+                <b>$ {formatNumber(estimatedReturn, 2)}</b>
+              </div>
+              <div>
+                Estimated Sale APR:{" "}
+                <b>{formatNumber(estimatedSaleApr * 100, 2)}%</b>
+              </div>
+              <div>
+                Estimated Sale Return:{" "}
+                <b>$ {formatNumber(estimatedSaleReturn, 2)}</b>
+              </div>
+              <div>
+                Combined APR:{" "}
+                <b>
+                  {formatNumber((estimatedApr + estimatedSaleApr) * 100, 2)}%
+                </b>
+              </div>
+            </div>
+            <div
+              className="box"
+              style={{ padding: "16px", background: "var(--gray1)" }}
+            >
+              <div>
+                Assumed sales per year: {calcSalesPerYear}
+                <input
+                  className="w-full"
+                  type="range"
+                  min="6"
+                  max="60"
+                  step="1"
+                  value={calcSalesPerYear}
+                  onChange={(e) => setCalcSalesPerYear(e.target.value)}
+                />
+              </div>
+              <div>
+                Assumed average raise:{" "}
+                {formatNumber(parseInt(calcSaleRaise), 0)}
+                <input
+                  className="w-full"
+                  type="range"
+                  min="100000"
+                  max="2000000"
+                  step="1000"
+                  value={calcSaleRaise}
+                  onChange={(e) => setCalcSaleRaise(e.target.value)}
+                />
+              </div>
+              <div>
+                Assumed ROI per sale: {formatNumber(parseInt(calcSaleRoi), 0)}x
+                <input
+                  className="w-full"
+                  type="range"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value={calcSaleRoi}
+                  onChange={(e) => setCalcSaleRoi(e.target.value)}
+                />
+              </div>
+              <div>
+                Assumed average sale allocation: ${" "}
+                {formatNumber(parseInt(calcSaleAllocation), 0)}
+                <input
+                  className="w-full"
+                  type="range"
+                  min="25"
+                  max="5000"
+                  step="5"
+                  value={calcSaleAllocation}
+                  onChange={(e) => setCalcSaleAllocation(e.target.value)}
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section className="page-section">
+        <h3 className="title">Deposits</h3>
+        <div className="default-table">
+          <table>
+            <thead>
+              <tr>
+                <th className="tal">Start</th>
+                <th className="tal">End</th>
+                <th className="tar">Amount</th>
+                <th className="tar">Shares</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {data && data.deposits.length > 0 ? (
+                data.deposits.map((d) => (
+                  <tr key={d.lockTime}>
+                    <td className="tal">{formatMDY(d.lockTime)}</td>
+                    <td className="tal">
+                      {formatMDY(
+                        d.lockTime.toNumber() * 1000 +
+                          d.lockDays.toNumber() * 24 * 60 * 60 * 1000
+                      )}
+                    </td>
+                    <td className="tar">{formatNumber(d.amount)}</td>
+                    <td className="tar">{formatNumber(d.shares)}</td>
+                    <td className="tar">
+                      {!d.unstaked ? (
+                        <Button
+                          className="button-outline"
+                          disabled={
+                            Date.now() / 1000 <
+                            d.lockTime + d.lockDays * 24 * 60 * 60
+                          }
+                        >
+                          Withdraw
+                        </Button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="tac">
+                    No deposits yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </Layout>
+  );
+}

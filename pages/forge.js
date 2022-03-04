@@ -62,25 +62,15 @@ export default function Forge() {
 
     const contracts = getContracts();
     const totalShares = await contracts.forge.totalSupply();
-    const userDepositCount = await contracts.forge.userStakeCount(
-      state.address
-    );
+    const infos = await contracts.forge.getUserInfo(state.address);
     const deposits = [];
-    for (let i = 0; i < userDepositCount; i++) {
+    for (let i = 0; i < infos[2].toNumber(); i++) {
       deposits.push(await contracts.forge.users(state.address, i));
     }
-    const userShares = deposits.reduce(
-      (t, d) => t.add(d.shares),
-      parseUnits("0")
-    );
-    const userAmount = deposits.reduce(
-      (t, d) => t.add(d.amount),
-      parseUnits("0")
-    );
     setData({
       totalShares,
-      userShares,
-      userAmount,
+      userAmount: infos[0],
+      userShares: infos[1],
       deposits,
     });
   }
@@ -100,7 +90,7 @@ export default function Forge() {
         ethers.utils.defaultAbiCoder.encode(["uint256"], [depositDays])
       );
       runTransaction(call, setLoading, setError).then(() => {
-        setDepositAmount("");
+        setDepositAmount("10000");
         setDepositDays("60");
         fetchData();
       });
@@ -110,38 +100,68 @@ export default function Forge() {
     }
   }
 
+  function onWithdraw(deposit, i) {
+    const contracts = getContracts();
+    const now = (Date.now() / 1000) | 0;
+    const start = deposit.lockTime.toNumber();
+    const duration = deposit.lockDays.toNumber() * 24 * 60 * 60;
+    const unlockTime = start + duration;
+    if (now < unlockTime) {
+      const returned = deposit.amount.mul(now - start).div(duration);
+      if (
+        !confirm(
+          `You are unlocking early. You will receive only ${formatNumber(
+            returned
+          )} XRUNE (paying a fee of ${formatNumber(
+            deposit.amount.sub(returned)
+          )} XRUNE). Are you sure you want to proceed?`
+        )
+      ) {
+        return;
+      }
+      const call = contracts.forge.unstakeEarly(i);
+      runTransaction(call, setLoading, setError).then(() => fetchData);
+    } else {
+      const call = contracts.forge.unstake(i);
+      runTransaction(call, setLoading, setError).then(() => fetchData);
+    }
+  }
+
   return (
     <Layout title="Forge" page="forge">
       <h1 className="title">Forge</h1>
+
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}
 
-      <div className="box tac">
-        <div style={{ fontSize: "28px", fontWeight: "bold" }}>
-          Your shares:{" "}
-          <span className="text-primary5">
-            {formatNumber(data ? data.userShares : 0)}
-          </span>
-        </div>
-        <div className="mt-4" style={{ fontSize: "14px" }}>
-          XRUNE Deposited:{" "}
-          <span className="text-primary5">
-            {formatNumber(data ? data.userAmount : 0)}
-          </span>{" "}
-          Total Shares:{" "}
-          <span className="text-primary5">
-            {formatNumber(data ? data.totalShares : 0)}
-          </span>
-        </div>
-      </div>
+      <div
+        className="flex flex-wrap"
+        style={{ maxWidth: "800px", margin: "0 auto" }}
+      >
+        <div style={{ flex: "1 0 400px" }}>
+          <div className="box mb-4">
+            <div style={{ fontSize: "28px", fontWeight: "bold" }}>
+              Your shares:{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.userShares : 0)}
+              </span>
+            </div>
+            <div className="mt-4" style={{ fontSize: "14px" }}>
+              XRUNE Deposited:{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.userAmount : 0)}
+              </span>{" "}
+            </div>
+            <div className="mt-2" style={{ fontSize: "14px" }}>
+              Total Shares:{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.totalShares : 0)}
+              </span>
+            </div>
+          </div>
 
-      <section className="page-section">
-        <h3 className="title">Deposit</h3>
-        <div className="box">
-          <form
-            style={{ maxWidth: "400px", margin: "0 auto" }}
-            onSubmit={onDeposit}
-          >
+          <form className="box" onSubmit={onDeposit}>
+            <h3 style={{ marginTop: 0 }}>Deposit</h3>
             <div className="mb-4">
               <label className="label">XRUNE Amount</label>
               <input
@@ -167,97 +187,114 @@ export default function Forge() {
               />
             </div>
             <button className="button w-full mb-4" type="submit">
-              Deposit & Lock
+              Lock for {depositDays} days
             </button>
-            <label className="label">Calculator</label>
-            <div
-              className="box mb-4"
-              style={{ padding: "16px", background: "var(--gray1)" }}
-            >
-              <div>
-                Shares: <b>{formatNumber(shares)}</b>
-              </div>
-              <div>
-                Estimated Forge APR:{" "}
-                <b>{formatNumber(estimatedApr * 100, 2)}%</b>
-              </div>
-              <div>
-                Estimated Forge Yearly Return:{" "}
-                <b>$ {formatNumber(estimatedReturn, 2)}</b>
-              </div>
-              <div>
-                Estimated Sale APR:{" "}
-                <b>{formatNumber(estimatedSaleApr * 100, 2)}%</b>
-              </div>
-              <div>
-                Estimated Sale Return:{" "}
-                <b>$ {formatNumber(estimatedSaleReturn, 2)}</b>
-              </div>
-              <div>
-                Combined APR:{" "}
-                <b>
-                  {formatNumber((estimatedApr + estimatedSaleApr) * 100, 2)}%
-                </b>
-              </div>
-            </div>
-            <div
-              className="box"
-              style={{ padding: "16px", background: "var(--gray1)" }}
-            >
-              <div>
-                Assumed sales per year: {calcSalesPerYear}
-                <input
-                  className="w-full"
-                  type="range"
-                  min="6"
-                  max="60"
-                  step="1"
-                  value={calcSalesPerYear}
-                  onChange={(e) => setCalcSalesPerYear(e.target.value)}
-                />
-              </div>
-              <div>
-                Assumed average raise:{" "}
-                {formatNumber(parseInt(calcSaleRaise), 0)}
-                <input
-                  className="w-full"
-                  type="range"
-                  min="100000"
-                  max="2000000"
-                  step="1000"
-                  value={calcSaleRaise}
-                  onChange={(e) => setCalcSaleRaise(e.target.value)}
-                />
-              </div>
-              <div>
-                Assumed ROI per sale: {formatNumber(parseInt(calcSaleRoi), 0)}x
-                <input
-                  className="w-full"
-                  type="range"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value={calcSaleRoi}
-                  onChange={(e) => setCalcSaleRoi(e.target.value)}
-                />
-              </div>
-              <div>
-                Assumed average sale allocation: ${" "}
-                {formatNumber(parseInt(calcSaleAllocation), 0)}
-                <input
-                  className="w-full"
-                  type="range"
-                  min="25"
-                  max="5000"
-                  step="5"
-                  value={calcSaleAllocation}
-                  onChange={(e) => setCalcSaleAllocation(e.target.value)}
-                />
-              </div>
+            <div className="text-sm">
+              WARNING Withdrawing before the end of your comitment has a
+              percentage fee proportional to the time left (e.g. commit to 60
+              days, withdraw at 15 days, keep 25%, loose 75%). Forge rewards are
+              only claimable after your lock period is over.
             </div>
           </form>
         </div>
-      </section>
+
+        <div style={{ flex: "1 0 400px" }}>
+          <div className="box mb-4" style={{ background: "var(--gray1)" }}>
+            <h3 style={{ marginTop: 0 }}>Calculator</h3>
+            <div>
+              Shares: <b className="float-right">{formatNumber(shares)}</b>
+            </div>
+            <div>
+              Forge APR:{" "}
+              <b className="float-right">
+                {formatNumber(estimatedApr * 100, 2)}%
+              </b>
+            </div>
+            <div>
+              Forge Yearly Return:{" "}
+              <b className="float-right">
+                $ {formatNumber(estimatedReturn, 2)}
+              </b>
+            </div>
+            <div>
+              Sale APR:{" "}
+              <b className="float-right">
+                {formatNumber(estimatedSaleApr * 100, 2)}%
+              </b>
+            </div>
+            <div>
+              Sale Return:{" "}
+              <b className="float-right">
+                $ {formatNumber(estimatedSaleReturn, 2)}
+              </b>
+            </div>
+            <div>
+              Combined APR:{" "}
+              <b className="float-right">
+                {formatNumber((estimatedApr + estimatedSaleApr) * 100, 2)}%
+              </b>
+            </div>
+            <div className="mt-4">
+              Assumed sales per year:{" "}
+              <b className="float-right">{calcSalesPerYear}</b>
+              <input
+                className="w-full"
+                type="range"
+                min="6"
+                max="60"
+                step="1"
+                value={calcSalesPerYear}
+                onChange={(e) => setCalcSalesPerYear(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed average raise:{" "}
+              <b className="float-right">
+                {formatNumber(parseInt(calcSaleRaise), 0)}
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="100000"
+                max="2000000"
+                step="1000"
+                value={calcSaleRaise}
+                onChange={(e) => setCalcSaleRaise(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed ROI per sale:{" "}
+              <b className="float-right">
+                {formatNumber(parseInt(calcSaleRoi), 0)}x
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="1"
+                max="100"
+                step="1"
+                value={calcSaleRoi}
+                onChange={(e) => setCalcSaleRoi(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed average sale allocation:
+              <b className="float-right">
+                $ {formatNumber(parseInt(calcSaleAllocation), 0)}
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="25"
+                max="5000"
+                step="5"
+                value={calcSaleAllocation}
+                onChange={(e) => setCalcSaleAllocation(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <section className="page-section">
         <h3 className="title">Deposits</h3>
@@ -274,7 +311,7 @@ export default function Forge() {
             </thead>
             <tbody>
               {data && data.deposits.length > 0 ? (
-                data.deposits.map((d) => (
+                data.deposits.map((d, i) => (
                   <tr key={d.lockTime}>
                     <td className="tal">{formatMDY(d.lockTime)}</td>
                     <td className="tal">
@@ -286,17 +323,15 @@ export default function Forge() {
                     <td className="tar">{formatNumber(d.amount)}</td>
                     <td className="tar">{formatNumber(d.shares)}</td>
                     <td className="tar">
-                      {!d.unstaked ? (
-                        <Button
-                          className="button-outline"
-                          disabled={
-                            Date.now() / 1000 <
-                            d.lockTime + d.lockDays * 24 * 60 * 60
-                          }
-                        >
-                          Withdraw
-                        </Button>
-                      ) : null}
+                      <Button
+                        className="button-outline"
+                        onClick={onWithdraw.bind(null, d, i)}
+                        disabled={d.unstakedTime.toNumber() > 0}
+                      >
+                        {d.unstakedTime.toNumber() == 0
+                          ? "Withdraw"
+                          : "Unstaked"}
+                      </Button>
                     </td>
                   </tr>
                 ))

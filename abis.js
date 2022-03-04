@@ -2147,6 +2147,35 @@ const forge = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getUserInfo",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "stakeIndex",
         type: "uint256",
@@ -2238,9 +2267,9 @@ const forge = [
         type: "uint256",
       },
       {
-        internalType: "bool",
-        name: "unstaked",
-        type: "bool",
+        internalType: "uint256",
+        name: "unstakedTime",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

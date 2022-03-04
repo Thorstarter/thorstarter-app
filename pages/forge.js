@@ -1,4 +1,5 @@
 import classnames from "classnames";
+import Image from "next/image";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
@@ -16,6 +17,7 @@ import {
   formatMDY,
   runTransaction,
 } from "../utils";
+import forgeTitleImg from "../public/forge-title.png";
 
 async function fetchPrice() {
   const req = await fetch(
@@ -129,7 +131,15 @@ export default function Forge() {
 
   return (
     <Layout title="Forge" page="forge">
-      <h1 className="title">Forge</h1>
+      <h1 className="title tac">
+        <Image
+          alt="Forge"
+          src={forgeTitleImg}
+          width={233}
+          height={100}
+          layout="fixed"
+        />
+      </h1>
 
       {error ? <div className="error mb-4">{error}</div> : null}
       {loading ? <LoadingOverlay message={loading} /> : null}

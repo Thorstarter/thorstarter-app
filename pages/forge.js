@@ -346,12 +346,12 @@ export default function Forge({ history }) {
           <p>
             Simply put, all rewards going to Forge are divided up proportionally
             to every member based on how many shares they have (you have 2
-            shares, forge total shares is 100, you get 2% of every reward
-            donated)
+            shares, and the total number of Forge shares is 100, you get 2% of
+            every reward distribution.)
           </p>
           <p>
-            An other way to see it, is shares represent the boosted APY you get
-            on top of the amount of XRUNE you lock (varying depending on how
+            Another way to see it, is shares represent the boosted APY you get
+            *on top of* the amount of XRUNE you lock (varying depending on how
             long you lock it for).
           </p>
         </div>

@@ -110,6 +110,7 @@ export const contractAddresses = {
   250: {
     xrune: "0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6",
     tiersSimple: "0xbc373f851d1EC6aaba27a9d039948D25a6EE8036",
+    forge: "0x2D23039c1bA153C6afcF7CaB9ad4570bCbF80F56",
   },
   "terra-mainnet": {
     xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",

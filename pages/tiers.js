@@ -65,15 +65,22 @@ function useTiers() {
         total: parseUnits(user.balance, 12),
         lastDeposit: user.last_deposit,
         lp: lpXrune,
+        forge: parseUnits("0"),
       });
     } else if (state.networkId === 250) {
       const contracts = getContracts();
       const userInfo = await contracts.tiersSimple.userInfos(state.address);
+      let forgeAmount = parseUnits("0");
+      if (state.networkId === 250) {
+        const forgeInfo = await contracts.forge.getUserInfo(state.address);
+        forgeAmount = forgeInfo[0];
+      }
       setData({
         balance: await contracts.xrune.balanceOf(state.address),
         total: userInfo[0],
         lastDeposit: userInfo[1].toNumber(),
         lp: lpXrune,
+        forge: forgeAmount,
       });
     } else {
       const contracts = getContracts();
@@ -84,6 +91,7 @@ function useTiers() {
         total: userInfo[4][0],
         lastDeposit: user[1].toNumber(),
         lp: lpXrune,
+        forge: parseUnits("0"),
       });
     }
   }
@@ -188,7 +196,9 @@ export default function Tiers() {
   const { data, fetchData, onDeposit, onWithdraw } = useTiers();
   const [modal, setModal] = useState();
   const [percent, setPercent] = useState("0");
-  const total = data ? parseFloat(formatUnits(data.total.add(data.lp))) : 0;
+  const total = data
+    ? parseFloat(formatUnits(data.total.add(data.lp).add(data.forge)))
+    : 0;
 
   useEffect(() => {
     if (typeof document !== "undefined" && data?.total) {
@@ -318,6 +328,16 @@ export default function Tiers() {
                 </td>
               </tr>
               <tr>
+                <td>Forge</td>
+                <td className="tac" style={{ width: 110 }}>
+                  {data ? formatNumber(data.forge) : "-"}
+                </td>
+                <td className="tac" style={{ width: 110 }}>
+                  N/A
+                </td>
+                <td></td>
+              </tr>
+              <tr>
                 <td>THORChain LP XRUNE</td>
                 <td className="tac" style={{ width: 110 }}>
                   {data ? formatNumber(data.lp) : "-"}
@@ -325,7 +345,7 @@ export default function Tiers() {
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>
-                <td className="tar"></td>
+                <td></td>
               </tr>
             </tbody>
           </table>

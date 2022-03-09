@@ -56,7 +56,7 @@ export default function Layout({ title, children, page }) {
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
               </Link>
             ) : null}
-            {state.networkId === 3 ? (
+            {state.networkId === 250 || state.networkId === 3 ? (
               <Link href="/forge/">
                 <a className={page === "forge" ? "text-primary5" : ""}>Forge</a>
               </Link>

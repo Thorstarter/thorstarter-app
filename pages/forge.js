@@ -28,7 +28,7 @@ async function fetchPrice() {
   return parseFloat(res.xrune.quote.USD.price);
 }
 
-export default function Forge() {
+export default function Forge({ history }) {
   const state = useGlobalState();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
@@ -42,8 +42,14 @@ export default function Forge() {
   const [data, setData] = useState();
 
   const amount = parseFloat(depositAmount);
-  const shares = amount + (amount * parseInt(depositDays) * 6) / 365;
-  const totalShares = 20000000;
+  const shares =
+    amount +
+    (amount * parseInt(depositDays) * 6) / 365 +
+    (amount * amount * 0.1) / 1000000;
+  const totalShares = Math.max(
+    data ? parseFloat(formatUnits(data.totalShares)) : 0,
+    20000000
+  );
   const estimatedReturn =
     (shares *
       parseInt(calcSalesPerYear) *
@@ -61,6 +67,7 @@ export default function Forge() {
   async function fetchData() {
     setXrunePrice(await fetchPrice());
     if (!state.address) return;
+    if (state.networkId !== 250 && state.networkId !== 3) return;
 
     const contracts = getContracts();
     const totalShares = await contracts.forge.totalSupply();
@@ -129,6 +136,24 @@ export default function Forge() {
     }
   }
 
+  if (state.networkId !== 3 && state.networkId !== 250) {
+    return (
+      <Layout title="Forge" page="forge">
+        <h1 className="title tac">
+          <Image
+            alt="Forge"
+            src={forgeTitleImg}
+            width={233}
+            height={100}
+            layout="fixed"
+          />
+        </h1>
+        <div className="tac">
+          Forge is only available on the Fantom network.
+        </div>
+      </Layout>
+    );
+  }
   return (
     <Layout title="Forge" page="forge">
       <h1 className="title tac">
@@ -150,20 +175,24 @@ export default function Forge() {
       >
         <div style={{ flex: "1 0 400px" }}>
           <div className="box mb-4">
-            <div style={{ fontSize: "28px", fontWeight: "bold" }}>
-              Your shares:{" "}
+            <div style={{ fontSize: "32px", fontWeight: "bold" }}>
+              Shares
+              <sup style={{ fontWeight: "normal" }}>
+                <a href="#shares-explainer">?</a>
+              </sup>
+              :{" "}
               <span className="text-primary5">
                 {formatNumber(data ? data.userShares : 0)}
               </span>
             </div>
-            <div className="mt-4" style={{ fontSize: "14px" }}>
+            <div className="mt-4" style={{ fontSize: "18px" }}>
               XRUNE Deposited:{" "}
               <span className="text-primary5">
                 {formatNumber(data ? data.userAmount : 0)}
               </span>{" "}
             </div>
-            <div className="mt-2" style={{ fontSize: "14px" }}>
-              Total Shares:{" "}
+            <div className="mt-2" style={{ fontSize: "18px" }}>
+              Forge Total Shares:{" "}
               <span className="text-primary5">
                 {formatNumber(data ? data.totalShares : 0)}
               </span>
@@ -199,8 +228,8 @@ export default function Forge() {
             <button className="button w-full mb-4" type="submit">
               Lock for {depositDays} days
             </button>
-            <div className="text-sm">
-              WARNING Withdrawing before the end of your comitment has a
+            <div style={{ fontSize: 13 }}>
+              WARNING: Withdrawing before the end of your comitment has a
               percentage fee proportional to the time left (e.g. commit to 60
               days, withdraw at 15 days, keep 25%, loose 75%). Forge rewards are
               only claimable after your lock period is over.
@@ -303,6 +332,28 @@ export default function Forge() {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div id="shares-explainer">
+        <div
+          style={{ maxWidth: "800px", margin: "32px auto", fontSize: "16px" }}
+        >
+          <h3 style={{ margin: "0 0 8px 0" }}>Shares Explained</h3>
+          <p>
+            Shares are a representation of how much Forge rewards you are owed.
+          </p>
+          <p>
+            Simply put, all rewards going to Forge are divided up proportionally
+            to every member based on how many shares they have (you have 2
+            shares, forge total shares is 100, you get 2% of every reward
+            donated)
+          </p>
+          <p>
+            An other way to see it, is shares represent the boosted APY you get
+            on top of the amount of XRUNE you lock (varying depending on how
+            long you lock it for).
+          </p>
         </div>
       </div>
 

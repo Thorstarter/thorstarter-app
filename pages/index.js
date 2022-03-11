@@ -500,7 +500,7 @@ function IDOCardStatic({ ido }) {
       setUserInfo({
         amount: parseUnits(userState.amount, 12),
         claimedTokens: owed.sub(claimed).eq("0"),
-        claimable: parseUnits(userState.claimable, 12).sub(claimed),
+        claimable: parseUnits(userState.claimable, 12),
         claimed,
         owed,
       });

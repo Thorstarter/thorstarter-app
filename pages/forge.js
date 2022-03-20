@@ -234,7 +234,7 @@ export default function Forge({ history }) {
             <div style={{ fontSize: 13 }}>
               WARNING: Withdrawing before the end of your commitment has a
               percentage fee proportional to the time left (e.g. commit to 60
-              days, withdraw at 15 days, keep 25%, lose 75%). Forge rewards are
+              days, withdraw at 15 days, keep 25%, loose 75%). Forge rewards are
               only claimable after your lock period is over.
             </div>
           </form>

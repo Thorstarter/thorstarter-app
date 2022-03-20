@@ -6,6 +6,7 @@ import Layout from "../components/layout";
 import Button from "../components/button";
 import LoadingOverlay from "../components/loadingOverlay";
 import Vault from "../components/vault";
+import IDORegistration from "../components/idoRegistration";
 import {
   bn,
   parseUnits,
@@ -156,6 +157,8 @@ export default function Forge({ history }) {
   }
   return (
     <Layout title="Forge" page="forge">
+      <IDORegistration />
+
       <h1 className="title tac">
         <Image
           alt="Forge"

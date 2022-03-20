@@ -29,10 +29,10 @@ const tiers = [
 
 //const TIERS_API_URL = "http://localhost:8000";
 const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
-const idoId = "detf";
-const idoName = "D-ETF";
+const idoId = "utbets";
+const idoName = "UltiBets";
 const idoChain = "evm";
-const idoSize = 300000;
+const idoSize = 600000;
 
 export default function IDORegistration() {
   const state = useGlobalState();
@@ -185,7 +185,7 @@ export default function IDORegistration() {
         </div>
       </div>
       {data.user ? (
-        <div className="tiers-upcoming-ido mb-4">
+        <div className="tiers-upcoming-ido" style={{ marginBottom: 32 }}>
           <div className="flex mb-4">
             <div className="flex-1">
               <div>

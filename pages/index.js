@@ -1014,7 +1014,7 @@ function IDOCard({ ido, parentSetParams }) {
         ) : userInfo ? (
           <div className="flex">
             <div className="flex-1 text-gray6">Your Allocation</div>
-            <div>None</div>
+            <div>Pending Snapshot</div>
           </div>
         ) : null}
         <div className="mb-4" />

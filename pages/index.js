@@ -41,8 +41,37 @@ import logoMintdao from "../public/ido/mintdao-logo.png";
 import coverMintdao from "../public/ido/mintdao-cover.png";
 import logoDetf from "../public/ido/detf-logo.png";
 import coverDetf from "../public/ido/detf-cover.png";
+import logoUtbets from "../public/ido/utbets-logo.png";
+import coverUtbets from "../public/ido/utbets-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "UltiBets",
+  token: "UTBETS",
+  paymentToken: "USDC",
+  type: "tiers",
+  networkId: 250,
+  address: "0x0CC00fFBb90e33640Bdc98fa0A286Def0aECd047",
+  paymentPrice: 1,
+  paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+  paymentDecimals: 6,
+  paymentDecimalsShown: 2,
+  notFinalized: true,
+  logo: logoUtbets,
+  cover: coverUtbets,
+  links: {
+    twitter: "https://twitter.com/UltiBets",
+    telegram: "https://t.me/ultibets",
+    discord: "https://discord.com/invite/EsWqNmTcdr",
+    medium: "https://medium.com/@ultibets",
+    website: "https://beta-ultibets.vercel.app/",
+  },
+  static: [
+    { label: "Offering", value: "8,000,000 UTBETS" },
+    { label: "Raising", value: "600,000 USDC" },
+    { label: "Sold %", value: "100%" },
+    { label: "Price", value: "0.075 USDC" },
+  ],
+};
 
 const idos = [
   {

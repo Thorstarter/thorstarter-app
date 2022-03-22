@@ -219,7 +219,7 @@ export default function IDORegistration() {
                     <strong>Estimated Allocation: </strong>$
                     {data.userAllocation.toFixed(2)}{" "}
                     {!data.userInSnapshot
-                      ? `(This address was excluded, you have over 3 wallets)`
+                      ? `(Our records show you have 0 XRUNE in tiers/forge)`
                       : null}
                   </div>
                 </>

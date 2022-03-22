@@ -15,8 +15,6 @@ import {
 } from "../../utils";
 import abis from "../../abis";
 
-import logoSkyrim from "../../public/ido/skyrim-logo.png";
-import coverSkyrim from "../../public/ido/skyrim-cover.png";
 import logoBnpl from "../../public/ido/bnpl-logo.png";
 import coverBnpl from "../../public/ido/bnpl-cover.png";
 import logoThorswap from "../../public/ido/thorswap-logo.png";
@@ -55,6 +53,7 @@ const vestingIdos = [
       3: "",
     },
   },
+  /*
   {
     name: "Skyrim",
     date: "2021-08-31",
@@ -71,6 +70,7 @@ const vestingIdos = [
       3: "",
     },
   },
+  */
 ];
 
 async function fetchPrice() {

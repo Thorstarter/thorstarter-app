@@ -809,7 +809,7 @@ function IDOCard({ ido, parentSetParams }) {
       }
       setUserInfo({
         amount: userInfo[0],
-        owed: userInfo[2],
+        owed: userInfo[2].mul(8).div(10),
         allocationStr: userAllocation.amount,
         allocation: allocation,
         allocationFcfs: parseUnits(

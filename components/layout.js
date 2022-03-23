@@ -103,7 +103,7 @@ export default function Layout({ title, children, page }) {
               <Icon name="telegram" />
             </a>
           </Link>
-          <Link href="https://discord.gg/fPjbPxm37F">
+          <Link href="https://discord.gg/kBDpARByAx">
             <a>
               <Icon name="discord" />
             </a>

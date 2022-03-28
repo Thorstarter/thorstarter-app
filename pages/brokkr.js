@@ -116,9 +116,9 @@ export default function Brokkr() {
     execute({
       configure: {
         token: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
-        start_time: now + 6,
-        end_deposit_time: now + 36,
-        end_withdraw_time: now + 56,
+        start_time: now + 60,
+        end_deposit_time: now + 180,
+        end_withdraw_time: now + 300,
         min_price: "50000",
         offering_amount: "10000000" + "000000",
         vesting_initial: "1000000",

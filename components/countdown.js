@@ -8,6 +8,10 @@ export default function Countdown({ to, zeroText, simple = false }) {
     seconds: 0,
   });
 
+  function pad(n) {
+    return ("0" + n).slice(-2);
+  }
+
   function update() {
     let left = Math.max(0, to.getTime() - Date.now());
 
@@ -35,16 +39,23 @@ export default function Countdown({ to, zeroText, simple = false }) {
 
   return simple ? (
     <div className="countdown-string">
-      {values.days}d : {values.hours}h : {values.minutes}m : {values.seconds}s
+      {values.days != 0 ? `${values.days}d : ` : ""}
+      {values.hours}h : {pad(values.minutes)}m : {pad(values.seconds)}s
     </div>
-  ) : (zeroText && values.days === 0 && values.hours === 0 && values.minutes === 0 && values.seconds === 0) ? (
+  ) : zeroText &&
+    values.days === 0 &&
+    values.hours === 0 &&
+    values.minutes === 0 &&
+    values.seconds === 0 ? (
     <div className="countdown-warning">{zeroText}</div>
   ) : (
     <div className="countdown">
-      <div className="countdown-cell">
-        <div className="countdown-cell-number">{values.days}</div>
-        <div className="countdown-cell-label">days</div>
-      </div>
+      {values.days != 0 ? (
+        <div className="countdown-cell">
+          <div className="countdown-cell-number">{values.days}</div>
+          <div className="countdown-cell-label">days</div>
+        </div>
+      ) : null}
       <div className="countdown-cell">
         <div className="countdown-cell-number">{values.hours}</div>
         <div className="countdown-cell-label">hours</div>

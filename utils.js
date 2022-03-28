@@ -291,6 +291,26 @@ export function setGlobalState(newState) {
   listeners.forEach((l) => l());
 }
 
+export function useCountry() {
+  const ipInfo = JSON.parse(
+    typeof window !== "undefined"
+      ? localStorage.getItem("ipinfo") || "null"
+      : "null"
+  );
+  const [country, setCountry] = useState(ipInfo ? ipInfo.country : "");
+  useEffect(() => {
+    (async () => {
+      if (!ipInfo) {
+        const res = await fetch("https://ipinfo.io/?token=ca7efdec9dd655");
+        const body = await res.json();
+        setCountry(body.country);
+        localStorage.setItem("ipinfo", JSON.stringify(body));
+      }
+    })();
+  }, [ipInfo]);
+  return country;
+}
+
 export function terraTax(amount, taxRate, taxCap) {
   return bnMin(amount.mul(taxRate).div(parseUnits("1", 18)), taxCap);
 }

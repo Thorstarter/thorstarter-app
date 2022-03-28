@@ -1337,3 +1337,50 @@ input[type=range]::-moz-range-thumb {
     outline: 1px solid var(--primary5);
   }
 }
+
+.brokkr-container {
+  padding: 64px 16px 32px;
+  border-radius: 16px;
+  background: #292929;
+  border: 4px solid #00e676;
+}
+.brokkr-container .button {
+  background: #00e676;
+}
+.brokkr-section {
+  position: relative;
+  max-width: 480px;
+  margin: 32px auto;
+  border-radius: 6px;
+  background: #111111;
+  background: radial-gradient(56.93% 93.28% at 100% 0,#22262c 0,#101111 100%);
+  padding: 16px;
+  opacity: 0.5;
+}
+.brokkr-section.active {
+  opacity: 1;
+}
+.brokkr-section h1 {
+  margin: 0;
+  font-size: 24px;
+}
+.brokkr-section h1 span {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: darken(#00e676, 10);
+}
+.brokkr-time {
+  display: flex;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  padding: 6px 8px;
+}
+.brokkr-time .countdown-string {
+  font-size: inherit;
+  line-height: inherit;
+}

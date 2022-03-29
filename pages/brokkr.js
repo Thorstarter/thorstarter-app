@@ -20,7 +20,7 @@ import {
 
 import brokkrLogo from "../public/brokkr_logo.svg";
 
-const saleAddress = "terra1u0z63se72dfhcsqmzw9yezyqfajxz9wznxk0xc";
+const saleAddress = "terra1yajdgg725s49kazrvss74p3q9hex69tln3wqdp";
 
 export default function Brokkr() {
   const state = useGlobalState();
@@ -65,6 +65,20 @@ export default function Brokkr() {
     const claimed = parseUnits(userState.claimed, 0);
     const owed = parseUnits(userState.owed, 0);
 
+    const userAmount = parseUnits(userState.amount, 0);
+    let progress =
+      (now - saleState.end_deposit_time) /
+      (saleState.end_withdraw_time - saleState.end_deposit_time);
+    progress = 1 - progress;
+    if (progress > 0.95) progress = 1;
+    if (progress < 0) progress = 0;
+    let withdrawMax = parseUnits(userState.amount_high, 0)
+      .mul((progress * 1000000) | 0)
+      .div(1000000);
+    if (withdrawMax.gt(userAmount)) {
+      withdrawMax = userAmount;
+    }
+
     setData({
       now,
       startTime: saleState.start_time,
@@ -75,11 +89,12 @@ export default function Brokkr() {
       salePrice: salePrice,
       sale: saleState,
       userBalance: parseUnits(balance, 0),
-      userAmount: parseUnits(userState.amount, 0),
+      userAmount: userAmount,
       claimedTokens: owed.sub(claimed).eq("0"),
       claimable: parseUnits(userState.claimable, 0),
       claimed,
       owed,
+      withdrawMax,
     });
   }
 
@@ -149,7 +164,6 @@ export default function Brokkr() {
 
   function onWithdraw(e) {
     e.preventDefault();
-    /*
     let parsedAmount;
     try {
       parsedAmount = parseUnits(amount.replace(/[^0-9\.]/g, ""), 6);
@@ -158,9 +172,8 @@ export default function Brokkr() {
       setError("Invalid amount entered");
       return;
     }
-    */
     execute({
-      withdraw: {},
+      withdraw: { amount: formatUnits(parsedAmount, 0) },
     });
   }
 
@@ -173,6 +186,10 @@ export default function Brokkr() {
 
   function onDepositMax() {
     setAmount(formatUnits(data.userBalance, 6));
+  }
+
+  function onWithdrawMax() {
+    setAmount(formatUnits(data.withdrawMax, 6));
   }
 
   if (state.networkId !== "terra-mainnet") {
@@ -252,7 +269,7 @@ export default function Brokkr() {
               </div>
               <div className="flex">
                 <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} UST</div>
+                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
               </div>
               <div className="text-sm mb-3 mt-4">
                 <span className="text-gray6">Balance: </span>
@@ -314,7 +331,24 @@ export default function Brokkr() {
               </div>
               <div className="flex">
                 <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} UST</div>
+                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
+              </div>
+              <div className="text-sm mb-3 mt-4">
+                <span className="text-gray6">Max withdraw: </span>
+                <span className="text-primary5">
+                  {formatNumber(data.withdrawMax, 2, 6)} UST
+                </span>
+              </div>
+              <div className="input-with-link mb-4">
+                <input
+                  className="input w-full"
+                  placeholder="Amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <a onClick={onWithdrawMax} className="input-link">
+                  Max
+                </a>
               </div>
               <button
                 className="button w-full mt-2"
@@ -339,11 +373,11 @@ export default function Brokkr() {
               </div>
               <div className="flex">
                 <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} UST</div>
+                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
               </div>
               <div className="flex">
                 <div className="flex-1 text-bold">Collected:</div>
-                <div>{formatNumber(data.claimed, 2, 6)} UST</div>
+                <div>{formatNumber(data.claimed, 2, 6)} BRO</div>
               </div>
               <button
                 className="button w-full mt-2"

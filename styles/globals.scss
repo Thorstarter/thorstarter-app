@@ -96,6 +96,14 @@ h2.title {
   text-align: right !important;
 }
 
+.text-bold {
+  font-weight: bold;
+}
+
+.text-mono {
+  font-family: monospace;
+}
+
 .icon {
   display: inline-block;
   position: relative;
@@ -1347,6 +1355,9 @@ input[type=range]::-moz-range-thumb {
 .brokkr-container .button {
   background: #00e676;
 }
+.brokkr-container .text-primary5 {
+  color: #00e676;
+}
 .brokkr-section {
   position: relative;
   max-width: 480px;
@@ -1379,8 +1390,9 @@ input[type=range]::-moz-range-thumb {
   border-radius: 4px;
   background: rgba(255,255,255,0.1);
   padding: 6px 8px;
+  font-size: 14px;
 }
 .brokkr-time .countdown-string {
-  font-size: inherit;
+  font-size: 14px;
   line-height: inherit;
 }

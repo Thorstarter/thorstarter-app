@@ -20,7 +20,7 @@ import {
 
 import brokkrLogo from "../public/brokkr_logo.svg";
 
-const saleAddress = "terra1yajdgg725s49kazrvss74p3q9hex69tln3wqdp";
+const saleAddress = "terra1wyjx8t64rswat0a6kyu0tvcvsu3a5hcpc0t683";
 
 export default function Brokkr() {
   const state = useGlobalState();
@@ -194,7 +194,7 @@ export default function Brokkr() {
 
   if (state.networkId !== "terra-mainnet") {
     return (
-      <Layout title="Brokkr IDO" page="">
+      <Layout title="Brokkr Sale" page="">
         <h1 className="title tac">Brokkr Sale</h1>
         <div className="tac">Switch to the Terra mainnet network.</div>
       </Layout>
@@ -202,7 +202,7 @@ export default function Brokkr() {
   }
   if (country === "US" || country === "RU") {
     return (
-      <Layout title="Brokkr IDO" page="">
+      <Layout title="Brokkr Sale" page="">
         <h1 className="title tac">Brokkr Sale</h1>
         <div className="tac">
           This sale is not available to USA and Russian users.
@@ -211,10 +211,12 @@ export default function Brokkr() {
     );
   }
   return (
-    <Layout title="Brokkr IDO" page="">
+    <Layout title="Brokkr Sale" page="">
+      {/*
       <button className="button mb-4" onClick={onReset}>
         DEBUG: Restart sale
       </button>
+      */}
 
       <Disclaimer />
 
@@ -250,26 +252,36 @@ export default function Brokkr() {
             </div>
           ) : null}
           {stage === "commit" ? (
-            <form className="mt-2">
+            <form className="mt-4">
               <div className="flex">
-                <div className="flex-1 text-bold">Tokens Available:</div>
-                <div>{formatNumber(data.saleOfferingAmount, 2, 6)} BRO</div>
+                <div className="flex-1">Tokens Available:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.saleOfferingAmount, 2, 6)}</b> BRO
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Total Deposited:</div>
-                <div>{formatNumber(data.saleTotalAmount, 2, 6)} UST</div>
+                <div className="flex-1">Total Deposited:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.saleTotalAmount, 2, 6)}</b> UST
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Current Price:</div>
-                <div>{formatNumber(data.salePrice, 2, 6)} UST/BRO</div>
+                <div className="flex-1">Current Price:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
+                </div>
               </div>
               <div className="flex mt-2">
-                <div className="flex-1 text-bold">You Deposited:</div>
-                <div>{formatNumber(data.userAmount, 2, 6)} UST</div>
+                <div className="flex-1">You Deposited:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
+                <div className="flex-1">Owed:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.owed, 2, 6)}</b> BRO
+                </div>
               </div>
               <div className="text-sm mb-3 mt-4">
                 <span className="text-gray6">Balance: </span>
@@ -314,24 +326,34 @@ export default function Brokkr() {
           {stage === "withdraw" ? (
             <form className="mt-4">
               <div className="flex">
-                <div className="flex-1 text-bold">Tokens Available:</div>
-                <div>{formatNumber(data.saleOfferingAmount, 2, 6)} BRO</div>
+                <div className="flex-1">Tokens Available:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.saleOfferingAmount, 2, 6)}</b> BRO
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Total Deposited:</div>
-                <div>{formatNumber(data.saleTotalAmount, 2, 6)} UST</div>
+                <div className="flex-1">Total Deposited:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.saleTotalAmount, 2, 6)}</b> UST
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Current Price:</div>
-                <div>{formatNumber(data.salePrice, 2, 6)} UST/BRO</div>
+                <div className="flex-1">Current Price:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
+                </div>
               </div>
               <div className="flex mt-2">
-                <div className="flex-1 text-bold">You Deposited:</div>
-                <div>{formatNumber(data.userAmount, 2, 6)} UST</div>
+                <div className="flex-1">You Deposited:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
+                <div className="flex-1">Owed:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.owed, 2, 6)}</b> BRO
+                </div>
               </div>
               <div className="text-sm mb-3 mt-4">
                 <span className="text-gray6">Max withdraw: </span>
@@ -368,16 +390,22 @@ export default function Brokkr() {
           {stage === "claim" ? (
             <form className="mt-4">
               <div className="flex">
-                <div className="flex-1 text-bold">You Deposited:</div>
-                <div>{formatNumber(data.userAmount, 2, 6)} UST</div>
+                <div className="flex-1">You Deposited:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Owed:</div>
-                <div>{formatNumber(data.owed, 2, 6)} BRO</div>
+                <div className="flex-1">Owed:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.owed, 2, 6)}</b> BRO
+                </div>
               </div>
               <div className="flex">
-                <div className="flex-1 text-bold">Collected:</div>
-                <div>{formatNumber(data.claimed, 2, 6)} BRO</div>
+                <div className="flex-1">Collected:</div>
+                <div className="text-mono">
+                  <b>{formatNumber(data.claimed, 2, 6)}</b> BRO
+                </div>
               </div>
               <button
                 className="button w-full mt-2"

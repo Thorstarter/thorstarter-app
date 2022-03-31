@@ -116,7 +116,6 @@ const idos = [
       twitter: "https://twitter.com/mintdao_io",
       medium: "https://medium.com/@mintdao",
       website: "https://mintdao.io/",
-      discord: "https://discord.gg/mintdao",
     },
     static: [
       { label: "Offering", value: "3,529,411 MINT" },

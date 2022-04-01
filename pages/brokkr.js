@@ -255,31 +255,31 @@ export default function Brokkr() {
             <form className="mt-4">
               <div className="flex">
                 <div className="flex-1">Tokens Available:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.saleOfferingAmount, 2, 6)}</b> BRO
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Total Deposited:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.saleTotalAmount, 2, 6)}</b> UST
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Current Price:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
                 </div>
               </div>
               <div className="flex mt-2">
                 <div className="flex-1">You Deposited:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Owed:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.owed, 2, 6)}</b> BRO
                 </div>
               </div>
@@ -327,31 +327,31 @@ export default function Brokkr() {
             <form className="mt-4">
               <div className="flex">
                 <div className="flex-1">Tokens Available:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.saleOfferingAmount, 2, 6)}</b> BRO
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Total Deposited:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.saleTotalAmount, 2, 6)}</b> UST
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Current Price:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
                 </div>
               </div>
               <div className="flex mt-2">
                 <div className="flex-1">You Deposited:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Owed:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.owed, 2, 6)}</b> BRO
                 </div>
               </div>
@@ -391,19 +391,19 @@ export default function Brokkr() {
             <form className="mt-4">
               <div className="flex">
                 <div className="flex-1">You Deposited:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.userAmount, 2, 6)}</b> UST
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Owed:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.owed, 2, 6)}</b> BRO
                 </div>
               </div>
               <div className="flex">
                 <div className="flex-1">Collected:</div>
-                <div className="text-mono">
+                <div>
                   <b>{formatNumber(data.claimed, 2, 6)}</b> BRO
                 </div>
               </div>

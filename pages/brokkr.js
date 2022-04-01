@@ -58,7 +58,9 @@ export default function Brokkr() {
     const saleOfferingAmount = parseUnits(saleState.offering_amount, 0);
     const saleTotalAmount = parseUnits(saleState.total_amount, 0);
     const salePrice = bnMax(
-      saleTotalAmount.div(bnMax(saleOfferingAmount, parseUnits("1", 0))),
+      saleTotalAmount
+        .mul(1000000)
+        .div(bnMax(saleOfferingAmount, parseUnits("1", 0))),
       parseUnits(saleState.min_price, 0)
     );
 
@@ -185,11 +187,11 @@ export default function Brokkr() {
   }
 
   function onDepositMax() {
-    setAmount(formatUnits(data.userBalance, 6));
+    setAmount(formatUnits(data.userBalance, 6).slice(0, -2));
   }
 
   function onWithdrawMax() {
-    setAmount(formatUnits(data.withdrawMax, 6));
+    setAmount(formatUnits(data.withdrawMax, 6).slice(0, -2));
   }
 
   if (state.networkId !== "terra-mainnet") {
@@ -268,7 +270,7 @@ export default function Brokkr() {
               <div className="flex">
                 <div className="flex-1">Current Price:</div>
                 <div>
-                  <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
+                  <b>{formatNumber(data.salePrice, 3, 6)}</b> UST/BRO
                 </div>
               </div>
               <div className="flex mt-2">
@@ -340,7 +342,7 @@ export default function Brokkr() {
               <div className="flex">
                 <div className="flex-1">Current Price:</div>
                 <div>
-                  <b>{formatNumber(data.salePrice, 2, 6)}</b> UST/BRO
+                  <b>{formatNumber(data.salePrice, 3, 6)}</b> UST/BRO
                 </div>
               </div>
               <div className="flex mt-2">

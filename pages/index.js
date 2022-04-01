@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MsgExecuteContract, Fee, Coin } from "@terra-money/terra.js";
+import Link from "next/link";
 import Image from "next/image";
 import Icon from "../components/icon";
 import Button from "../components/button";
@@ -349,6 +350,21 @@ export default function IDOs() {
 
   return (
     <Layout title="IDOs" page="idos">
+      <Link href="/brokkr">
+        <a
+          style={{
+            display: "block",
+            background: "var(--primary5)",
+            color: "#000000",
+            padding: "16px",
+            borderRadius: "6px",
+            textAlign: "center",
+          }}
+        >
+          Brokkr Sale Live!
+        </a>
+      </Link>
+
       {liveIdo ? (
         <>
           <h1 className="live-ido-title title clear">

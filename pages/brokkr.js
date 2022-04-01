@@ -194,7 +194,7 @@ export default function Brokkr() {
 
   if (state.networkId !== "terra-mainnet") {
     return (
-      <Layout title="Brokkr Sale" page="">
+      <Layout title="Brokkr Sale" page="brokkr">
         <h1 className="title tac">Brokkr Sale</h1>
         <div className="tac">Switch to the Terra mainnet network.</div>
       </Layout>
@@ -202,7 +202,7 @@ export default function Brokkr() {
   }
   if (country === "US" || country === "RU") {
     return (
-      <Layout title="Brokkr Sale" page="">
+      <Layout title="Brokkr Sale" page="brokkr">
         <h1 className="title tac">Brokkr Sale</h1>
         <div className="tac">
           This sale is not available to USA and Russian users.
@@ -211,7 +211,7 @@ export default function Brokkr() {
     );
   }
   return (
-    <Layout title="Brokkr Sale" page="">
+    <Layout title="Brokkr Sale" page="brokkr">
       {/*
       <button className="button mb-4" onClick={onReset}>
         DEBUG: Restart sale

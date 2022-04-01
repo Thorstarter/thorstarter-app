@@ -46,6 +46,9 @@ export default function Layout({ title, children, page }) {
             </Link>
           </div>
           <div className="nav">
+            <Link href="/brokkr">
+              <a className={page === "brokkr" ? "text-primary5" : ""}>Brokkr Sale</a>
+            </Link>
             <Link href="/">
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>

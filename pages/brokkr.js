@@ -68,6 +68,7 @@ export default function Brokkr() {
     const owed = parseUnits(userState.owed, 0);
 
     const userAmount = parseUnits(userState.amount, 0);
+    const userAmountHigh = parseUnits(userState.amount_high, 0);
     let progress =
       (now - saleState.end_deposit_time) /
       (saleState.end_withdraw_time - saleState.end_deposit_time);
@@ -77,6 +78,8 @@ export default function Brokkr() {
     let withdrawMax = parseUnits(userState.amount_high, 0)
       .mul((progress * 1000000) | 0)
       .div(1000000);
+    withdrawMax = withdrawMax.sub(userAmountHigh.sub(userAmount));
+    let withdrawMaxPreCap = withdrawMax;
     if (withdrawMax.gt(userAmount)) {
       withdrawMax = userAmount;
     }
@@ -92,11 +95,13 @@ export default function Brokkr() {
       sale: saleState,
       userBalance: parseUnits(balance, 0),
       userAmount: userAmount,
+      userAmountHigh: userAmountHigh,
       claimedTokens: owed.sub(claimed).eq("0"),
       claimable: parseUnits(userState.claimable, 0),
       claimed,
       owed,
       withdrawMax,
+      withdrawMaxPreCap,
     });
   }
 
@@ -172,6 +177,10 @@ export default function Brokkr() {
       setAmount(formatUnits(parsedAmount, 6));
     } catch (e) {
       setError("Invalid amount entered");
+      return;
+    }
+    if (parsedAmount.gt(data.withdrawMax)) {
+      setError("Withdraw amount over cap");
       return;
     }
     execute({

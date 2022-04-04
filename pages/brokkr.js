@@ -79,6 +79,9 @@ export default function Brokkr() {
       .mul((progress * 1000000) | 0)
       .div(1000000);
     withdrawMax = withdrawMax.sub(userAmountHigh.sub(userAmount));
+    if (withdrawMax.lt(0)) {
+      withdrawMax = parseUnits("0");
+    }
     let withdrawMaxPreCap = withdrawMax;
     if (withdrawMax.gt(userAmount)) {
       withdrawMax = userAmount;

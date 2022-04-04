@@ -423,10 +423,10 @@ export default function Brokkr() {
               </div>
               <button
                 className="button w-full mt-2"
-                onClick={onHarvest}
-                disabled={data.claimedTokens}
+                onClick={null /* onHarvest */}
+                disabled={true || data.claimedTokens}
               >
-                Claim Tokens
+                Claim Tokens (Comming soon)
               </button>
             </form>
           ) : null}

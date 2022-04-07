@@ -1,3 +1,58 @@
-{{template "_header.html"}}
-<h1>Index</h1>
-{{template "_footer.html"}}
+{{template "_header.html" .}}
+<div class="container">
+  <div style="padding: 120px 0;">
+    <h1 style="font-size:48px;font-weight:normal;">Welcome to Thorstarter</h1>
+    <p class="text-white-50" style="font-size:22px;max-width:660px;">Thorstarter is a multichain Venture DAO and IDO platform that combines a unique launchpad model with liquidity grants to incubate, fund, and launch the most promising projects across DeFi.</p>
+    <a class="button" style="padding:20px 32px;font-size:20px;" href="#upcoming">Upcoming Launches</a>
+  </div>
+
+  <h1 class="mt-16">Thorstarter Explained in 4 Steps</h1>
+  <div class="index-steps">
+    <div><span>1</span> Stake XRUNE in our Forge Contract to gain access to Thorstarter IDOs</div>
+    <div><span>2</span> Register interest in an IDO few days before it's sale</div>
+    <div><span>3</span> Commit funds to the IDO on the day of the sale</div>
+    <div><span>4</span> Receive project tokens at the earliest possible price</div>
+  </div>
+
+  <h1 class="mt-16">Join The Community</h1>
+  <p>The THORChad army is 3000+ strong and growing daily. Joining is easy and requires lockup of XRUNE to our native pegged governance token vXRUNE. vXRUNE holders actively vote on proposals, governance and split proceeds of each launch.</p>
+  <a class="button" style="padding:20px 32px;font-size:20px;" href="/about">Learn More</a>
+
+  <div class="mt-16 text-center">
+    <h2>Raise capital across all main blockchain networks</h2>
+    <img class="mr-8" src="/public/chains/ethereum.svg" style="height:40px" />
+    <img class="mr-8" src="/public/chains/fantom.svg" style="height:40px" />
+    <img class="mr-8" src="/public/chains/terra.svg" style="height:40px" />
+    <img src="/public/chains/polygon.svg" style="height:40px" />
+  </div>
+
+  <h2 class="mt-16" id="upcoming">Upcoming Projects</h2>
+
+  <div>...</div>
+
+  <h2 class="mt-16">Previous IDOs</h2>
+
+  <div>...</div>
+
+  <div class="mt-16 text-center">
+    <h2>A council of the best and brightest</h2>
+    <p>Projects which partner with Thorstarter are carefully selected by a team of industry leaders from across THORChain and adjacent ecosystems.</p>
+    <img class="mr-8" src="/public/chains/thorchain.svg" style="height:40px" />
+    <img class="mr-8" src="/public/chains/nine-realms.svg" style="height:40px" />
+    <img class="mr-8" src="/public/chains/qi-capital.svg" style="height:40px" />
+    <img class="mr-8" src="/public/chains/olympus-pro.svg" style="height:40px" />
+    <img src="/public/chains/terra.svg" style="height:40px" />
+  </div>
+
+
+</div>
+
+<style>
+body {
+  background-image: url(/public/bg-hero.jpg), url(/public/bg-footer.png);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: top center,bottom center;
+}
+</style>
+{{template "_footer.html" .}}

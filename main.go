@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"html/template"
@@ -33,17 +34,55 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	c := J{}
+	c := C{M{}}
 	w.Header().Set("Content-Type", "text/html")
 	path := stringOr(r.URL.Path[1:], "index") + ".html"
-	err := t.ExecuteTemplate(w, path, c)
+	if t.Lookup(path) == nil {
+		path = "404.html"
+	}
+	b := bytes.NewBuffer([]byte{})
+	err := t.ExecuteTemplate(b, path, c)
 	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(500)
 		fmt.Fprintf(w, "Error: %s", err.Error())
+		return
 	}
+	w.Write(b.Bytes())
 }
 
-type J map[string]interface{}
+type L []interface{}
+type M map[string]interface{}
+
+type C struct {
+	M
+}
+
+func (v M) Set(k string, value interface{}) interface{} {
+	v[k] = value
+	return nil
+}
+
+func (v M) GetS(k string) string {
+	if s, ok := v[k].(string); ok {
+		return s
+	}
+	return ""
+}
+
+func (v M) GetM(k string) M {
+	if m, ok := v[k].(map[string]interface{}); ok {
+		return M(m)
+	}
+	return nil
+}
+
+func (v M) GetL(k string) L {
+	if l, ok := v[k].([]interface{}); ok {
+		return L(l)
+	}
+	return nil
+}
 
 func env(name, alt string) string {
 	if v := os.Getenv(name); v != "" {

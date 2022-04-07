@@ -3,9 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <title>{{if .title}}{{.title}} - {{end}}Thorstarter</title>
-  <link href="/public/app.css" rel="stylesheet" />
+  <meta name="theme-color" content="#28DBD1"/>
+  <title>{{if .GetS "title"}}{{.GetS "title"}} - {{end}}Thorstarter</title>
+  <link rel="icon" href="/public/favicon.png" />
+  <link rel="stylesheet" href="/public/app.css" />
+  <meta property="og:image" content="/public/og-image.png">
+	<meta name="twitter:image" content="/public/og-image.png">
+  <script type="text/javascript" async src="https://www.googletagmanager.com/gtag/js?id=G-09DERZHQB2"></script>
+	<script type="text/javascript">
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-09DERZHQB2');
+	</script>
 </head>
 <body>
-  <div>header</div>
+  <div class="container flex items-center pt-4 mb-4">
+    <div class="flex-auto">
+      <a href="/"><img src="/public/logo.svg" /></a>
+    </div>
+    <div>
+      <a href="/about" class="text-white-50 text-lg ml-4">Learn More</a>
+      <a href="/faq" class="text-white-50 text-lg ml-4">FAQ</a>
+      <a href="/apply" class="text-white-50 text-lg ml-4">Apply for IDO</a>
+      <a href="/idos" class="button ml-4">App</a>
+    </div>
+  </div>

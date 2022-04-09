@@ -29,10 +29,10 @@ const tiers = [
 
 //const TIERS_API_URL = "http://localhost:8000";
 const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
-const idoId = "utbets";
-const idoName = "UltiBets";
-const idoChain = "evm";
-const idoSize = 600000;
+const idoId = "proteus";
+const idoName = "Proteus";
+const idoChain = "terra";
+const idoSize = 300000;
 
 export default function IDORegistration() {
   const state = useGlobalState();

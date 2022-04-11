@@ -41,8 +41,32 @@ import logoDetf from "../public/ido/detf-logo.png";
 import coverDetf from "../public/ido/detf-cover.png";
 import logoUtbets from "../public/ido/utbets-logo.png";
 import coverUtbets from "../public/ido/utbets-cover.png";
+import logoProteus from "../public/ido/proteus-logo.png";
+import coverProteus from "../public/ido/proteus-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "Proteus",
+  token: "PROTEUS",
+  paymentToken: "UST",
+  type: "tiers-terra",
+  networkId: "terra-mainnet",
+  address: "terra16ewzuu492jt9nvxruhjtt554f4au9r6j05qa76",
+  notFinalized: true,
+  paymentPrice: 1,
+  logo: logoProteus,
+  cover: coverProteus,
+  links: {
+    twitter: "https://twitter.com/ProteusFinance",
+    telegram: "https://t.me/ProteusFinance",
+    website: "https://proteus.finance/",
+    docs: "https://proteus-finance-assets-eu-central-1.s3.amazonaws.com/whitepaper.pdf",
+  },
+  static: [
+    { label: "Offering", value: "5,000,000 PROTEUS" },
+    { label: "Raising", value: "300,000 UST" },
+    { label: "Price", value: "0.06 UST" },
+  ],
+};
 
 const idos = [
   {
@@ -70,7 +94,6 @@ const idos = [
     static: [
       { label: "Offering", value: "8,000,000 UTBETS" },
       { label: "Raising", value: "600,000 USDC" },
-      { label: "Sold %", value: "42%" },
       { label: "Price", value: "0.075 USDC" },
     ],
   },
@@ -97,7 +120,6 @@ const idos = [
     static: [
       { label: "Offering", value: "3,333,333 DETF" },
       { label: "Raising", value: "300,000 USDC" },
-      { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.09 USDC" },
     ],
   },
@@ -120,7 +142,6 @@ const idos = [
     static: [
       { label: "Offering", value: "3,529,411 MINT" },
       { label: "Raising", value: "300,000 UST" },
-      { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.085 UST" },
     ],
   },
@@ -147,7 +168,6 @@ const idos = [
     static: [
       { label: "Offering", value: "363,636,363 REMN" },
       { label: "Raising", value: "200,000 USDC" },
-      { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.00055 USDC" },
     ],
   },
@@ -174,7 +194,6 @@ const idos = [
     static: [
       { label: "Offering", value: "800,000 RING" },
       { label: "Raising", value: "400,000 USDC" },
-      { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.50 USDC" },
     ],
   },
@@ -198,7 +217,6 @@ const idos = [
     static: [
       { label: "Offering", value: "20,000,000 LUART" },
       { label: "Raising", value: "500,000 UST" },
-      { label: "Sold %", value: "100%" },
       { label: "Price", value: "0.025 UST" },
     ],
   },
@@ -626,14 +644,12 @@ function IDOCardStatic({ ido }) {
             <div>{v.value}</div>
           </div>
         ))}
-        <div className="progress mb-4">
-          <div
-            className="progress-bar"
-            style={{ width: String(ido.progress || 100) + "%" }}
-          ></div>
-        </div>
         {userInfo && userInfo.amount.gt("0") ? (
           <>
+            <div
+              className="mt-4 mb-4"
+              style={{ borderBottom: "2px solid var(--primary3)" }}
+            />
             <div className="flex mb-3">
               <div className="flex-1 text-gray6">Deposited</div>
               <div>
@@ -989,12 +1005,6 @@ function IDOCard({ ido, parentSetParams }) {
           </div>
         </div>
         <div className="flex mb-3">
-          <div className="flex-1 text-gray6">Sold %</div>
-          <div>
-            {formatNumber(params.comitted.mul(100).div(params.raising), 0, 0)}%
-          </div>
-        </div>
-        <div className="flex mb-3">
           <div className="flex-1 text-gray6">Price</div>
           <div>
             {formatNumber(params.price, 3, ido.paymentDecimals)}{" "}
@@ -1024,21 +1034,10 @@ function IDOCard({ ido, parentSetParams }) {
             <div>None</div>
           </div>
         ) : null}
-        <div className="mb-4" />
         <div
-          className="progress mb-4"
-          title={`${formatNumber(
-            params.comitted,
-            ido.paymentDecimalsShown,
-            ido.paymentDecimals
-          )} / ${formatNumber(
-            params.raising,
-            ido.paymentDecimalsShown,
-            ido.paymentDecimals
-          )}`}
-        >
-          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-        </div>
+          className="mt-4 mb-4"
+          style={{ borderBottom: "2px solid var(--primary3)" }}
+        />
         {userInfo ? (
           <>
             {error ? <div className="error">{error}</div> : null}

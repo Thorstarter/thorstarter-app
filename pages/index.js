@@ -1028,6 +1028,11 @@ function IDOCard({ ido, parentSetParams }) {
               )}
             </div>
           </div>
+        ) : allocationData.length === 0 ? (
+          <div className="flex">
+            <div className="flex-1 text-gray6">Your Allocation</div>
+            <div>Pending</div>
+          </div>
         ) : userInfo ? (
           <div className="flex">
             <div className="flex-1 text-gray6">Your Allocation</div>

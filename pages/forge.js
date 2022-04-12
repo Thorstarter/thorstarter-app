@@ -157,7 +157,7 @@ export default function Forge({ history }) {
   }
   return (
     <Layout title="Forge" page="forge">
-      <IDORegistration />
+      {/*<IDORegistration />*/}
 
       <h1 className="title tac">
         <Image

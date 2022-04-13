@@ -52,6 +52,23 @@ function useTiers() {
       console.error("fetching lp units", err.message);
     }
 
+    let apiUser;
+    try {
+      const network = {
+        1: "ethereum",
+        137: "polygon",
+        250: "fantom",
+        "terra-mainnet": "terra",
+      }[String(state.networkId)];
+      let apiUrl = "http://localhost:8000";
+      //let apiUrl = "https://thorstarter-tiers-api.herokuapp.com";
+      apiUser = await fetch(
+        apiUrl + "/user-fetch?network=" + network + "&address=" + state.address
+      ).then((r) => r.json());
+    } catch (err) {
+      console.error("fetching api user", err.message);
+    }
+
     if (state.networkId === "terra-mainnet") {
       const contracts = contractAddresses[state.networkId];
       const user = await state.lcd.wasm.contractQuery(contracts.tiers, {
@@ -66,6 +83,7 @@ function useTiers() {
         lastDeposit: user.last_deposit,
         lp: lpXrune,
         forge: parseUnits("0"),
+        mintdao: parseUnits(String(apiUser?.user?.amount_mintdao || 0)),
       });
     } else if (state.networkId === 250) {
       const contracts = getContracts();
@@ -81,6 +99,7 @@ function useTiers() {
         lastDeposit: userInfo[1].toNumber(),
         lp: lpXrune,
         forge: forgeAmount,
+        mintdao: parseUnits(String(apiUser?.user?.amount_mintdao || 0)),
       });
     } else {
       const contracts = getContracts();
@@ -92,6 +111,7 @@ function useTiers() {
         lastDeposit: user[1].toNumber(),
         lp: lpXrune,
         forge: parseUnits("0"),
+        mintdao: parseUnits("0"),
       });
     }
   }
@@ -197,7 +217,9 @@ export default function Tiers() {
   const [modal, setModal] = useState();
   const [percent, setPercent] = useState("0");
   const total = data
-    ? parseFloat(formatUnits(data.total.add(data.lp).add(data.forge)))
+    ? parseFloat(
+        formatUnits(data.total.add(data.lp).add(data.forge).add(data.mintdao))
+      )
     : 0;
 
   useEffect(() => {
@@ -259,10 +281,7 @@ export default function Tiers() {
         <div className="tiers-wrapper__line">
           <div className="tiers-wrapper__progress" style={{ width: percent }}>
             <div className="tiers-wrapper__data">
-              Your score:{" "}
-              <span>
-                {data ? formatNumber(data.total.add(data.lp), 0) : "-"}
-              </span>
+              Your score: <span>{data ? formatNumber(total, 0) : "-"}</span>
             </div>
           </div>
         </div>
@@ -330,20 +349,30 @@ export default function Tiers() {
               <tr>
                 <td>Forge</td>
                 <td className="tac" style={{ width: 110 }}>
-                  {data ? formatNumber(data.forge) : "-"}
+                  N/A
                 </td>
                 <td className="tac" style={{ width: 110 }}>
-                  N/A
+                  {data ? formatNumber(data.forge) : "-"}
                 </td>
                 <td></td>
               </tr>
               <tr>
                 <td>THORChain LP XRUNE</td>
                 <td className="tac" style={{ width: 110 }}>
-                  {data ? formatNumber(data.lp) : "-"}
+                  N/A
                 </td>
                 <td className="tac" style={{ width: 110 }}>
+                  {data ? formatNumber(data.lp) : "-"}
+                </td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>MintDAO NFT</td>
+                <td className="tac" style={{ width: 110 }}>
                   N/A
+                </td>
+                <td className="tac" style={{ width: 110 }}>
+                  {data ? formatNumber(data.mintdao) : "-"}
                 </td>
                 <td></td>
               </tr>

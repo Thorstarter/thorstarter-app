@@ -49,7 +49,8 @@ export default function IDORegistration() {
       (user.amount_fantom || 0) +
       (user.amount_polygon || 0) +
       (user.amount_tclp || 0) +
-      (user.amount_forge || 0)
+      (user.amount_forge || 0) +
+      (user.amount_mintdao || 0)
     );
   }
   function userTier(user) {

@@ -60,8 +60,8 @@ function useTiers() {
         250: "fantom",
         "terra-mainnet": "terra",
       }[String(state.networkId)];
-      let apiUrl = "http://localhost:8000";
-      //let apiUrl = "https://thorstarter-tiers-api.herokuapp.com";
+      //let apiUrl = "http://localhost:8000";
+      let apiUrl = "https://thorstarter-tiers-api.herokuapp.com";
       apiUser = await fetch(
         apiUrl + "/user-fetch?network=" + network + "&address=" + state.address
       ).then((r) => r.json());

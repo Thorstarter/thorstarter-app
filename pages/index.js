@@ -44,31 +44,59 @@ import coverUtbets from "../public/ido/utbets-cover.png";
 import logoProteus from "../public/ido/proteus-logo.png";
 import coverProteus from "../public/ido/proteus-cover.png";
 
-const liveIdo = {
-  name: "Proteus",
-  token: "PROTEUS",
-  paymentToken: "UST",
-  type: "tiers-terra",
-  networkId: "terra-mainnet",
-  address: "terra16ewzuu492jt9nvxruhjtt554f4au9r6j05qa76",
+const liveIdo = null;
+const ulti = {
+  name: "Ultimate Champions",
+  token: "CHAMP",
+  paymentToken: "USDC",
+  type: "tiers",
+  networkId: 137,
+  address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
   notFinalized: true,
   paymentPrice: 1,
-  logo: logoProteus,
-  cover: coverProteus,
+  paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+  paymentDecimals: 6,
+  paymentDecimalsShown: 2,
+  logo: logoRemnant,
+  cover: coverRemnant,
   links: {
-    twitter: "https://twitter.com/ProteusFinance",
-    telegram: "https://t.me/ProteusFinance",
-    website: "https://proteus.finance/",
-    docs: "https://proteus-finance-assets-eu-central-1.s3.amazonaws.com/whitepaper.pdf",
+    twitter: "https://twitter.com/UltiChamps",
+    medium:
+      "https://ultimatechampions.medium.com/introducing-ultimate-cards-aa2291e39f85",
+    website: "https://ultimate-champions.com/",
+    discord: "https://discord.gg/JFEun4SpP3",
   },
   static: [
-    { label: "Offering", value: "5,000,000 PROTEUS" },
-    { label: "Raising", value: "300,000 UST" },
-    { label: "Price", value: "0.06 UST" },
+    { label: "Offering", value: "8,333,333 REMN" },
+    { label: "Raising", value: "250,000 USDC" },
+    { label: "Price", value: "0.03 USDC" },
   ],
 };
 
 const idos = [
+  {
+    name: "Proteus",
+    token: "PROTEUS",
+    paymentToken: "UST",
+    type: "tiers-terra",
+    networkId: "terra-mainnet",
+    address: "terra16ewzuu492jt9nvxruhjtt554f4au9r6j05qa76",
+    notFinalized: true,
+    paymentPrice: 1,
+    logo: logoProteus,
+    cover: coverProteus,
+    links: {
+      twitter: "https://twitter.com/ProteusFinance",
+      telegram: "https://t.me/ProteusFinance",
+      website: "https://proteus.finance/",
+      docs: "https://proteus-finance-assets-eu-central-1.s3.amazonaws.com/whitepaper.pdf",
+    },
+    static: [
+      { label: "Offering", value: "5,000,000 PROTEUS" },
+      { label: "Raising", value: "300,000 UST" },
+      { label: "Price", value: "0.06 UST" },
+    ],
+  },
   {
     name: "UltiBets",
     token: "UTBETS",

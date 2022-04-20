@@ -1,0 +1,26 @@
+{{.Set "title" "Admin"}}
+{{template "_header_app.html" .}}
+<div class="container">
+  <h1 class="title">Admin</h1>
+
+  <h2>IDOs</h2>
+
+  {{if and (eq .Method "POST") (eq (.Params.Get "action") "file")}}
+    {{.UploadFile}}
+    <div class="alert success">File uploaded</div>
+  {{end}}
+  {{.Set "files" (dbSelect "select * from files order by created_at desc")}}
+  <!-- http://thorstarter-files.s3-website-us-east-1.amazonaws.com/ -->
+  <div class="flex items-center">
+    <h2 class="flex-auto">Files</h2>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="file" />
+      <button type="submit" name="action" value="file" class="button">Upload</button>
+    </form>
+  </div>
+  {{range .GetL "files"}}
+  <div>{{formatJson .}}</div>
+  {{end}}
+  
+</div>
+{{template "_footer_app.html" .}}

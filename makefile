@@ -3,7 +3,7 @@ dev:
 	reflex -s -d none -- make run
 
 run:
-	go run main.go
+	go run *.go
 
 build:
 	go build -o app .

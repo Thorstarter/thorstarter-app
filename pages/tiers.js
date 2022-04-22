@@ -367,7 +367,7 @@ export default function Tiers() {
                 <td></td>
               </tr>
               <tr>
-                <td>MintDAO NFT</td>
+                <td><a href="https://app.mintdao.io/collections/thorstarter-shields" target="_blank">MintDAO NFT</a></td>
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>

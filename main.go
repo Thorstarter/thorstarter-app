@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -30,6 +32,18 @@ import (
 var fs embed.FS
 
 var start = time.Now()
+var contracts = map[string]map[string]string{
+	"Ethereum": map[string]string{
+		"xrune": "0x69fa0fee221ad11012bab0fdb45d444d3d2ce71c",
+	},
+	"Fantom": map[string]string{
+		"xrune": "0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6",
+		"forge": "0xaA8Bf7F8166fAb6Be431Ef4dF900ef4f9352FB96",
+	},
+	"Terra": map[string]string{
+		"xrune": "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
+	},
+}
 
 var routes = map[string]func(c *C){}
 
@@ -51,9 +65,9 @@ func main() {
 	s3Session := session.Must(session.NewSession(config))
 	s3Client := s3.New(s3Session)
 	evmClients := map[string]*rpc.Client{}
-	evmClients["ethereum"], err = rpc.DialHTTP(env("ETH_RPC", "https://cloudflare-eth.com"))
+	evmClients["Ethereum"], err = rpc.DialHTTP(env("ETH_RPC", "https://cloudflare-eth.com"))
 	check(err)
-	evmClients["fantom"], err = rpc.DialHTTP(env("FANTOM_RPC", "https://rpc.fantom.network"))
+	evmClients["Fantom"], err = rpc.DialHTTP(env("FANTOM_RPC", "https://rpc.fantom.network"))
 	check(err)
 
 	port := env("PORT", "8080")
@@ -237,6 +251,13 @@ func (v M) GetB(k string) bool {
 	return false
 }
 
+func (v M) GetBN(k string) *BN {
+	if x, ok := v[k].(*BN); ok {
+		return x
+	}
+	return BNZero
+}
+
 func (v M) GetM(k string) M {
 	if m, ok := v[k].(map[string]interface{}); ok {
 		return M(m)
@@ -249,6 +270,53 @@ func (v M) GetL(k string) L {
 		return L(l)
 	}
 	return nil
+}
+
+type BN struct {
+	big.Int
+}
+
+var BNZero = &BN{big.Int{}}
+
+func NewBN(n string, d int) *BN {
+	bn := &BN{big.Int{}}
+	_, ok := bn.Int.SetString(n, 10)
+	if !ok {
+		panic("NewBN: Invalid number: " + n)
+	}
+	p := (&big.Int{}).Exp(big.NewInt(10), big.NewInt(int64(d)), nil)
+	bn.Int.Mul(&bn.Int, p)
+	return bn
+}
+
+func (b *BN) Add(x *BN) *BN {
+	bn := &BN{big.Int{}}
+	bn.Int.Add(&b.Int, &x.Int)
+	return bn
+}
+
+func (b *BN) Format(d int, p int) string {
+	s := b.Int.String()
+	ss := ""
+	for i := 0; i < d; i++ {
+		if i < d-p {
+			continue
+		}
+		if i >= len(s) {
+			ss = "0" + ss
+		} else {
+			ss = string(s[len(s)-1-i]) + ss
+		}
+	}
+	if ss != "" {
+		ss = "." + ss
+	}
+	if len(s) > d {
+		ss = formatIntString(s[0:len(s)-d]) + ss
+	} else {
+		ss = "0" + ss
+	}
+	return ss
 }
 
 func check(err error) {
@@ -323,7 +391,10 @@ func formatAddress(x string) string {
 }
 
 func formatInt(x int64) string {
-	y := intToString(x)
+	return formatIntString(intToString(x))
+}
+
+func formatIntString(y string) string {
 	z := ""
 	for i := 0; i < len(y); i++ {
 		if (len(y)-i)%3 == 0 && i > 0 {
@@ -457,6 +528,7 @@ func layoutSite(title string, children ...string) string {
 func layoutApp(c *C, title string, children ...string) string {
 	walletChain := c.GetCookie("walletChain")
 	walletAddress := c.GetCookie("walletAddress")
+	// https://chart.apis.google.com/chart?chs=300x300&cht=qr&choe=UTF-8&chl=asd
 	return h("html", M{"lang": "en"},
 		layoutHead(title),
 		h("body", nil,
@@ -488,6 +560,29 @@ func layoutApp(c *C, title string, children ...string) string {
 					h("a", M{"class": "ml-4", "href": "https://medium.com/@thorstarter"}, "Medium")),
 				h("div", M{"style": "color:rgba(255,255,255,0.15);"}, "© 2021 Thorstarter. All Rights Reserved")),
 
+			h("div", M{"id": "walletConnectModal", "class": "modal hide", "onclick": "toggle('#walletConnectModal')"},
+				h("div", M{"class": "modal-content", "style": "width:320px", "onclick": "event.stopPropagation()"},
+					h("h2", M{"class": "text-lg"}, "Ethereum"),
+					h("a", M{"class": "wallet-option", "onclick": "walletConnectMetamask()"},
+						h("img", M{"src": "/public/wallets/metamask.png"}), "Metamask"),
+					h("h2", M{"class": "text-lg", "style": "margin-top:32px"}, "Terra"),
+					h("a", M{"class": "wallet-option", "onclick": "walletConnectTerra()"},
+						h("img", M{"src": "/public/wallets/terrastation.png"}), "Terra Station"),
+				)),
+			h("div", M{"id": "txPendingModal", "class": "modal hide"},
+				h("div", M{"class": "modal-content"},
+					h("div", M{"class": "text-center text-lg"}, "Transaction pending..."))),
+			h("div", M{"id": "txErrorModal", "class": "modal hide", "onclick": "toggle('#txErrorModal')"},
+				h("div", M{"class": "modal-content"},
+					h("div", M{"class": "text-center text-lg text-red", "id": "txErrorModalText"}, ""))),
+			h("div", M{"id": "txSuccessModal", "class": "modal hide", "onclick": "window.location.href='?nocache=1'"},
+				h("div", M{"class": "modal-content", "style": "width:600px", "onclick": "event.stopPropagation()"},
+					h("div", M{"class": "text-center"}, "Transaction sent! View in explorer: ",
+						h("a", M{"id": "txSuccessModalLink", "class": "text-primary5", "target": "_blank"}, ""),
+						h("div", nil, h("a", M{"class": "button mt-4", "onclick": "window.location.href='?nocache=1'"}, "Close"))))),
+
+			h("div", M{"id": "walletChain", "style": "display:none"}, walletChain),
+			h("div", M{"id": "walletAddress", "style": "display:none"}, walletAddress),
 			h("script", M{"src": "/public/app.js?v=" + start.Format("20060102150405")}),
 		))
 }
@@ -503,5 +598,41 @@ var iconMedium = `<svg width="24" height="24" viewBox="0 0 24 24" fill="white" x
 var iconExternal = `<svg fill="white" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.1969 11.9442H17.9256C17.6623 11.9442 17.4489 12.1577 17.4489 12.421V18.2171C17.4489 18.5248 17.1985 18.7751 16.8908 18.7751H5.78253C5.47494 18.7751 5.22475 18.5248 5.22475 18.2171V7.10901C5.22475 6.8013 5.47494 6.55092 5.78253 6.55092H11.8755C12.1388 6.55092 12.3522 6.33747 12.3522 6.07419V4.8029C12.3522 4.53962 12.1388 4.32617 11.8755 4.32617H5.78253C4.24821 4.32617 3 5.57457 3 7.10901V18.2172C3 19.7516 4.24828 20.9999 5.78253 20.9999H16.8908C18.4252 20.9999 19.6735 19.7516 19.6735 18.2172V12.421C19.6736 12.1577 19.4602 11.9442 19.1969 11.9442Z"></path><path d="M20.523 3H15.4662C15.2029 3 14.9895 3.21345 14.9895 3.47673V4.74802C14.9895 5.0113 15.2029 5.22475 15.4662 5.22475H17.2018L10.6709 11.7555C10.4847 11.9417 10.4847 12.2435 10.6709 12.4298L11.5698 13.3287C11.6592 13.4182 11.7805 13.4684 11.907 13.4684C12.0334 13.4684 12.1547 13.4182 12.244 13.3287L18.7749 6.79784V8.53333C18.7749 8.79662 18.9884 9.01006 19.2517 9.01006H20.523C20.7862 9.01006 20.9997 8.79662 20.9997 8.53333V3.47673C20.9997 3.21345 20.7862 3 20.523 3Z"></path></svg>`
 
 var iconDocumentation = `<svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M7.09902 3.00391L4.86523 5.23769H7.09902V3.00391Z"></path><path d="M16.4946 3H8.15333V6.292H4.86133V18.3569H16.4947V3H16.4946ZM14.3223 13.1901H7.03366V12.1353H14.3223V13.1901ZM14.3223 10.9493H7.03366V9.89459H14.3223V10.9493ZM14.3223 8.70854H7.03366V7.65381H14.3223V8.70854Z"></path><path d="M17.55 5.64355V19.4112H7.50586V21.0004H19.1392V5.64355H17.55Z"></path></svg>`
+
+// }}}}}}
+// {{{{{{ CACHE
+var cache = map[string]M{}
+var cacheTtl = map[string]time.Time{}
+var cacheLock = sync.Mutex{}
+
+func (c *C) CacheGet(k string) M {
+	if c.Req.URL.Query().Get("nocache") == "1" {
+		return nil
+	}
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+	if t, ok := cacheTtl[k]; ok && time.Now().After(t) {
+		delete(cache, k)
+		delete(cacheTtl, k)
+		return nil
+	}
+	return cache[k]
+}
+
+func (c *C) CacheSet(k string, ttl int, v M) {
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+	cache[k] = v
+	cacheTtl[k] = time.Now().Add(time.Duration(ttl) * time.Second)
+}
+
+func (c *C) CacheGetf(k string, ttl int, fn func() M) M {
+	v := c.CacheGet(k)
+	if v == nil {
+		v = fn()
+		c.CacheSet(k, ttl, v)
+	}
+	return v
+}
 
 // }}}}}}

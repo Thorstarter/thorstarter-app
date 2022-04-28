@@ -29,8 +29,8 @@ const tiers = [
 
 //const TIERS_API_URL = "http://localhost:8000";
 const TIERS_API_URL = "https://thorstarter-tiers-api.herokuapp.com";
-const idoId = "champ";
-const idoName = "Ultimate Champions";
+const idoId = "kol";
+const idoName = "KOLnet";
 const idoChain = "polygon";
 
 export default function IDORegistration() {

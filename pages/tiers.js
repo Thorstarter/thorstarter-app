@@ -266,7 +266,7 @@ export default function Tiers() {
   const isMainnet = state.networkId === 1;
   return (
     <Layout title="Tiers" page="tiers">
-      {/*<IDORegistration />*/}
+      <IDORegistration />
 
       <div className="flex-heading">
         <h1 className="title">Tiers</h1>

@@ -111,7 +111,7 @@ function useTiers() {
         lastDeposit: user[1].toNumber(),
         lp: lpXrune,
         forge: parseUnits("0"),
-        mintdao: parseUnits("0"),
+        mintdao: parseUnits(String(apiUser?.user?.amount_mintdao || 0)),
       });
     }
   }

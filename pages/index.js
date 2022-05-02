@@ -43,8 +43,36 @@ import logoUtbets from "../public/ido/utbets-logo.png";
 import coverUtbets from "../public/ido/utbets-cover.png";
 import logoProteus from "../public/ido/proteus-logo.png";
 import coverProteus from "../public/ido/proteus-cover.png";
+import logoKolnet from "../public/ido/kolnet-logo.png";
+import coverKolnet from "../public/ido/kolnet-cover.png";
 
-const liveIdo = null;
+const liveIdo = {
+  name: "KOLnet",
+  token: "KOL",
+  paymentToken: "USDC",
+  type: "tiers",
+  networkId: 137,
+  address: "0x798d0d1716ed93306d7576D595A16658f1Fba31e",
+  notFinalized: true,
+  paymentPrice: 1,
+  paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+  paymentDecimals: 6,
+  paymentDecimalsShown: 2,
+  logo: logoKolnet,
+  cover: coverKolnet,
+  links: {
+    twitter: "https://twitter.com/kolnet_official",
+    medium: "https://medium.com/@KOLnet",
+    website: "https://kolnet.io/",
+    telegram: "https://t.me/KOLnet_Official",
+  },
+  static: [
+    { label: "Offering", value: "25,000,000 KOL" },
+    { label: "Raising", value: "300,000 USDC" },
+    { label: "Price", value: "0.012 USDC" },
+  ],
+};
+
 const ulti = {
   name: "Ultimate Champions",
   token: "CHAMP",

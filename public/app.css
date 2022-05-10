@@ -112,6 +112,13 @@ h3 { font-size: 22px; margin: 32px 0 16px; }
 .alert.success { color: #047857; background: #ECFDF5; }
 .alert.error { color: #B91C1C; background: #FEF2F2; }
 
+.box {
+  min-width: 0;
+  padding: 32px;
+  background-color: #082131;
+  border-radius: 12px;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

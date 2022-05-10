@@ -41,11 +41,19 @@ func chainForgeInfo(c *C, address string) (M, error) {
 	amount := result[0].(*big.Int)
 	amount.Div(amount, big.NewInt(1000000000000))
 	shares := result[1].(*big.Int)
-	shares.Div(amount, big.NewInt(1000000000000))
+	shares.Div(shares, big.NewInt(1000000000000))
 	stakes := result[2].(*big.Int)
+
+	_, result, err = chainEvmCall(c, abiJson, "Fantom", contract, "totalSupply")
+	totalShares := result[0].(*big.Int)
+	totalShares.Div(totalShares, big.NewInt(1000000000000))
+	if err != nil {
+		return nil, err
+	}
 	return M{
-		"amount": &BN{*amount},
-		"shares": &BN{*shares},
-		"stakes": int(stakes.Int64()),
+		"amount":      &BN{*amount},
+		"shares":      &BN{*shares},
+		"stakes":      int(stakes.Int64()),
+		"totalShares": &BN{*totalShares},
 	}, nil
 }

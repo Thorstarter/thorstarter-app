@@ -38,7 +38,7 @@ var contracts = map[string]map[string]string{
 	},
 	"Fantom": map[string]string{
 		"xrune": "0xe1e6b01ae86ad82b1f1b4eb413b219ac32e17bf6",
-		"forge": "0xaA8Bf7F8166fAb6Be431Ef4dF900ef4f9352FB96",
+		"forge": "0x2D23039c1bA153C6afcF7CaB9ad4570bCbF80F56",
 	},
 	"Terra": map[string]string{
 		"xrune": "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
@@ -67,7 +67,7 @@ func main() {
 	evmClients := map[string]*rpc.Client{}
 	evmClients["Ethereum"], err = rpc.DialHTTP(env("ETH_RPC", "https://cloudflare-eth.com"))
 	check(err)
-	evmClients["Fantom"], err = rpc.DialHTTP(env("FANTOM_RPC", "https://rpc.fantom.network"))
+	evmClients["Fantom"], err = rpc.DialHTTP(env("FANTOM_RPC", "https://rpc2.fantom.network"))
 	check(err)
 
 	port := env("PORT", "8080")

@@ -740,7 +740,7 @@ function IDOCardStatic({ ido }) {
                 </div>
               </div>
             ) : null}
-            {userInfo.claimable && ido.token !== "MINT" ? (
+            {userInfo.claimable && ido.token !== "MINT" && ido.token !== "LUART" ? (
               <div className="flex mt-3">
                 <div className="flex-1 text-gray6">Vested</div>
                 <div>
@@ -764,7 +764,7 @@ function IDOCardStatic({ ido }) {
         {userInfo &&
         userInfo.amount.gt("0") &&
         !userInfo.claimedTokens &&
-        ido.token !== "MINT" ? (
+        ido.token !== "MINT" && ido.token !== "LUART" ? (
           <Button
             className="w-full mt-2"
             onClick={onHarvest}

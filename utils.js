@@ -22,12 +22,12 @@ export const networkNames = {
   4: "Rinkeby",
   137: "Polygon",
   250: "Fantom",
-  "terra-mainnet": "Terra",
+  "terra-classic": "Terra",
   "terra-testnet": "Terra (Testnet)",
 };
 
 export const terraGasPriceApi = {
-  "terra-mainnet": "https://fcd.terra.dev/v1/txs/gas_prices",
+  "terra-classic": "https://fcd.terra.dev/v1/txs/gas_prices",
   "terra-testnet": "https://bombay-fcd.terra.dev/v1/txs/gas_prices",
 };
 
@@ -49,7 +49,7 @@ if (global.window) {
           chainID: "columbus-5",
           lcd: "https://lcd.terra.dev",
           mantle: "https://mantle.terra.dev",
-          name: "mainnet",
+          name: "classic",
           walletconnectID: 1,
         },
       },
@@ -112,7 +112,7 @@ export const contractAddresses = {
     tiersSimple: "0xbc373f851d1EC6aaba27a9d039948D25a6EE8036",
     forge: "0x2D23039c1bA153C6afcF7CaB9ad4570bCbF80F56",
   },
-  "terra-mainnet": {
+  "terra-classic": {
     xrune: "terra1td743l5k5cmfy7tqq202g7vkmdvq35q48u2jfm",
     tiers: "terra18s7n93ja9nh37mttu66rhtsw05dxrcpsmw0c45",
   },

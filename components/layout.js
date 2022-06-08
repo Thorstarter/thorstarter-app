@@ -50,7 +50,7 @@ export default function Layout({ title, children, page }) {
               <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
             </Link>
             {isHomeNetwork ||
-            state.networkId === "terra-mainnet" ||
+            state.networkId === "terra-classic" ||
             state.networkId === 250 ? (
               <Link href="/tiers/">
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>

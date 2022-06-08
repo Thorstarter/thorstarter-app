@@ -79,7 +79,7 @@ export default function IDORegistration() {
       1: "ethereum",
       137: "polygon",
       250: "fantom",
-      "terra-mainnet": "terra",
+      "terra-classic": "terra",
     }[String(state.networkId)];
     if (state.address) {
       user = await fetch(

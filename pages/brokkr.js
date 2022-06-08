@@ -39,7 +39,7 @@ export default function Brokkr() {
   }
 
   async function fetchData() {
-    if (state.networkId !== "terra-mainnet") return;
+    if (state.networkId !== "terra-classic") return;
     const now = (Date.now() / 1000) | 0;
     const saleState = await state.lcd.wasm.contractQuery(saleAddress, {
       state: {},
@@ -206,11 +206,11 @@ export default function Brokkr() {
     setAmount(formatUnits(data.withdrawMax, 6).slice(0, -2));
   }
 
-  if (state.networkId !== "terra-mainnet") {
+  if (state.networkId !== "terra-classic") {
     return (
       <Layout title="Brokkr Sale" page="brokkr">
         <h1 className="title tac">Brokkr Sale</h1>
-        <div className="tac">Switch to the Terra mainnet network.</div>
+        <div className="tac">Switch to the Terra classic network.</div>
       </Layout>
     );
   }

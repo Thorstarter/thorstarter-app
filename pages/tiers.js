@@ -58,7 +58,7 @@ function useTiers() {
         1: "ethereum",
         137: "polygon",
         250: "fantom",
-        "terra-mainnet": "terra",
+        "terra-classic": "terra",
       }[String(state.networkId)];
       //let apiUrl = "http://localhost:8000";
       let apiUrl = "https://thorstarter-tiers-api.herokuapp.com";
@@ -69,7 +69,7 @@ function useTiers() {
       console.error("fetching api user", err.message);
     }
 
-    if (state.networkId === "terra-mainnet") {
+    if (state.networkId === "terra-classic") {
       const contracts = contractAddresses[state.networkId];
       const user = await state.lcd.wasm.contractQuery(contracts.tiers, {
         user_state: { user: state.address },
@@ -367,7 +367,15 @@ export default function Tiers() {
                 <td></td>
               </tr>
               <tr>
-                <td><a href="https://app.mintdao.io/collections/thorstarter-shields" target="_blank" rel="noreferrer">MintDAO NFT</a></td>
+                <td>
+                  <a
+                    href="https://app.mintdao.io/collections/thorstarter-shields"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    MintDAO NFT
+                  </a>
+                </td>
                 <td className="tac" style={{ width: 110 }}>
                   N/A
                 </td>

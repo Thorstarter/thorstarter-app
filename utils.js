@@ -410,8 +410,8 @@ export async function runTransactionTerra(params, setLoading, setError) {
     setError("");
     setLoading(t("waitingForConfirmation"));
     params.gasPrices = new Coins([new Coin("uusd", state.gasPriceUusd)]);
-    //console.log('gas', state.gasPriceUusd)
-    //params.fee = new Fee(750000, { uusd: '2000000' });
+    console.log("gas", state.gasPriceUusd);
+    params.fee = new Fee(750000, { uusd: "2000000" });
     const result = await state.wc.post(params);
     console.log("result", result);
     if (isTxError(result)) {

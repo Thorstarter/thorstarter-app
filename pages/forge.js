@@ -66,7 +66,6 @@ export default function Forge({ history }) {
   const estimatedSaleApr = estimatedSaleReturn / (amount * xrunePrice);
 
   async function fetchData() {
-    setXrunePrice(await fetchPrice());
     if (!state.address) return;
     if (state.networkId !== 250 && state.networkId !== 3) return;
 
@@ -83,6 +82,7 @@ export default function Forge({ history }) {
       userShares: infos[1],
       deposits,
     });
+    setXrunePrice(await fetchPrice());
   }
 
   useEffect(() => {

@@ -36,8 +36,7 @@ export const tcPoolNames = {
   3: "ETH.XRUNE-0X8626DB1A4F9F3E1002EEB9A4F3C6D391436FFC23",
 };
 
-const infuraProjectId = "f9dfccab907d4cc891817733689eaff4";
-const rpcUrl = `https://eth-mainnet.alchemyapi.io/v2/zGkyuksQ1Zs2_eT9ec2kv700cakDhgR0`;
+const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || "https://rpc.ankr.com/eth";
 
 let terraWalletSubscription;
 let terraWalletController;
@@ -125,8 +124,8 @@ export async function connectWallet() {
 export async function connectWalletEthereum(wallet = "metamask") {
   if (wallet === "walletconnect") {
     const wcProvider = new WalletConnectProvider({
-      infuraId: infuraProjectId,
       rpc: {
+        1: rpcUrl,
         137: "https://polygon-rpc.com/",
         250: "https://rpc.fantom.network",
       },

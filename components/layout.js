@@ -121,7 +121,7 @@ export default function Layout({ title, children, page }) {
           <Link href="https://thorstarter.org/">
             <a>Website</a>
           </Link>
-          <Link href="https://docs.thorstarter.org/">
+          <Link href="https://www.thorstarter.org/docs/welcome-to-thorstarter">
             <a>Docs</a>
           </Link>
         </div>

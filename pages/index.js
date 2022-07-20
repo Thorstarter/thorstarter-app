@@ -1,1211 +1,415 @@
-import { useState, useEffect } from "react";
-import { MsgExecuteContract, Fee, Coin } from "@terra-money/terra.js";
+import classnames from "classnames";
 import Image from "next/image";
-import Icon from "../components/icon";
-import Button from "../components/button";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
 import Layout from "../components/layout";
-import Countdown from "../components/countdown";
+import Button from "../components/button";
 import LoadingOverlay from "../components/loadingOverlay";
+import Vault from "../components/vault";
+import IDORegistration from "../components/idoRegistration";
 import {
-  bnMin,
-  bnMax,
-  useGlobalState,
-  formatNumber,
+  bn,
   parseUnits,
+  useGlobalState,
+  getContracts,
+  aprdToApy,
   formatUnits,
+  formatNumber,
+  formatMDY,
   runTransaction,
-  runTransactionTerra,
-  networkNames,
-  cannonicalAddress,
 } from "../utils";
-import abis from "../abis";
-import allocationData from "../data/allocations.json";
+import forgeTitleImg from "../public/forge-title.png";
 
-import logoBnpl from "../public/ido/bnpl-logo.png";
-import coverBnpl from "../public/ido/bnpl-cover.png";
-import logoThorswap from "../public/ido/thorswap-logo.png";
-import coverThorswap from "../public/ido/thorswap-cover.png";
-import logoThorwallet from "../public/ido/thorwallet-logo.png";
-import coverThorwallet from "../public/ido/thorwallet-cover.png";
-import logoMine from "../public/ido/mine-logo.png";
-import coverMine from "../public/ido/mine-cover.png";
-import logoLuart from "../public/ido/luart-logo.png";
-import coverLuart from "../public/ido/luart-cover.png";
-import logoOnering from "../public/ido/onering-logo.png";
-import coverOnering from "../public/ido/onering-cover.png";
-import logoRemnant from "../public/ido/remnant-logo.png";
-import coverRemnant from "../public/ido/remnant-cover.png";
-import logoMintdao from "../public/ido/mintdao-logo.png";
-import coverMintdao from "../public/ido/mintdao-cover.png";
-import logoDetf from "../public/ido/detf-logo.png";
-import coverDetf from "../public/ido/detf-cover.png";
-import logoUtbets from "../public/ido/utbets-logo.png";
-import coverUtbets from "../public/ido/utbets-cover.png";
-import logoProteus from "../public/ido/proteus-logo.png";
-import coverProteus from "../public/ido/proteus-cover.png";
-import logoKolnet from "../public/ido/kolnet-logo.png";
-import coverKolnet from "../public/ido/kolnet-cover.png";
-
-const liveIdo = null;
-
-const ulti = {
-  name: "Ultimate Champions",
-  token: "CHAMP",
-  paymentToken: "USDC",
-  type: "tiers",
-  networkId: 137,
-  address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
-  notFinalized: true,
-  paymentPrice: 1,
-  paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-  paymentDecimals: 6,
-  paymentDecimalsShown: 2,
-  logo: logoRemnant,
-  cover: coverRemnant,
-  links: {
-    twitter: "https://twitter.com/UltiChamps",
-    medium:
-      "https://ultimatechampions.medium.com/introducing-ultimate-cards-aa2291e39f85",
-    website: "https://ultimate-champions.com/",
-    discord: "https://discord.gg/JFEun4SpP3",
-  },
-  static: [
-    { label: "Offering", value: "8,333,333 REMN" },
-    { label: "Raising", value: "250,000 USDC" },
-    { label: "Price", value: "0.03 USDC" },
-  ],
-};
-
-const idos = [
-  {
-    name: "KOLnet",
-    token: "KOL",
-    paymentToken: "USDC",
-    type: "tiers",
-    networkId: 137,
-    address: "0x798d0d1716ed93306d7576D595A16658f1Fba31e",
-    paymentPrice: 1,
-    paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    paymentDecimals: 6,
-    paymentDecimalsShown: 2,
-    logo: logoKolnet,
-    cover: coverKolnet,
-    links: {
-      twitter: "https://twitter.com/kolnet_official",
-      medium: "https://medium.com/@KOLnet",
-      website: "https://kolnet.io/",
-      telegram: "https://t.me/KOLnet_Official",
-    },
-    static: [
-      { label: "Offering", value: "25,000,000 KOL" },
-      { label: "Raising", value: "300,000 USDC" },
-      { label: "Price", value: "0.012 USDC" },
-    ],
-  },
-  {
-    name: "Proteus",
-    token: "PROTEUS",
-    paymentToken: "UST",
-    type: "tiers-terra",
-    networkId: "terra-classic",
-    address: "terra16ewzuu492jt9nvxruhjtt554f4au9r6j05qa76",
-    notFinalized: true,
-    paymentPrice: 1,
-    logo: logoProteus,
-    cover: coverProteus,
-    links: {
-      twitter: "https://twitter.com/ProteusFinance",
-      telegram: "https://t.me/ProteusFinance",
-      website: "https://proteus.finance/",
-      docs: "https://proteus-finance-assets-eu-central-1.s3.amazonaws.com/whitepaper.pdf",
-    },
-    static: [
-      { label: "Offering", value: "5,000,000 PROTEUS" },
-      { label: "Raising", value: "300,000 UST" },
-      { label: "Price", value: "0.06 UST" },
-    ],
-  },
-  {
-    name: "UltiBets",
-    token: "UTBETS",
-    paymentToken: "USDC",
-    type: "tiers",
-    networkId: 250,
-    address: "0x0CC00fFBb90e33640Bdc98fa0A286Def0aECd047",
-    paymentPrice: 1,
-    paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
-    paymentDecimals: 6,
-    paymentDecimalsShown: 2,
-    notFinalized: true,
-    logo: logoUtbets,
-    cover: coverUtbets,
-    progress: 42,
-    links: {
-      twitter: "https://twitter.com/UltiBets",
-      telegram: "https://t.me/ultibets",
-      discord: "https://discord.com/invite/EsWqNmTcdr",
-      medium: "https://medium.com/@ultibets",
-      website: "https://beta-ultibets.vercel.app/",
-    },
-    static: [
-      { label: "Offering", value: "8,000,000 UTBETS" },
-      { label: "Raising", value: "600,000 USDC" },
-      { label: "Price", value: "0.075 USDC" },
-    ],
-  },
-  {
-    name: "D-ETF",
-    token: "DETF",
-    paymentToken: "USDC",
-    type: "tiers",
-    networkId: 1,
-    address: "0xfA47Db225d985B98A404839733D8598FD699A996",
-    paymentPrice: 1,
-    paymentTokenAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    paymentDecimals: 6,
-    paymentDecimalsShown: 2,
-    notFinalized: true,
-    logo: logoDetf,
-    cover: coverDetf,
-    links: {
-      twitter: "https://twitter.com/detf_official",
-      telegram: "https://t.me/joinchat/zaitoJI4IBcwYzcy",
-      medium: "https://medium.com/@detf_official",
-      website: "https://d-etf.com/",
-    },
-    static: [
-      { label: "Offering", value: "3,333,333 DETF" },
-      { label: "Raising", value: "300,000 USDC" },
-      { label: "Price", value: "0.09 USDC" },
-    ],
-  },
-  {
-    name: "MintDAO",
-    token: "MINT",
-    paymentToken: "UST",
-    type: "tiers-terra",
-    networkId: "terra-classic",
-    address: "terra1dvlkmlfa5j0sdzj3f99a4dlhguu9k4acdt5nzx",
-    notFinalized: true,
-    paymentPrice: 1,
-    logo: logoMintdao,
-    cover: coverMintdao,
-    links: {
-      twitter: "https://twitter.com/mintdao_io",
-      medium: "https://medium.com/@mintdao",
-      website: "https://mintdao.io/",
-    },
-    static: [
-      { label: "Offering", value: "3,529,411 MINT" },
-      { label: "Raising", value: "300,000 UST" },
-      { label: "Price", value: "0.085 UST" },
-    ],
-  },
-  {
-    name: "Remnant Labs",
-    token: "REMN",
-    paymentToken: "USDC",
-    type: "tiers",
-    networkId: 137,
-    address: "0xa03D89466FBB85F49A828CC8EE2ce5Fa14504D40",
-    notFinalized: true,
-    paymentPrice: 1,
-    paymentTokenAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-    paymentDecimals: 6,
-    paymentDecimalsShown: 2,
-    logo: logoRemnant,
-    cover: coverRemnant,
-    links: {
-      twitter: "https://twitter.com/RemnantLabs",
-      medium: "https://t.me/joinchat/LOHF0SfrmZ1jYWEx",
-      website: "https://remnant.gg/",
-      discord: "https://discord.com/invite/EG22EmHVmy",
-    },
-    static: [
-      { label: "Offering", value: "363,636,363 REMN" },
-      { label: "Raising", value: "200,000 USDC" },
-      { label: "Price", value: "0.00055 USDC" },
-    ],
-  },
-  {
-    name: "OneRing",
-    token: "RING",
-    paymentToken: "USDC",
-    type: "tiers",
-    networkId: 250,
-    address: "0xFfA332907C6b9ff7c6Bf0011a894c10f1d0011dD",
-    paymentPrice: 1,
-    paymentTokenAddress: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
-    paymentDecimals: 6,
-    paymentDecimalsShown: 2,
-    logo: logoOnering,
-    cover: coverOnering,
-    links: {
-      twitter: "https://twitter.com/Onering_Finance",
-      telegram: "https://t.me/OneRing_Finance",
-      medium: "https://onering-finance.medium.com/",
-      website: "https://www.onering.finance/",
-      discord: "https://discord.com/invite/oneringfinance",
-    },
-    static: [
-      { label: "Offering", value: "800,000 RING" },
-      { label: "Raising", value: "400,000 USDC" },
-      { label: "Price", value: "0.50 USDC" },
-    ],
-  },
-  {
-    name: "Luart",
-    token: "LUART",
-    paymentToken: "UST",
-    type: "tiers-terra",
-    networkId: "terra-classic",
-    address: "terra10f7w8d5kdzwhlclyk73j887ws8r35972kgzusx",
-    paymentPrice: 1,
-    logo: logoLuart,
-    cover: coverLuart,
-    links: {
-      twitter: "https://twitter.com/luart_io",
-      telegram: "https://t.me/luart_io",
-      medium: "https://luart-io.medium.com/",
-      website: "https://www.luart.io/",
-      discord: "https://discord.com/invite/luart",
-    },
-    static: [
-      { label: "Offering", value: "20,000,000 LUART" },
-      { label: "Raising", value: "500,000 UST" },
-      { label: "Price", value: "0.025 UST" },
-    ],
-  },
-  {
-    name: "MINE Network",
-    token: "MNET",
-    paymentToken: "ETH",
-    type: "tiers",
-    networkId: 1,
-    address: "0xd7a7Bcf3b166E89e8c7d4EEf54F976854E44612B",
-    paymentPrice: 4200,
-    logo: logoMine,
-    cover: coverMine,
-    links: {
-      twitter: "https://twitter.com/mine_blockchain",
-      telegram: "https://t.me/mine_blockchain",
-      medium: "https://mineblockchain.medium.com/",
-      website: "https://www.mine.network/",
-      docs: "https://docsend.com/view/d9jijm9qqvbavcen",
-    },
-    static: [
-      { label: "Offering", value: "15,000,000 MNET" },
-      { label: "Raising", value: "35.71 ETH" },
-      { label: "Claimed %", value: "100%" },
-      { label: "Price", value: "0.00000238 ETH $ 0.01" },
-    ],
-  },
-  {
-    name: "THORWallet",
-    token: "TGT",
-    paymentToken: "XRUNE",
-    type: "fcfs",
-    networkId: 1,
-    address: "0xd980a5fb418E2127573a001147B4EAdFE283c817",
-    xrunePrice: 0.55,
-    tiersDuration: 7200,
-    notFinalized: false,
-    logo: logoThorwallet,
-    cover: coverThorwallet,
-    links: {
-      twitter: "https://twitter.com/ThorWallet",
-      telegram: "https://t.me/THORWalletOfficial",
-      medium: "https://thorwallet.medium.com/",
-      website: "https://thorwallet.org/",
-      docs: "https://thorwallet.org/wp-content/uploads/2021/10/Thorwallet-Pitch_v1.9.pdf",
-    },
-    static: [
-      { label: "Offering", value: "20,000,000 TGT" },
-      { label: "Raising", value: "909,091 XRUNE" },
-      { label: "Committed %", value: "100%" },
-      { label: "Committed $", value: "$ 500,000" },
-      { label: "Committed XRUNE", value: "909,091 / 909,091" },
-      { label: "Price", value: "0.05 XRUNE $ 0.025" },
-    ],
-  },
-  {
-    name: "THORSwap",
-    token: "THOR",
-    paymentToken: "XRUNE",
-    type: "batch",
-    networkId: 1,
-    address: "0xbe50283a23cf952E78272d41ADcF7ffAd711b637",
-    xrunePrice: 0.5,
-    price: parseUnits("0.15"),
-    logo: logoThorswap,
-    cover: coverThorswap,
-    links: {
-      twitter: "https://twitter.com/thorswap",
-      telegram: "https://t.me/thorswap_ann",
-      medium: "https://thorswap.medium.com/",
-      website: "https://thorswap.finance/",
-      docs: "https://docs.thorchain.org/",
-      discord: "https://discord.gg/thorswap",
-    },
-    static: [
-      { label: "Offering", value: "10,000,000 THOR" },
-      { label: "Raising", value: "1,500,000 XRUNE" },
-      { label: "Committed %", value: "198%" },
-      { label: "Committed $", value: "$ 1,489,220.89" },
-      { label: "Committed XRUNE", value: "2,978,442 / 1,500,000" },
-      { label: "Price", value: "0.15 XRUNE $ 0.075" },
-    ],
-  },
-  {
-    name: "BNPL Pay",
-    token: "BNPL",
-    paymentToken: "XRUNE",
-    type: "batch",
-    networkId: 1,
-    address: "0x1a4d12Ab7033483bEEf93b9faCDB818c0f039271",
-    xrunePrice: 0.2,
-    price: parseUnits("0.2"),
-    logo: logoBnpl,
-    cover: coverBnpl,
-    links: {
-      twitter: "https://twitter.com/bnplpay",
-      telegram: "https://t.me/bnplpay",
-      medium: "https://medium.com/bnplpay",
-      website: "https://bnplpay.io/",
-      docs: "https://bnplpay.io/file/BNPL%20Pay-Whitepaper%201.2.pdf",
-      about: "https://thorstarter.org/ido/bnpl",
-    },
-    static: [
-      { label: "Offering", value: "5,000,000 BNPL" },
-      { label: "Raising", value: "1,000,000 XRUNE" },
-      { label: "Committed %", value: "806%" },
-      { label: "Committed $", value: "$ 1,613,930.64" },
-      { label: "Committed XRUNE", value: "8,069,653 / 1,000,000" },
-      { label: "Price", value: "0.20 XRUNE $ 0.040" },
-    ],
-  },
-  /*
-  {
-    name: "Skyrim Finance",
-    token: "SKYRIM",
-    paymentToken: "XRUNE",
-    type: "dutch",
-    networkId: 1,
-    address: "0x9Aa3f4295431e6640f1D2ef50944BAe6cC5123D8",
-    xrunePrice: 0.5,
-    price: parseUnits("1.23164843"),
-    logo: logoSkyrim,
-    cover: coverSkyrim,
-    links: {
-      twitter: "https://twitter.com/SkyrimFinance",
-      telegram: "https://t.me/skyrimfinance",
-      medium: "https://medium.com/@skyrimfinance",
-      website: "https://skyrim.finance/",
-      docs: "https://docs.skyrim.finance/",
-      about: "https://thorstarter.org/ido/skyrim",
-    },
-    static: [
-      { label: "Offering", value: "5,000,000 SKYRIM" },
-      { label: "Start Price", value: "2 XRUNE $ 1" },
-      { label: "Reserve Price", value: "0.20 XRUNE $ 0.10" },
-      { label: "Committed $", value: "$ 3,079,116.21" },
-      { label: "Committed XRUNE", value: "6,158,232" },
-      { label: "Price", value: "1.23 XRUNE $ 0.61" },
-    ],
-  },
-  */
-];
-
-export default function IDOs() {
-  const state = useGlobalState();
-  const [liveIdoParams, setLiveIdoParams] = useState(null);
-  const previousIDOs = idos;
-
-  return (
-    <Layout title="IDOs" page="idos">
-      {liveIdo ? (
-        <>
-          <h1 className="live-ido-title title clear">
-            {liveIdo.name} IDO
-            {liveIdoParams &&
-            liveIdoParams.timestamp < liveIdoParams.start.getTime() / 1000 ? (
-              <div className="flex float-right">
-                <span>Starts in </span>
-                <Countdown
-                  to={liveIdoParams.start}
-                  zeroText="Waiting for next block..."
-                />
-              </div>
-            ) : liveIdoParams && Date.now() < liveIdoParams.end.getTime() ? (
-              <div className="flex float-right">
-                <span>Allocations Round Ends / FCFS Round Starts in </span>
-                <Countdown to={liveIdoParams.end} />
-              </div>
-            ) : liveIdoParams &&
-              !liveIdoParams.raising.eq(liveIdoParams.comitted) ? (
-              <div className="flex float-right">
-                <span>FCFS Ongoing</span>
-              </div>
-            ) : null}
-          </h1>
-          <div className="live-ido flex">
-            <div className="live-ido-card">
-              {liveIdo.networkId === state.networkId ? (
-                <IDOCard ido={liveIdo} parentSetParams={setLiveIdoParams} />
-              ) : (
-                <div
-                  className="ido text-center pt-4"
-                  style={{ display: "block" }}
-                >
-                  Wrong network ({networkNames[state.networkId]}), switch to{" "}
-                  <b>{networkNames[liveIdo.networkId]}</b> to participate in
-                  this IDO
-                </div>
-              )}
-            </div>
-            <div
-              className="live-ido-info flex-1 flex flex-column"
-              style={{ backgroundImage: `url(${liveIdo.cover.src})` }}
-            >
-              <div className="live-ido-info-logo flex-1">
-                <Image
-                  src={liveIdo.logo}
-                  height={60}
-                  width={(60 * liveIdo.logo.width) / liveIdo.logo.height}
-                  alt={liveIdo.name}
-                />
-              </div>
-              <div>
-                <h1 className="title mb-0">{liveIdo.name}</h1>
-                <div className="live-ido-info-links">
-                  <a
-                    href={liveIdo.links.website}
-                    target="_blank"
-                    rel="noreferrer reopener"
-                  >
-                    <Icon name="link" /> <span>Website</span>
-                  </a>
-                  {liveIdo.links.docs ? (
-                    <a
-                      href={liveIdo.links.docs}
-                      target="_blank"
-                      rel="noreferrer reopener"
-                    >
-                      <Icon name="docs" /> <span>Whitepaper</span>
-                    </a>
-                  ) : null}
-                  <a
-                    href={liveIdo.links.twitter}
-                    target="_blank"
-                    rel="noreferrer reopener"
-                  >
-                    <Icon name="twitter" />
-                  </a>
-                  {liveIdo.links.telegram ? (
-                    <a
-                      href={liveIdo.links.telegram}
-                      target="_blank"
-                      rel="noreferrer reopener"
-                    >
-                      <Icon name="telegram" />
-                    </a>
-                  ) : null}
-                  {liveIdo.links.discord ? (
-                    <a
-                      href={liveIdo.links.discord}
-                      target="_blank"
-                      rel="noreferrer reopener"
-                    >
-                      <Icon name="discord" />
-                    </a>
-                  ) : null}
-                  <a
-                    href={liveIdo.links.medium}
-                    target="_blank"
-                    rel="noreferrer reopener"
-                  >
-                    <Icon name="medium" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      ) : null}
-      <br />
-      <h1 className="title">
-        Previous IDOs
-        <a
-          href="https://thorstarter.org/#upcoming-projects"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="button button-outline float-right"
-        >
-          Upcoming IDOs
-        </a>
-      </h1>
-      {previousIDOs.length === 0 ? "No previous IDOs... yet..." : null}
-      <div className="ido-list">
-        {previousIDOs.map((ido) => (
-          <IDOCardStatic ido={ido} key={ido.name} />
-        ))}
-      </div>
-      <div className="footer-buttons text-center py-16">
-        <a
-          href="https://thorstarter.substack.com/"
-          className="button button-lg mr-4"
-          target="_blank"
-          rel="noreferrer reopener"
-        >
-          Get Alerts For New IDOs
-        </a>
-        <a
-          href="https://thorstarter.org/apply/"
-          className="button button-lg"
-          target="_blank"
-          rel="noreferrer reopener"
-        >
-          Apply for IDO
-        </a>
-      </div>
-    </Layout>
+async function fetchPrice() {
+  const req = await fetch(
+    "https://1e35cbc19de1456caf8c08b2b4ead7d2.thorstarter.org/005cf62030316481c442e0ed49580de500/",
+    { method: "POST" }
   );
+  const res = await req.json();
+  return parseFloat(res.xrune.quote.USD.price);
 }
 
-function IDOCardStatic({ ido }) {
+export default function Forge({ history }) {
   const state = useGlobalState();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState("");
+  const [depositAmount, setDepositAmount] = useState("10000");
+  const [depositDays, setDepositDays] = useState("60");
+  const [calcSaleRaise, setCalcSaleRaise] = useState("300000");
+  const [calcSalesPerYear, setCalcSalesPerYear] = useState("24");
+  const [calcSaleRoi, setCalcSaleRoi] = useState("5");
+  const [calcSaleAllocation, setCalcSaleAllocation] = useState("250");
+  const [xrunePrice, setXrunePrice] = useState(0.1);
+  const [data, setData] = useState();
 
-  function getSaleContract() {
-    const abi = {
-      fcfs: abis.saleFcfs,
-      batch: abis.saleBatch,
-      dutch: abis.saleDutch,
-      tiers: abis.saleTiers,
-    }[ido.type];
-    return new ethers.Contract(
-      ido.address,
-      abi,
-      state.signer || state.provider
-    );
-  }
+  const amount = parseFloat(depositAmount);
+  const shares =
+    amount +
+    (amount * parseInt(depositDays) * 6) / 365 +
+    (amount * amount * 0.1) / 1000000;
+  const totalShares = Math.max(
+    data ? parseFloat(formatUnits(data.totalShares)) : 0,
+    20000000
+  );
+  const estimatedReturn =
+    (shares *
+      parseInt(calcSalesPerYear) *
+      parseInt(calcSaleRaise) *
+      0.2 *
+      (parseInt(calcSaleRoi) / 2)) /
+    totalShares;
+  const estimatedApr = estimatedReturn / (amount * xrunePrice);
+  const estimatedSaleReturn =
+    parseInt(calcSaleAllocation) *
+    parseInt(calcSalesPerYear) *
+    (parseInt(calcSaleRoi) - 1);
+  const estimatedSaleApr = estimatedSaleReturn / (amount * xrunePrice);
 
   async function fetchData() {
     if (!state.address) return;
-    if (state.networkId !== ido.networkId) return;
-    if (ido.type === "tiers-terra") {
-      const userState = await state.lcd.wasm.contractQuery(ido.address, {
-        user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
-      });
-      const claimed = parseUnits(userState.claimed, 12);
-      const owed = parseUnits(userState.owed, 12);
-      setUserInfo({
-        amount: parseUnits(userState.amount, 12),
-        claimedTokens: owed.sub(claimed).eq("0"),
-        claimable: parseUnits(userState.claimable, 12),
-        claimed,
-        owed,
-      });
-    } else if (ido.type === "tiers") {
-      const sale = getSaleContract();
-      const userInfo = await sale.getUserInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[3].sub(userInfo[1]).eq("0"),
-        claimable: userInfo[3],
-        claimed: userInfo[1],
-        owed: userInfo[2],
-      });
-    } else if (ido.type === "batch") {
-      const sale = getSaleContract();
-      const userInfo = await sale.userInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[2],
-        claimedRefund: userInfo[1],
-        owed: await sale.getOfferingAmount(state.address),
-        refund: await sale.getRefundingAmount(state.address),
-      });
-    } else if (ido.type === "fcfs") {
-      const sale = getSaleContract();
-      const userInfo = await sale.userInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[1],
-        owed: await sale.getOfferingAmount(state.address),
-      });
-    } else if (ido.type === "dutch") {
-      const sale = getSaleContract();
-      const userInfo = await sale.userInfo(state.address);
-      setUserInfo({
-        amount: userInfo[0],
-        claimedTokens: userInfo[1],
-        owed: userInfo[0].mul(parseUnits("1")).div(ido.price),
-      });
+    if (state.networkId !== 250 && state.networkId !== 3) return;
+
+    const contracts = getContracts();
+    const totalShares = await contracts.forge.totalSupply();
+    const infos = await contracts.forge.getUserInfo(state.address);
+    const deposits = [];
+    for (let i = 0; i < infos[2].toNumber(); i++) {
+      deposits.push(await contracts.forge.users(state.address, i));
     }
+    setData({
+      totalShares,
+      userAmount: infos[0],
+      userShares: infos[1],
+      deposits,
+    });
+    setXrunePrice(await fetchPrice());
   }
 
   useEffect(() => {
     fetchData();
   }, [state.networkId, state.address]);
 
-  async function callSaleMethod(method, ...args) {
-    const sale = getSaleContract();
-    const call = sale[method](...args);
-    await runTransaction(call, setLoading, setError);
-    fetchData();
-  }
-
-  async function onHarvest() {
-    if (ido.type === "tiers-terra") {
-      try {
-        await runTransactionTerra(
-          {
-            msgs: [
-              new MsgExecuteContract(state.address, ido.address, {
-                harvest: {},
-              }),
-            ],
-          },
-          setLoading,
-          setError
-        );
-      } catch (e) {
-        console.log("err", e);
-      }
-      fetchData();
-      setTimeout(fetchData, 5000);
-      setTimeout(fetchData, 10000);
-      setTimeout(fetchData, 20000);
-    } else if (ido.type == "fcfs") {
-      callSaleMethod("harvest", false);
-    } else if (ido.type === "batch") {
-      callSaleMethod("harvestTokens");
-    } else if (ido.type === "dutch") {
-      callSaleMethod("harvestTokens");
-    } else {
-      callSaleMethod("harvest");
-    }
-  }
-
-  return (
-    <div className="ido">
-      <div className="flex-1">
-        <IDOHeader ido={ido} />
-        {ido.static.map((v) => (
-          <div className="flex mb-3" key={v.label}>
-            <div className="flex-1 text-gray6">{v.label}</div>
-            <div>{v.value}</div>
-          </div>
-        ))}
-        {userInfo && userInfo.amount.gt("0") ? (
-          <>
-            <div
-              className="mt-4 mb-4"
-              style={{ borderBottom: "2px solid var(--primary3)" }}
-            />
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Deposited</div>
-              <div>
-                {formatNumber(
-                  userInfo.amount,
-                  ido.paymentDecimalsShown,
-                  ido.paymentDecimals
-                )}{" "}
-                <span className="text-gray6">{ido.paymentToken}</span>
-              </div>
-            </div>
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">
-                {userInfo.claimed
-                  ? "Total Owed"
-                  : userInfo.claimedTokens
-                  ? "Collected"
-                  : "Owed"}
-              </div>
-              <div>
-                {formatNumber(userInfo.owed)}{" "}
-                <span className="text-gray6">{ido.token}</span>
-              </div>
-            </div>
-            {userInfo.claimed && ido.token !== "MINT" ? (
-              <div className="flex mt-3">
-                <div className="flex-1 text-gray6">Collected</div>
-                <div>
-                  {formatNumber(userInfo.claimed)}{" "}
-                  <span className="text-gray6">{ido.token}</span>
-                </div>
-              </div>
-            ) : null}
-            {userInfo.claimable && ido.token !== "MINT" ? (
-              <div className="flex mt-3">
-                <div className="flex-1 text-gray6">Vested</div>
-                <div>
-                  {formatNumber(userInfo.claimable)}{" "}
-                  <span className="text-gray6">{ido.token}</span>
-                </div>
-              </div>
-            ) : null}
-            {userInfo.refund ? (
-              <div className="flex mt-3">
-                <div className="flex-1 text-gray6">Refund</div>
-                <div>
-                  {formatNumber(userInfo.refund)}{" "}
-                  <span className="text-gray6">{ido.paymentToken}</span>
-                </div>
-              </div>
-            ) : null}
-          </>
-        ) : null}
-        {error ? <div className="error">{error}</div> : null}
-        {userInfo &&
-        userInfo.amount.gt("0") &&
-        !userInfo.claimedTokens &&
-        ido.token !== "MINT" ? (
-          <Button
-            className="w-full mt-2"
-            onClick={onHarvest}
-            disabled={
-              ido.notFinalized ||
-              (userInfo.claimable && userInfo.claimable.eq(userInfo.claimed))
-            }
-          >
-            {loading
-              ? "Loading..."
-              : userInfo.claimable && userInfo.claimable.eq(userInfo.claimed)
-              ? "No vested tokens"
-              : ido.notFinalized
-              ? "Soon..."
-              : "Collect"}
-          </Button>
-        ) : null}
-        {loading ? <LoadingOverlay message={loading} /> : null}
-      </div>
-    </div>
-  );
-}
-
-function IDOCard({ ido, parentSetParams }) {
-  const state = useGlobalState();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [balance, setBalance] = useState(0);
-  const [params, setParams] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
-
-  async function fetchData() {
-    if (ido.type === "tiers-terra") {
-      //if (!state.lcd) return;
-      const idoState = await state.lcd.wasm.contractQuery(ido.address, {
-        state: {},
-      });
-      const raising = parseUnits(idoState.raising_amount, 12);
-      const offering = parseUnits(idoState.offering_amount, 12);
-      const comitted = parseUnits(idoState.total_amount, 12);
-      const newParams = {
-        timestamp: (Date.now() / 1000) | 0,
-        start: new Date(idoState.start_time * 1000),
-        end: new Date(idoState.end_time * 1000),
-        raising: raising,
-        offering: offering,
-        comitted: comitted,
-        paused: false,
-        finalized: idoState.finalized,
-        price: raising.mul(parseUnits("1")).div(offering),
-      };
-      setParams(newParams);
-      if (parentSetParams) parentSetParams(newParams);
-      if (!state.address) return;
-
-      // fetch ust balance
-      const balances = await state.lcd.bank.balance(state.address);
-      const balance = (
-        balances[0].map((b) => b).find((b) => b.denom === "uusd") || {
-          amount: "0",
-        }
-      ).amount.toString();
-      setBalance(parseUnits(balance, 12));
-
-      // fetch ido user state & allocation
-      const userState = await state.lcd.wasm.contractQuery(ido.address, {
-        user_state: { user: state.address, now: (Date.now() / 1000) | 0 },
-      });
-      const userAllocation = allocationData.find(
-        (a) => a.address === state.address
-      ) || { allocation: "0", proof: [] };
-      let allocation = parseUnits(userAllocation.allocation, 12);
-      if (Date.now() / 1000 >= idoState.end_time && !raising.eq(comitted)) {
-        allocation = allocation.add(parseUnits("125", 18));
-      }
-      setUserInfo({
-        amount: parseUnits(userState.amount, 12),
-        owed: parseUnits(userState.owed, 12),
-        allocationStr: userAllocation.allocation,
-        allocation: allocation,
-        proof: userAllocation.proof,
-      });
-    } else {
-      const lastBlock = await getState().provider.getBlock(-1);
-      const paymentToken = new ethers.Contract(
-        ido.paymentTokenAddress,
-        abis.token,
-        state.provider
-      );
-      const sale = new ethers.Contract(
-        ido.address,
-        abis.saleTiers,
-        state.provider
-      );
-      const params = await sale.getParams();
-      const newParams = {
-        timestamp: lastBlock.timestamp,
-        start: new Date(params[0].toNumber() * 1000),
-        end: new Date(params[1].toNumber() * 1000),
-        raising: params[2],
-        offering: params[3],
-        comitted: params[4],
-        paused: params[5],
-        finalized: params[6],
-        price: params[2].mul(parseUnits("1")).div(params[3]),
-      };
-      setParams(newParams);
-      if (parentSetParams) parentSetParams(newParams);
-      if (!state.address) return;
-      setBalance(await paymentToken.balanceOf(state.address));
-      const userInfo = await sale.getUserInfo(state.address);
-      const userAllocation = allocationData.find(
-        (a) => cannonicalAddress(a.address) === state.address
-      ) || { amount: "0", proof: [] };
-      let allocation = parseUnits(userAllocation.amount, ido.paymentDecimals);
-      if (
-        lastBlock.timestamp >= params[1].toNumber() &&
-        !params[2].eq(params[4])
-      ) {
-        allocation = allocation.add(params[2].mul(1000).div(1000000));
-      }
-      setUserInfo({
-        amount: userInfo[0],
-        owed: userInfo[2],
-        allocationStr: userAllocation.amount,
-        allocation: allocation,
-        allocationFcfs: parseUnits(
-          userAllocation.amount,
-          ido.paymentDecimals
-        ).add(params[2].mul(125).div(100000)),
-        proof: userAllocation.proof,
-      });
-    }
-  }
-
-  useEffect(() => {
-    fetchData();
-    const handle = setInterval(fetchData, 5000);
-    setTimeout(() => clearInterval(handle), 3 * 60 * 60 * 1000); // Stop after 3 hours
-    return () => clearInterval(handle);
-  }, [state.networkId, state.address]);
-
-  async function onDeposit() {
-    setError("");
+  function onDeposit(e) {
     try {
-      console.log(params.timestamp, params.end.getTime());
-      if (
-        params.timestamp < params.end.getTime() / 1000 &&
-        userInfo.proof.length === 0
-      ) {
-        setError("You don't have an allocation for this IDO");
-        return;
-      }
-      const parsedAmount = parseUnits(
-        amount.replace(/[^0-9\.]/g, ""),
-        ido.paymentDecimals
+      e.preventDefault();
+      const contracts = getContracts();
+      const parsedAmount = parseUnits(depositAmount);
+      const call = contracts.xrune.transferAndCall(
+        contracts.forge.address,
+        parsedAmount,
+        ethers.utils.defaultAbiCoder.encode(["uint256"], [depositDays])
       );
-      setAmount(formatUnits(parsedAmount, ido.paymentDecimals));
-      if (ido.type === "tiers-terra") {
-        try {
-          await runTransactionTerra(
-            {
-              msgs: [
-                new MsgExecuteContract(
-                  state.address,
-                  ido.address,
-                  {
-                    [Date.now() < params.end.getTime()
-                      ? "deposit"
-                      : "deposit_fcfs"]: {
-                      allocation: userInfo.allocationStr,
-                      proof: userInfo.proof,
-                    },
-                  },
-                  [
-                    new Coin(
-                      "uusd",
-                      parsedAmount.div("1000000000000").toString()
-                    ),
-                  ]
-                ),
-              ],
-            },
-            setLoading,
-            setError
-          );
-        } catch (e) {
-          console.log("err", e);
-        }
-      } else {
-        const paymentToken = new ethers.Contract(
-          ido.paymentTokenAddress,
-          abis.token,
-          state.signer
-        );
-        const sale = new ethers.Contract(
-          ido.address,
-          abis.saleTiers,
-          state.signer
-        );
-
-        const allowance = await paymentToken.allowance(
-          state.address,
-          sale.address
-        );
-        const allowanceNeeded = bnMax(
-          userInfo.allocationFcfs.sub(userInfo.amount),
-          parsedAmount
-        );
-        if (allowance.lt(allowanceNeeded)) {
-          const call = paymentToken.approve(sale.address, allowanceNeeded);
-          try {
-            await runTransaction(call, setLoading, setError);
-          } catch (e) {
-            return;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-        }
-
-        const call = sale.deposit(
-          parsedAmount,
-          parseUnits(userInfo.allocationStr, ido.paymentDecimals),
-          userInfo.proof
-        );
-        try {
-          await runTransaction(call, setLoading, setError);
-        } catch (e) {}
-      }
-      setAmount("");
-      fetchData();
+      runTransaction(call, setLoading, setError).then(() => {
+        setDepositAmount("10000");
+        setDepositDays("60");
+        fetchData();
+      });
     } catch (err) {
       console.error(err);
-      setError("Invalid number provided");
+      setError("Invalid amount");
     }
   }
 
-  function onDepositMax() {
-    let acutalBalance = balance;
-    if (ido.paymentToken === "UST") {
-      acutalBalance = acutalBalance.sub(parseUnits("5"));
-    }
-    if (userInfo && userInfo.allocation.gt("0")) {
-      const max = userInfo.allocation.sub(userInfo.amount);
-      setAmount(
-        formatUnits(bnMin(max, acutalBalance), ido.paymentDecimals).replace(
-          /,/g,
-          ""
+  function onWithdraw(deposit, i) {
+    const contracts = getContracts();
+    const now = (Date.now() / 1000) | 0;
+    const start = deposit.lockTime.toNumber();
+    const duration = deposit.lockDays.toNumber() * 24 * 60 * 60;
+    const unlockTime = start + duration;
+    if (now < unlockTime) {
+      const returned = deposit.amount.mul(now - start).div(duration);
+      if (
+        !confirm(
+          `You are unlocking early. You will receive only ${formatNumber(
+            returned
+          )} XRUNE (paying a fee of ${formatNumber(
+            deposit.amount.sub(returned)
+          )} XRUNE). Are you sure you want to proceed?`
         )
-      );
+      ) {
+        return;
+      }
+      const call = contracts.forge.unstakeEarly(i);
+      runTransaction(call, setLoading, setError).then(() => fetchData);
     } else {
-      setAmount(
-        formatUnits(acutalBalance, ido.paymentDecimals).replace(/,/g, "")
-      );
+      const call = contracts.forge.unstake(i);
+      runTransaction(call, setLoading, setError).then(() => fetchData);
     }
   }
 
-  const idoActive =
-    params &&
-    params.timestamp >= params.start.getTime() / 1000 &&
-    !params.raising.eq(params.comitted);
-  //params.timestamp <= params.end.getTime() / 1000;
-  let progress = "0";
-  if (params) {
-    progress = Math.min(
-      params.comitted.mul(10000).div(params.raising).toNumber() / 100,
-      100
-    ).toFixed(2);
-  }
-
-  if (!params) {
+  if (state.networkId !== 3 && state.networkId !== 250) {
     return (
-      <div className="ido">
-        <div className="flex-1">
-          <div>Loading...</div>
+      <Layout title="Forge" page="forge">
+        <h1 className="title tac">
+          <Image
+            alt="Forge"
+            src={forgeTitleImg}
+            width={233}
+            height={100}
+            layout="fixed"
+          />
+        </h1>
+        <div className="tac">
+          Forge is only available on the Fantom network.
         </div>
-      </div>
+      </Layout>
     );
   }
   return (
-    <div className="ido">
-      <div className="flex-1">
-        <div className="flex mb-3">
-          <div className="flex-1 text-gray6">Offering</div>
-          <div>
-            {formatNumber(params.offering)}{" "}
-            <span className="text-gray6">{ido.token}</span>
-          </div>
-        </div>
-        <div className="flex mb-3">
-          <div className="flex-1 text-gray6">Raising</div>
-          <div>
-            {formatNumber(params.raising, 0, ido.paymentDecimals)}{" "}
-            <span className="text-gray6">{ido.paymentToken}</span>
-          </div>
-        </div>
-        <div className="flex mb-3">
-          <div className="flex-1 text-gray6">Price</div>
-          <div>
-            {formatNumber(params.price, 3, ido.paymentDecimals)}{" "}
-            <span className="text-gray6">{ido.paymentToken}</span>
-            {/* ${" "}
-            {formatNumber(
-              params.price.mul((ido.paymentPrice * 10000) | 0).div(10000),
-              2
-            )} */}
-          </div>
-        </div>
-        {userInfo && userInfo.proof.length > 0 ? (
-          <div className="flex">
-            <div className="flex-1 text-gray6">Your Allocation</div>
-            <div>
-              ${" "}
-              {formatNumber(
-                userInfo.allocation,
-                ido.paymentDecimalsShown,
-                ido.paymentDecimals
-              )}
-            </div>
-          </div>
-        ) : allocationData.length === 0 ? (
-          <div className="flex">
-            <div className="flex-1 text-gray6">Your Allocation</div>
-            <div>Pending</div>
-          </div>
-        ) : userInfo ? (
-          <div className="flex">
-            <div className="flex-1 text-gray6">Your Allocation</div>
-            <div>None</div>
-          </div>
-        ) : null}
-        <div
-          className="mt-4 mb-4"
-          style={{ borderBottom: "2px solid var(--primary3)" }}
-        />
-        {userInfo ? (
-          <>
-            {error ? <div className="error">{error}</div> : null}
-            {idoActive ? (
-              <>
-                <div className="text-sm mb-3">
-                  <span className="text-gray6">Balance: </span>
-                  <span className="text-primary5">
-                    {formatNumber(
-                      balance,
-                      ido.paymentDecimalsShown,
-                      ido.paymentDecimals
-                    )}{" "}
-                    {ido.paymentToken}
-                  </span>
-                </div>
-                <div className="input-with-link mb-4">
-                  <input
-                    className="input w-full"
-                    placeholder="Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
-                  <a onClick={onDepositMax} className="input-link">
-                    Max
-                  </a>
-                </div>
-                <Button
-                  className="button-lg w-full mb-4"
-                  onClick={onDeposit}
-                  disabled={loading}
-                >
-                  {loading ? "Loading..." : "Deposit"}
-                </Button>
-              </>
-            ) : null}
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Deposited</div>
-              <div>
-                {formatNumber(
-                  userInfo.amount,
-                  ido.paymentDecimalsShown,
-                  ido.paymentDecimals
-                )}{" "}
-                <span className="text-gray6">{ido.paymentToken}</span>
-              </div>
-            </div>
-            <div className="flex mb-3">
-              <div className="flex-1 text-gray6">Owed</div>
-              <div>
-                {formatNumber(userInfo.owed)}{" "}
-                <span className="text-gray6">{ido.token}</span>
-              </div>
-            </div>
-          </>
-        ) : null}
-      </div>
-      {loading ? <LoadingOverlay message={loading} /> : null}
-    </div>
-  );
-}
+    <Layout title="Forge" page="forge">
+      {/*<IDORegistration />*/}
 
-function IDOHeader({ ido }) {
-  return (
-    <div>
-      <div
-        className="ido-cover"
-        style={{ backgroundImage: `url(${ido.cover.src})` }}
-      >
+      <h1 className="title tac">
         <Image
-          src={ido.logo}
-          height={60}
-          width={(60 * ido.logo.width) / ido.logo.height}
-          alt={ido.name}
+          alt="Forge"
+          src={forgeTitleImg}
+          width={233}
+          height={100}
+          layout="fixed"
         />
+      </h1>
+
+      {error ? <div className="error mb-4">{error}</div> : null}
+      {loading ? <LoadingOverlay message={loading} /> : null}
+
+      <div
+        className="flex flex-wrap"
+        style={{ maxWidth: "800px", margin: "0 auto" }}
+      >
+        <div style={{ flex: "1 0 400px" }}>
+          <div className="box mb-4">
+            <div style={{ fontSize: "32px", fontWeight: "bold" }}>
+              Shares
+              <sup style={{ fontWeight: "normal" }}>
+                <a href="#shares-explainer">?</a>
+              </sup>
+              :{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.userShares : 0)}
+              </span>
+            </div>
+            <div className="mt-4" style={{ fontSize: "18px" }}>
+              XRUNE Deposited:{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.userAmount : 0)}
+              </span>{" "}
+            </div>
+            <div className="mt-2" style={{ fontSize: "18px" }}>
+              Forge Total Shares:{" "}
+              <span className="text-primary5">
+                {formatNumber(data ? data.totalShares : 0)}
+              </span>
+            </div>
+          </div>
+
+          <form className="box" onSubmit={onDeposit}>
+            <h3 style={{ marginTop: 0 }}>Deposit</h3>
+            <div className="mb-4">
+              <label className="label">XRUNE Amount</label>
+              <input
+                className="input w-full"
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="label">
+                Lock Duration: {depositDays} days (
+                {(depositDays / 30).toFixed(1)} months)
+              </label>
+              <input
+                className="w-full"
+                type="range"
+                min="15"
+                max="1095"
+                step="1"
+                value={depositDays}
+                onChange={(e) => setDepositDays(e.target.value)}
+              />
+            </div>
+            <button className="button w-full mb-4" type="submit">
+              Lock for {depositDays} days
+            </button>
+            <div style={{ fontSize: 13 }}>
+              WARNING: Withdrawing before the end of your commitment has a
+              percentage fee proportional to the time left (e.g. commit to 60
+              days, withdraw at 15 days, keep 25%, loose 75%). Forge rewards are
+              only claimable after your lock period is over.
+            </div>
+          </form>
+        </div>
+
+        <div style={{ flex: "1 0 400px" }}>
+          <div className="box mb-4" style={{ background: "var(--gray1)" }}>
+            <h3 style={{ marginTop: 0 }}>Calculator</h3>
+            <div>
+              Shares: <b className="float-right">{formatNumber(shares)}</b>
+            </div>
+            <div>
+              Forge APR:{" "}
+              <b className="float-right">
+                {formatNumber(estimatedApr * 100, 2)}%
+              </b>
+            </div>
+            <div>
+              Forge Yearly Return:{" "}
+              <b className="float-right">
+                $ {formatNumber(estimatedReturn, 2)}
+              </b>
+            </div>
+            <div>
+              Sale APR:{" "}
+              <b className="float-right">
+                {formatNumber(estimatedSaleApr * 100, 2)}%
+              </b>
+            </div>
+            <div>
+              Sale Return:{" "}
+              <b className="float-right">
+                $ {formatNumber(estimatedSaleReturn, 2)}
+              </b>
+            </div>
+            <div>
+              Combined APR:{" "}
+              <b className="float-right">
+                {formatNumber((estimatedApr + estimatedSaleApr) * 100, 2)}%
+              </b>
+            </div>
+            <div className="mt-4">
+              Assumed sales per year:{" "}
+              <b className="float-right">{calcSalesPerYear}</b>
+              <input
+                className="w-full"
+                type="range"
+                min="6"
+                max="60"
+                step="1"
+                value={calcSalesPerYear}
+                onChange={(e) => setCalcSalesPerYear(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed average raise:{" "}
+              <b className="float-right">
+                {formatNumber(parseInt(calcSaleRaise), 0)}
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="100000"
+                max="2000000"
+                step="1000"
+                value={calcSaleRaise}
+                onChange={(e) => setCalcSaleRaise(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed ROI per sale:{" "}
+              <b className="float-right">
+                {formatNumber(parseInt(calcSaleRoi), 0)}x
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="1"
+                max="100"
+                step="1"
+                value={calcSaleRoi}
+                onChange={(e) => setCalcSaleRoi(e.target.value)}
+              />
+            </div>
+            <div>
+              Assumed average sale allocation:
+              <b className="float-right">
+                $ {formatNumber(parseInt(calcSaleAllocation), 0)}
+              </b>
+              <input
+                className="w-full"
+                type="range"
+                min="25"
+                max="5000"
+                step="5"
+                value={calcSaleAllocation}
+                onChange={(e) => setCalcSaleAllocation(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-      <h2>{ido.name}</h2>
-      <div className="ido-links">
-        <a href={ido.links.twitter} target="_blank" rel="noreferrer reopener">
-          <Icon name="twitter" />
-        </a>
-        {ido.links.telegram ? (
-          <a
-            href={ido.links.telegram}
-            target="_blank"
-            rel="noreferrer reopener"
-          >
-            <Icon name="telegram" />
-          </a>
-        ) : null}
-        {ido.links.discord ? (
-          <a href={ido.links.discord} target="_blank" rel="noreferrer reopener">
-            <Icon name="discord" />
-          </a>
-        ) : null}
-        <a href={ido.links.medium} target="_blank" rel="noreferrer reopener">
-          <Icon name="medium" />
-        </a>
-        <a href={ido.links.website} target="_blank" rel="noreferrer reopener">
-          <Icon name="link" />
-        </a>
-        {ido.links.docs ? (
-          <a href={ido.links.docs} target="_blank" rel="noreferrer reopener">
-            <Icon name="docs" />
-          </a>
-        ) : null}
+
+      <div id="shares-explainer">
+        <div
+          style={{ maxWidth: "800px", margin: "32px auto", fontSize: "16px" }}
+        >
+          <h3 style={{ margin: "0 0 8px 0" }}>Shares Explained</h3>
+          <p>
+            Shares are a representation of how much Forge rewards you are owed.
+          </p>
+          <p>
+            Simply put, all rewards going to Forge are divided up proportionally
+            to every member based on how many shares they have (you have 2
+            shares, and the total number of Forge shares is 100, you get 2% of
+            every reward distribution.)
+          </p>
+          <p>
+            Another way to see it, is shares represent the boosted APY you get
+            *on top of* the amount of XRUNE you lock (varying depending on how
+            long you lock it for).
+          </p>
+        </div>
       </div>
-    </div>
+
+      <section className="page-section">
+        <h3 className="title">Deposits</h3>
+        <div className="default-table">
+          <table>
+            <thead>
+              <tr>
+                <th className="tal">Start</th>
+                <th className="tal">End</th>
+                <th className="tar">Amount</th>
+                <th className="tar">Shares</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {data && data.deposits.length > 0 ? (
+                data.deposits.map((d, i) => (
+                  <tr key={d.lockTime}>
+                    <td className="tal">{formatMDY(d.lockTime)}</td>
+                    <td className="tal">
+                      {formatMDY(
+                        d.lockTime.toNumber() * 1000 +
+                          d.lockDays.toNumber() * 24 * 60 * 60 * 1000
+                      )}
+                    </td>
+                    <td className="tar">{formatNumber(d.amount)}</td>
+                    <td className="tar">{formatNumber(d.shares)}</td>
+                    <td className="tar">
+                      <Button
+                        className="button-outline"
+                        onClick={onWithdraw.bind(null, d, i)}
+                        disabled={d.unstakedTime.toNumber() > 0}
+                      >
+                        {d.unstakedTime.toNumber() == 0
+                          ? "Withdraw"
+                          : "Unstaked"}
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="tac">
+                    No deposits yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </Layout>
   );
 }

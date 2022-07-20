@@ -47,7 +47,7 @@ export default function Layout({ title, children, page }) {
           </div>
           <div className="nav">
             <Link href="/">
-              <a className={page === "idos" ? "text-primary5" : ""}>IDOs</a>
+              <a className={page === "forge" ? "text-primary5" : ""}>Forge</a>
             </Link>
             {isHomeNetwork ||
             state.networkId === "terra-classic" ||
@@ -56,19 +56,9 @@ export default function Layout({ title, children, page }) {
                 <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
               </Link>
             ) : null}
-            <Link href="/forge/">
-              <a className={page === "forge" ? "text-primary5" : ""}>Forge</a>
-            </Link>
             {isHomeNetwork ? (
               <Link href="/farm/">
                 <a className={page === "farm" ? "text-primary5" : ""}>Farm</a>
-              </Link>
-            ) : null}
-            {isHomeNetwork ? (
-              <Link href="/governance/token/">
-                <a className={page === "governance" ? "text-primary5" : ""}>
-                  Governance
-                </a>
               </Link>
             ) : null}
           </div>

@@ -60,7 +60,7 @@ export default function Layout({ title, children, page }) {
             state.networkId === "terra-classic" ||
             state.networkId === 250 ? (
               <Link href="/tiers/">
-                <a className={page === "tiers" ? "text-primary5" : ""}>Tiers</a>
+                <a className={page === "tiers" ? "text-primary5" : ""}>Score</a>
               </Link>
             ) : null}
             {isHomeNetwork ? (

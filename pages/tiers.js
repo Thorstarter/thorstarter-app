@@ -222,34 +222,6 @@ export default function Tiers() {
       )
     : 0;
 
-  useEffect(() => {
-    if (typeof document !== "undefined" && data?.total) {
-      const tiersCount = tiers.length;
-      const totalWidth = document
-        .querySelector(".tiers-wrapper__line")
-        .getBoundingClientRect().width;
-
-      let basePercent = 0;
-      let thisTier = 0;
-      let nextTier = tiers[0].amount;
-      for (let i = 0; total >= tiers[i].amount; i++) {
-        basePercent = i * (100 / tiersCount) + 50 / tiersCount;
-        thisTier = tiers[i].amount;
-        if (i === tiersCount - 1) {
-          nextTier = 200000;
-          break;
-        } else {
-          nextTier = tiers[i + 1].amount;
-        }
-      }
-
-      const value = Math.min(1, (total - thisTier) / (nextTier - thisTier));
-      const partWidth = totalWidth / tiersCount;
-      const position = partWidth * value;
-      setPercent(`calc(${basePercent}% + ${position - 24}px)`);
-    }
-  }, [data, total]);
-
   function onStartDeposit() {
     setModal({ type: "deposit" });
   }
@@ -265,55 +237,23 @@ export default function Tiers() {
 
   const isMainnet = state.networkId === 1;
   return (
-    <Layout title="Tiers" page="tiers">
+    <Layout title="Score" page="tiers">
       {/*<IDORegistration />*/}
 
       <div className="flex-heading">
-        <h1 className="title">Tiers</h1>
-        {isMainnet ? (
-          <span className="apy-label">
-            APY: <strong>10%</strong>
-          </span>
-        ) : null}
+        <h1 className="title">Score</h1>
       </div>
 
-      <div className="tiers-wrapper">
-        <div className="tiers-wrapper__line">
-          <div className="tiers-wrapper__progress" style={{ width: percent }}>
-            <div className="tiers-wrapper__data">
-              Your score: <span>{data ? formatNumber(total, 0) : "-"}</span>
-            </div>
-          </div>
-        </div>
-        <div className="tiers-wrapper__grid">
-          {tiers.map((t) => (
-            <div className="tiers-wrapper__col" key={t.name}>
-              <div
-                className={classnames("tiers-wrapper__block", {
-                  "is-active": total >= t.amount,
-                })}
-              >
-                <div className="tiers-wrapper__caption">{t.name}</div>
-                <div className="tiers-wrapper__sum">
-                  {formatNumber(parseUnits(String(t.amount)))}
-                </div>
-              </div>
-              <div className="tiers-wrapper__foot">
-                <div className="tiers-wrapper__subtext">
-                  Allocation <br />
-                  Multiplier
-                </div>
-                <div
-                  className={classnames("tiers-wrapper__num", {
-                    "is-active": total >= t.amount,
-                  })}
-                >
-                  {t.multiplier}x
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div
+        style={{
+          padding: "38px 16px",
+          textAlign: "center",
+          fontSize: "32px",
+          background: "var(--dark)",
+          borderRadius: "var(--border-radius)",
+        }}
+      >
+        {data ? formatNumber(total, 0) : "0"}
       </div>
 
       <section className="page-section">
@@ -324,7 +264,7 @@ export default function Tiers() {
               <tr>
                 <th>Asset</th>
                 <th>Balance</th>
-                <th>Staked{isMainnet ? " (Including 10% APY)" : null}</th>
+                <th>Staked</th>
                 <th />
               </tr>
             </thead>

@@ -46,6 +46,13 @@ export default function Layout({ title, children, page }) {
             </Link>
           </div>
           <div className="nav">
+            <a
+              href="https://www.thorstarter.org/#upcoming-idos"
+              rel="noreferrer"
+              target="_blank"
+            >
+              IDOs
+            </a>
             <Link href="/">
               <a className={page === "forge" ? "text-primary5" : ""}>Forge</a>
             </Link>
